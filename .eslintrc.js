@@ -16,9 +16,10 @@ module.exports = {
         ecmaVersion: 12,
     },
     rules: {
+        "no-unused-expressions": "off",
         "prefer-const": "off",
         "prettier/prettier": 0,
-        "no-unused-vars": "warn",
+        "no-unused-vars": "off",
         "handle-callback-err": "warn",
         "camelcase": "off",
         "node/no-unsupported-features/es-syntax": [
