@@ -29,7 +29,7 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
     mapping(uint => uint) public uris;
     mapping(uint => string) public gateways;
-    mapping(address => mapping(uint => uint)) internal tokenLimit;
+    mapping(uint => mapping(address => uint)) internal tokenLimit;
     CountersUpgradeable.Counter public gatewayCounter;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -59,7 +59,6 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _setRoleAdmin(OWNER, OWNER);
         _setRoleAdmin(ADMIN, OWNER);
         _setRoleAdmin(UPGRADER, OWNER);
-
 
         // Init gateway
         addGateway(_uri);

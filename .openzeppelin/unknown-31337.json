@@ -83,9 +83,9 @@
     }
   ],
   "impls": {
-    "47c256ca3d369b960e7efe7c96d0b93a8605eb29f523e9585765fa384a53df98": {
+    "9864d6f941f41ff949a337b05ebe125e36bbb31df83b30fbda4f45f1369e52ef": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x98b63e33d4655e3d0a63454517e99916fd05ff53be896a5ad1e7a11b8fb9b12b",
+      "txHash": "0xcf4b41034d9d10a4f275f6c7578859187327448318a01b4602e3bc8ca6c70636",
       "layout": {
         "storage": [
           {
@@ -221,7 +221,7 @@
             "label": "tokenLimit",
             "offset": 0,
             "slot": "353",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
             "contract": "SportyChocolate",
             "src": "contracts/SportyChocolate.sol:32"
           },
@@ -265,10 +265,6 @@
           },
           "t_mapping(t_address,t_mapping(t_address,t_bool))": {
             "label": "mapping(address => mapping(address => bool))",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
-            "label": "mapping(address => mapping(uint256 => uint256))",
             "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_uint256)": {
