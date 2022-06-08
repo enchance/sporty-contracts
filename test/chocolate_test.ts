@@ -4,13 +4,20 @@ import {describe} from "mocha";                                                 
 import {ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy";                                 // eslint-disable-line
-import {EMPTY_STRING, INVALID_TOKEN, NO_ACCESS, TXKEYS} from "./error_messages";                                     // eslint-disable-line
+import {
+    EMPTY_STRING,
+    INVALID_MINT_AMOUNT,
+    INVALID_TOKEN,
+    NO_ACCESS,
+    NULL_ADDRESS,
+    TXKEYS
+} from "./error_messages";                                     // eslint-disable-line
 
 
 
 describe('SportyChocolate', () => {
     let factory: ContractFactory, contract: any
-    let owneruser: SignerWithAddress, adminuser: SignerWithAddress, upgraderuser: SignerWithAddress, minteruser: SignerWithAddress
+    let owneruser: SignerWithAddress, adminuser: SignerWithAddress, upgraderuser: SignerWithAddress
     let foouser: SignerWithAddress, baruser: SignerWithAddress
     let tokenId: number, tokenIds: number[], gatewayId: number
     const OWNER = ethers.utils.formatBytes32String('OWNER')
@@ -19,7 +26,7 @@ describe('SportyChocolate', () => {
     const UPGRADER = ethers.utils.formatBytes32String('UPGRADER')
     
     const init_contract = async () => {
-        [owneruser, adminuser, minteruser, upgraderuser, foouser, baruser] = await ethers.getSigners()
+        [owneruser, adminuser, upgraderuser, foouser, baruser] = await ethers.getSigners()
         
         // V1
         factory = await ethers.getContractFactory('SportyChocolate')
@@ -41,49 +48,53 @@ describe('SportyChocolate', () => {
         }
     })
     
-    it('Access Control', async () => {
+    it('ACCESS CONTROL', async () => {
         // OWNER
         expect(await contract.connect(owneruser).access_owner()).equals(42)
-        for(let account of [adminuser, upgraderuser, minteruser, foouser, baruser]) {
+        for(let account of [adminuser, upgraderuser, foouser, baruser]) {
             await expect(contract.connect(account).access_owner()).is.revertedWith(NO_ACCESS)
         }
         
         // ADMIN
-        // expect(await contract.connect(owneruser).access_admin()).equals(42)
-        // expect(await contract.connect(adminuser).access_admin()).equals(42)
         expect(await contract.connect(owneruser).addGateway("aaa")).contains.keys(...TXKEYS)
         expect(await contract.connect(adminuser).addGateway("bbb")).contains.keys(...TXKEYS)
-        for(let account of [upgraderuser, minteruser, foouser, baruser]) {
-            // await expect(contract.connect(account).access_admin()).is.revertedWith(NO_ACCESS)
+        expect(await contract.connect(owneruser).setURI(12, 1)).contains.keys(...TXKEYS)
+        expect(await contract.connect(adminuser).setURI(13, 2)).contains.keys(...TXKEYS)
+        expect(await contract.connect(owneruser).setURIBatch([14, 15], 2)).contains.keys(...TXKEYS)
+        expect(await contract.connect(adminuser).setURIBatch([14, 15], 2)).contains.keys(...TXKEYS)
+        expect(await contract.connect(owneruser).mint(foouser.address, 101, 99, 0, [])).contains.keys(...TXKEYS)
+            .to.emit(contract, 'TransferSingle').withArgs(owneruser, NULL_ADDRESS, foouser.address, 99, [])
+        expect(await contract.connect(adminuser).mint(foouser.address, 102, 99, 0, [])).contains.keys(...TXKEYS)
+            .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
+        
+        for(let account of [upgraderuser, foouser, baruser]) {
             await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).setURI(1, 0)).is.revertedWith(NO_ACCESS)
-        }
-    
-        // MINTER
-        expect(await contract.connect(owneruser).access_minter()).equals(42)
-        expect(await contract.connect(minteruser).access_minter()).equals(42)
-        for(let account of [adminuser, upgraderuser, foouser, baruser]) {
-            await expect(contract.connect(account).access_minter()).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).setURIBatch([2, 3], 1)).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).mint(foouser.address, 103, 99, 0, [])).is.revertedWith(NO_ACCESS)
         }
     
         // UPGRADER
         expect(await contract.connect(owneruser).access_upgrader()).equals(42)
         expect(await contract.connect(upgraderuser).access_upgrader()).equals(42)
-        for(let account of [adminuser, minteruser, foouser, baruser]) {
+        for(let account of [adminuser, foouser, baruser]) {
             await expect(contract.connect(account).access_upgrader()).is.revertedWith(NO_ACCESS)
         }
     })
     
     it('Gateway', async () => {
+        // Require
+        await expect(contract.connect(adminuser).addGateway("")).is.revertedWith(EMPTY_STRING)
+        
         expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
         
         expect(!!(await contract.connect(foouser).gateways(1))).is.false
         await contract.connect(adminuser).addGateway("abc")
         expect(await contract.connect(foouser).gateways(1)).equals("abc")
-        
+
         expect(!!(await contract.connect(foouser).gateways(2))).is.false
-        await expect(contract.connect(adminuser).addGateway("")).is.revertedWith(EMPTY_STRING)
-        expect(!!(await contract.connect(foouser).gateways(2))).is.false
+        await contract.connect(adminuser).addGateway("def")
+        expect(await contract.connect(foouser).gateways(2)).equals("def")
     })
     
     it('Update single token URI', async () => {
@@ -134,6 +145,31 @@ describe('SportyChocolate', () => {
     })
     
     it('Mint single token', async () => {
+        // Require
+        await expect(contract.connect(adminuser).mint(foouser.address, 101, 0, 0, [])).is.revertedWith(INVALID_MINT_AMOUNT)
+        await expect(contract.connect(adminuser).mint(foouser.address, 101, 99, 1, [])).is.revertedWith(EMPTY_STRING)
+    
+        await contract.connect(adminuser).addGateway('abc')
+        expect(await contract.connect(adminuser).exists(1)).is.true
+        
+        expect(await contract.connect(adminuser).exists(101)).is.false
+        expect(await contract.connect(adminuser).mint(foouser.address, 101, 99, 1, [])).contains.keys(...TXKEYS)
+            .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
+        expect(await contract.connect(adminuser).exists(101)).is.true
+        
+        expect(await contract.connect(foouser).uri(101)).equals('abc')
+        expect(await contract.connect(foouser).totalSupply(101)).equals(99)
+    
+        expect(await contract.connect(adminuser).exists(200)).is.false
+        expect(await contract.connect(adminuser).mint(foouser.address, 200, 99, 1, [])).contains.keys(...TXKEYS)
+            .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
+        expect(await contract.connect(adminuser).exists(200)).is.true
+        
+        expect(await contract.connect(foouser).uri(200)).equals('abc')
+        expect(await contract.connect(foouser).totalSupply(200)).equals(99)
+    })
+    
+    it('Mint batch tokens', async () => {
     
     })
 })

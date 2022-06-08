@@ -25,7 +25,6 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
     bytes32 public constant OWNER = keccak256("OWNER");
     bytes32 public constant ADMIN = keccak256("ADMIN");
-    bytes32 public constant MINTER = keccak256("MINTER");
     bytes32 public constant UPGRADER = keccak256("UPGRADER");
 
     mapping(uint => uint) public uris;
@@ -46,23 +45,20 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
         // Init roles
 //        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setRoleAdmin(OWNER, OWNER);
-        _setRoleAdmin(ADMIN, OWNER);
-        _setRoleAdmin(MINTER, ADMIN);
-        _setRoleAdmin(UPGRADER, ADMIN);
         _grantRole(OWNER, msg.sender);
         _grantRole(ADMIN, msg.sender);
-        _grantRole(MINTER, msg.sender);
         _grantRole(UPGRADER, msg.sender);
 //        _grantRole(ADMIN, "");          // Pierre
 //        _grantRole(ADMIN, "");          // Mike
 //        _grantRole(UPGRADER, "");       // Pierre
-//        _grantRole(MINTER, "");         // Mike
 
         // Test data
         _grantRole(ADMIN, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
-        _grantRole(MINTER, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
-        _grantRole(UPGRADER, 0x90F79bf6EB2c4f870365E785982E1f101E93b906);
+        _grantRole(UPGRADER, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+
+        _setRoleAdmin(OWNER, OWNER);
+        _setRoleAdmin(ADMIN, OWNER);
+        _setRoleAdmin(UPGRADER, OWNER);
 
 
         // Init gateway
@@ -201,8 +197,9 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         }
     }
 
-    // TEST: For testing
-    function mint(address account, uint tokenId, uint amount, uint gatewayId, bytes memory data) public virtual onlyRole(MINTER) {
+    function mint(address account, uint tokenId, uint amount, uint gatewayId, bytes memory data)
+        public virtual onlyRole(ADMIN) validGateway(gatewayId)
+    {
         require(amount >= 1, "Can't mint 0 amount");
         _mint(account, tokenId, amount, data);
         setURI(tokenId, gatewayId);
@@ -210,7 +207,8 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
     // TEST: Untested
     function mintBatch(address to, uint[] memory tokenIds, uint[] memory amounts, uint gatewayId, bytes memory data)
-    public virtual onlyRole(MINTER) {
+        public virtual onlyRole(ADMIN)
+    {
         _mintBatch(to, tokenIds, amounts, data);
         setURIBatch(tokenIds, gatewayId);
     }
@@ -256,9 +254,9 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 //    function access_admin() public view onlyRole(ADMIN) returns (uint) {
 //        return 42;
 //    }
-    function access_minter() public view onlyRole(MINTER) returns (uint) {
-        return 42;
-    }
+//    function access_minter() public view onlyRole(MINTER) returns (uint) {
+//        return 42;
+//    }
     function access_upgrader() public view onlyRole(UPGRADER) returns (uint) {
         return 42;
     }
