@@ -1,0 +1,76 @@
+{
+    // Metadata format: https://docs.opensea.io/docs/metadata-standards
+
+    "name": "<card name>",
+    "description": "<description: 191 max char>",
+
+    // You'll know what the collectionid is once card has been saved to the db
+    "external_url": "https://card.indexsports.io/card/<collectionid>",
+
+    // Image must be 350x350 as per Opensea standards
+    // You'll know what the cid and tokenid are once card have been saved to the db
+    "image": "ipfs://<cid>/<tokenid>.jpg",
+
+    // Card attributes
+    "attributes": [
+        {
+            "trait_type": "Symbol",
+            "value": "<symbol>"
+        },
+        {
+            "trait_type": "Incentive System",
+            "value": "Proof of Stake"
+        },
+        {
+            "trait_type": "Layer",
+            "value": 2
+        },
+        {
+            "trait_type": "birthday",
+            // Convert date to timestamp here: https://www.unixtimestamp.com/
+            "value": 123424234
+        },
+        {
+            "display_type": "number",
+            "trait_type": "Total Supply",
+            "value": 10000000
+        }
+
+        // Add more traits
+        {
+            "trait_type": "<trait title>",
+            "value": "<trait value>"
+        },
+        {
+            "trait_type": "<trait title>",
+            "value": "<trait value>"
+        },
+
+        // Boosts
+        {
+            "display_type": "boost_number",
+            "trait_type": "Attack Value",
+            "value": 70
+        },
+        {
+            "display_type": "boost_percentage",
+            "trait_type": "Speed",
+            "value": 45
+        },
+
+        // These will be the same for all cards
+        {
+            "trait_type": "Variant",
+            "value": "Genesis Deck"
+        },
+        {
+            "trait_type": "Expansion",
+            "value": "Wild Ride Expansion"
+        },
+        {
+            "display_type": "number",
+            "trait_type": "Generation",
+            "value": 1
+        },
+    ]
+}

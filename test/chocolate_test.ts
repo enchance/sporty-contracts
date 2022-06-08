@@ -3,7 +3,7 @@ import {ethers, upgrades} from "hardhat";
 import {describe} from "mocha";                                                 // eslint-disable-line
 import {ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {INIT_GATEWAY} from "../scripts/deploy";                                 // eslint-disable-line
+import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy";                                 // eslint-disable-line
 import {NO_ACCESS} from "./error_messages";                                     // eslint-disable-line
 
 
@@ -22,14 +22,8 @@ describe('SportyChocolate', () => {
         
         // V1
         factory = await ethers.getContractFactory('SportyChocolate')
-        contract = await upgrades.deployProxy(factory, [INIT_GATEWAY], {kind: 'uups'})
+        contract = await upgrades.deployProxy(factory, [INIT_GATEWAY, SUPPLY], {kind: 'uups'})
         // console.log('PROXY:', contract.address)
-        
-        // // Roles
-        // await contract.grantRole(OWNER, owneruser.address)
-        // await contract.grantRole(ADMIN, adminuser.address)
-        // await contract.grantRole(MINTER, minteruser.address)
-        // await contract.grantRole(UPGRADER, upgraderuser.address)
     }
     
     const upgrade_contract = async () => {}
@@ -40,8 +34,8 @@ describe('SportyChocolate', () => {
     })
     
     it.only('Init', async () => {
-        console.log(owneruser.address)
-        console.log(await contract.hasRole(OWNER, owneruser.address))
+        // console.log(owneruser.address)
+        // console.log(await contract.hasRole(OWNER, owneruser.address))
         // expect(await contract.connect(owneruser).hasRole(OWNER, owneruser.address)).is.true
         
         expect(await contract.gateways(0)).equals(INIT_GATEWAY)

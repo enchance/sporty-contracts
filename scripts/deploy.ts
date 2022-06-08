@@ -4,6 +4,7 @@ import { ethers } from "hardhat";
 
 
 export const INIT_GATEWAY = 'https://gateway.pinata.cloud/ipfs/QmX7LXP9KGnS2oNyhdpwXUosNQr3Mez1ETdKhZCvZfN9kD/{id}.json'
+export const SUPPLY = 100000
 
 async function main() {
 }

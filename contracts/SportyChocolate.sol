@@ -35,63 +35,57 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _disableInitializers();
     }
 
-    function initialize(string memory _uri) public initializer {
+    function initialize(string memory _uri, uint _supply) public initializer {
         __ERC1155_init("");
         __AccessControl_init();
         __UUPSUpgradeable_init();
 
-//        console.log(hasRole(OWNER, msg.sender));
-//        console.log(hasRole(ADMIN, msg.sender));
-//        console.log(hasRole(MINTER, msg.sender));
-//        console.log(hasRole(UPGRADER, msg.sender));
-
         // Init roles
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+//        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setRoleAdmin(OWNER, OWNER);
+        _setRoleAdmin(ADMIN, OWNER);
+        _setRoleAdmin(MINTER, ADMIN);
+        _setRoleAdmin(UPGRADER, ADMIN);
         _grantRole(OWNER, msg.sender);
         _grantRole(ADMIN, msg.sender);
         _grantRole(MINTER, msg.sender);
         _grantRole(UPGRADER, msg.sender);
-//        _grantRole(ADMIN, 0xFF01E7B2329BBd74bb1d28B75164eB7DCAbDD8F3);        // Pierre
-//        _grantRole(UPGRADER, '');     // Pierre
-//        _grantRole(ADMIN, '');        // Mike
-//        _grantRole(MINTER, '');       // Mike
+//        _grantRole(ADMIN, "");          // Pierre
+//        _grantRole(ADMIN, "");          // Mike
+//        _grantRole(UPGRADER, "");       // Pierre
+//        _grantRole(MINTER, "");         // Mike
 
         // Test data
         _grantRole(ADMIN, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
         _grantRole(MINTER, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
         _grantRole(UPGRADER, 0x90F79bf6EB2c4f870365E785982E1f101E93b906);
-//        console.log(hasRole(OWNER, msg.sender));
-//        console.log(hasRole(ADMIN, msg.sender));
-//        console.log(hasRole(MINTER, msg.sender));
-//        console.log(hasRole(UPGRADER, msg.sender));
 
 
         // Init gateway
         addGateway(_uri);
 
         // Init tokens
-        uint supply = 100000;
-        mint(_msgSender(), 0, supply, 0, "");
-        mint(_msgSender(), 1, supply, 0, "");
-        mint(_msgSender(), 2, supply, 0, "");
-        mint(_msgSender(), 3, supply, 0, "");
-        mint(_msgSender(), 4, supply, 0, "");
-        mint(_msgSender(), 5, supply, 0, "");
-        mint(_msgSender(), 6, supply, 0, "");
-        mint(_msgSender(), 7, supply, 0, "");
-        mint(_msgSender(), 8, supply, 0, "");
-        mint(_msgSender(), 9, supply, 0, "");
-        mint(_msgSender(), 10, supply, 0, "");
-        mint(_msgSender(), 11, supply, 0, "");
-        mint(_msgSender(), 12, supply, 0, "");
-        mint(_msgSender(), 13, supply, 0, "");
-        mint(_msgSender(), 14, supply, 0, "");
-        mint(_msgSender(), 15, supply, 0, "");
-        mint(_msgSender(), 16, supply, 0, "");
-        mint(_msgSender(), 17, supply, 0, "");
-        mint(_msgSender(), 18, supply, 0, "");
-        mint(_msgSender(), 19, supply, 0, "");
-        mint(_msgSender(), 20, supply, 0, "");
+        mint(_msgSender(), 0, _supply, 0, "");
+        mint(_msgSender(), 1, _supply, 0, "");
+        mint(_msgSender(), 2, _supply, 0, "");
+        mint(_msgSender(), 3, _supply, 0, "");
+        mint(_msgSender(), 4, _supply, 0, "");
+        mint(_msgSender(), 5, _supply, 0, "");
+        mint(_msgSender(), 6, _supply, 0, "");
+        mint(_msgSender(), 7, _supply, 0, "");
+        mint(_msgSender(), 8, _supply, 0, "");
+        mint(_msgSender(), 9, _supply, 0, "");
+        mint(_msgSender(), 10, _supply, 0, "");
+        mint(_msgSender(), 11, _supply, 0, "");
+        mint(_msgSender(), 12, _supply, 0, "");
+        mint(_msgSender(), 13, _supply, 0, "");
+        mint(_msgSender(), 14, _supply, 0, "");
+        mint(_msgSender(), 15, _supply, 0, "");
+        mint(_msgSender(), 16, _supply, 0, "");
+        mint(_msgSender(), 17, _supply, 0, "");
+        mint(_msgSender(), 18, _supply, 0, "");
+        mint(_msgSender(), 19, _supply, 0, "");
+        mint(_msgSender(), 20, _supply, 0, "");
     }
 
     // TEST: For testing
