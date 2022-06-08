@@ -169,8 +169,8 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         }
     }
 
-    // TEST: For testing
     function addGateway(string memory _uri) public virtual onlyRole(ADMIN) returns (uint) {
+        require(bytes(_uri).length != 0, "String cannot be empty");
         uint gatewayId = gatewayCounter.current();
         gateways[gatewayId] = _uri;
         gatewayCounter.increment();

@@ -4,7 +4,7 @@ import {describe} from "mocha";                                                 
 import {ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy";                                 // eslint-disable-line
-import {NO_ACCESS} from "./error_messages";                                     // eslint-disable-line
+import {EMPTY_STRING, NO_ACCESS} from "./error_messages";                                     // eslint-disable-line
 
 
 
@@ -52,6 +52,7 @@ describe('SportyChocolate', () => {
         expect(await contract.connect(adminuser).access_admin()).equals(42)
         for(let account of [upgraderuser, minteruser, foouser, baruser]) {
             await expect(contract.connect(account).access_admin()).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
         }
     
         // MINTER
@@ -67,5 +68,17 @@ describe('SportyChocolate', () => {
         for(let account of [adminuser, minteruser, foouser, baruser]) {
             await expect(contract.connect(account).access_upgrader()).is.revertedWith(NO_ACCESS)
         }
+    })
+    
+    it('Gateway', async () => {
+        expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
+        
+        expect(!!(await contract.connect(foouser).gateways(1))).is.false
+        await contract.connect(adminuser).addGateway("abc")
+        expect(await contract.connect(foouser).gateways(1)).equals("abc")
+        
+        expect(!!(await contract.connect(foouser).gateways(2))).is.false
+        await expect(contract.connect(adminuser).addGateway("")).is.revertedWith(EMPTY_STRING)
+        expect(!!(await contract.connect(foouser).gateways(2))).is.false
     })
 })
