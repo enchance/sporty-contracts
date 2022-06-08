@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
@@ -17,7 +18,9 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 // TODO: Create a separate page for each token
 // TODO: Accounts have a minting limit per token
 
-contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgradeable, UUPSUpgradeable {
+contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgradeable,
+    ERC1155SupplyUpgradeable, UUPSUpgradeable
+{
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
     bytes32 public constant OWNER = keccak256("OWNER");
@@ -38,6 +41,7 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
     function initialize(string memory _uri, uint _supply) public initializer {
         __ERC1155_init("");
         __AccessControl_init();
+        __ERC1155Supply_init();
         __UUPSUpgradeable_init();
 
         // Init roles
@@ -169,6 +173,11 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         }
     }
 
+    modifier validGateway(uint gatewayId) {
+        require(bytes(gateways[gatewayId]).length != 0, "String cannot be empty");
+        _;
+    }
+
     function addGateway(string memory _uri) public virtual onlyRole(ADMIN) returns (uint) {
         require(bytes(_uri).length != 0, "String cannot be empty");
         uint gatewayId = gatewayCounter.current();
@@ -177,14 +186,17 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         return gatewayId;
     }
 
-    // TEST: For testing
-    function setURI(uint tokenId, uint gatewayId) public virtual onlyRole(ADMIN) {
+    function setURI(uint tokenId, uint gatewayId) public virtual onlyRole(ADMIN)
+        validGateway(gatewayId)
+    {
+        require(tokenId >= 1, 'Token is invalid');
         uris[tokenId] = gatewayId;
     }
 
-    // TEST: For testing
-    function setURIBatch(uint[] memory tokenIds, uint gatewayId) public virtual onlyRole(ADMIN) {
-        for (uint i; i <= tokenIds.length; i++) {
+    function setURIBatch(uint[] memory tokenIds, uint gatewayId) public virtual onlyRole(ADMIN)
+        validGateway(gatewayId)
+    {
+        for (uint i; i < tokenIds.length; i++) {
             uris[tokenIds[i]] = gatewayId;
         }
     }
@@ -210,14 +222,24 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
 
 
+
+
+
     function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER) override {}
 
     // The following functions are overrides required by Solidity.
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC1155Upgradeable, AccessControlUpgradeable) returns (bool){
-        return super.supportsInterface(interfaceId);
+    function _beforeTokenTransfer(address operator, address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
+        internal override(ERC1155Upgradeable, ERC1155SupplyUpgradeable)
+    {
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
+    function supportsInterface(bytes4 interfaceId) public view override(ERC1155Upgradeable,
+        AccessControlUpgradeable) returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 
     function _checkRole(bytes32 role, address account) internal view virtual override {
         if (!hasRole(role, account)) {
@@ -225,13 +247,15 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         }
     }
 
-    /* DELETE BEFORE MAINNET DEPLOYMENT */
+
+
+    /* DELETE BEFORE DEPLOYMENT TO MAINNET */
     function access_owner() public view onlyRole(OWNER) returns (uint) {
         return 42;
     }
-    function access_admin() public view onlyRole(ADMIN) returns (uint) {
-        return 42;
-    }
+//    function access_admin() public view onlyRole(ADMIN) returns (uint) {
+//        return 42;
+//    }
     function access_minter() public view onlyRole(MINTER) returns (uint) {
         return 42;
     }
