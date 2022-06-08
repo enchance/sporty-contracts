@@ -33,13 +33,9 @@ describe('SportyChocolate', () => {
         await upgrade_contract()
     })
     
-    it.only('Init', async () => {
-        // console.log(owneruser.address)
-        // console.log(await contract.hasRole(OWNER, owneruser.address))
-        // expect(await contract.connect(owneruser).hasRole(OWNER, owneruser.address)).is.true
-        
+    it('Init', async () => {
         expect(await contract.gateways(0)).equals(INIT_GATEWAY)
-        for(let i = 0; i < 21; i++) {
+        for(let i = 1; i <= 100; i++) {
             expect(await contract.balanceOf(owneruser.address, i)).equals(100000)
         }
     })
