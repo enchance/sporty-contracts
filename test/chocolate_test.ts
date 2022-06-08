@@ -66,12 +66,17 @@ describe('SportyChocolate', () => {
             .to.emit(contract, 'TransferSingle').withArgs(owneruser, NULL_ADDRESS, foouser.address, 99, [])
         expect(await contract.connect(adminuser).mint(foouser.address, 102, 99, 0, [])).contains.keys(...TXKEYS)
             .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
+        expect(await contract.connect(owneruser).mintBatch(foouser.address, [103, 104], [99, 50], 0, [])).contains.keys(...TXKEYS)
+            .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [103, 104], [99, 50], [])
+        expect(await contract.connect(adminuser).mintBatch(foouser.address, [105, 106], [99, 50], 0, [])).contains.keys(...TXKEYS)
+            .to.emit(contract, 'TransferBatch').withArgs(adminuser, NULL_ADDRESS, foouser.address, [105, 106], [99, 50], [])
         
         for(let account of [upgraderuser, foouser, baruser]) {
             await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).setURI(1, 0)).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).setURIBatch([2, 3], 1)).is.revertedWith(NO_ACCESS)
-            await expect(contract.connect(account).mint(foouser.address, 103, 99, 0, [])).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).mint(foouser.address, 110, 99, 0, [])).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).mintBatch(foouser.address, [111, 112], [99, 50], 0, [])).is.revertedWith(NO_ACCESS)
         }
     
         // UPGRADER
@@ -170,6 +175,31 @@ describe('SportyChocolate', () => {
     })
     
     it('Mint batch tokens', async () => {
+        // Require
+        await expect(contract.connect(adminuser).mintBatch(foouser.address, [101, 102], [99, 50], 1, [])).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(adminuser).mintBatch(foouser.address, [101, 102], [99, 50], 2, [])).is.revertedWith(EMPTY_STRING)
     
+        await contract.connect(adminuser).addGateway('abc')
+        await contract.connect(adminuser).addGateway('def')
+    
+        expect(await contract.connect(adminuser).exists(101)).is.false
+        expect(await contract.connect(adminuser).exists(102)).is.false
+        expect(await contract.connect(adminuser).mintBatch(foouser.address, [101, 102], [99, 50], 0, [])).contains.keys(...TXKEYS)
+            .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [101, 102], [99, 50], [])
+        
+        expect(await contract.connect(foouser).exists(101)).is.true
+        expect(await contract.connect(foouser).exists(102)).is.true
+        expect(await contract.connect(foouser).totalSupply(101)).equals(99)
+        expect(await contract.connect(foouser).totalSupply(102)).equals(50)
+        
+        expect(await contract.connect(foouser).exists(200)).is.false
+        expect(await contract.connect(foouser).exists(300)).is.false
+        expect(await contract.connect(adminuser).mintBatch(foouser.address, [200, 300], [99, 50], 0, [])).contains.keys(...TXKEYS)
+            .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [200, 300], [99, 50], [])
+    
+        expect(await contract.connect(foouser).exists(200)).is.true
+        expect(await contract.connect(foouser).exists(300)).is.true
+        expect(await contract.connect(foouser).totalSupply(200)).equals(99)
+        expect(await contract.connect(foouser).totalSupply(300)).equals(50)
     })
 })

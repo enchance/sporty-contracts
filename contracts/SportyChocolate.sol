@@ -205,9 +205,8 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         setURI(tokenId, gatewayId);
     }
 
-    // TEST: Untested
     function mintBatch(address to, uint[] memory tokenIds, uint[] memory amounts, uint gatewayId, bytes memory data)
-        public virtual onlyRole(ADMIN)
+        public virtual onlyRole(ADMIN) validGateway(gatewayId)
     {
         _mintBatch(to, tokenIds, amounts, data);
         setURIBatch(tokenIds, gatewayId);
