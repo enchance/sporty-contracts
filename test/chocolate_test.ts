@@ -39,14 +39,18 @@ describe('SportyChocolate', () => {
         await upgrade_contract()
     })
     
-    it('Init', async () => {
+    it.only('Init', async () => {
+        console.log(owneruser.address)
+        console.log(await contract.hasRole(OWNER, owneruser.address))
+        // expect(await contract.connect(owneruser).hasRole(OWNER, owneruser.address)).is.true
+        
         expect(await contract.gateways(0)).equals(INIT_GATEWAY)
         for(let i = 0; i < 21; i++) {
             expect(await contract.balanceOf(owneruser.address, i)).equals(100000)
         }
     })
     
-    it('ACCESS CONTROL', async () => {
+    it('Access Control', async () => {
         // OWNER
         expect(await contract.connect(owneruser).access_owner()).equals(42)
         for(let account of [adminuser, upgraderuser, minteruser, foouser, baruser]) {

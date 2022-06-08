@@ -32,20 +32,20 @@
       "kind": "uups"
     },
     {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0xa022e1f056f5ef50dfe6a796b7b8a1c6c231adff45fbec1b11633aa222cf6bf4",
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0x0db1f7a93c76cdb2deb11d3f56ed44fa394f826894cf0ef5c64dfe0c601cf836",
       "kind": "uups"
     },
     {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x0db1f7a93c76cdb2deb11d3f56ed44fa394f826894cf0ef5c64dfe0c601cf836",
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "txHash": "0x054b1186fd1140fcfd411292c22d969c9caf916b038b785ef92a89c17dc3bda4",
       "kind": "uups"
     }
   ],
   "impls": {
-    "bda4b5c4ccf7172969f019a64cdf28110f32b55670e71b617c905cb5a7635205": {
+    "9a515d97cd4f23cc331cfc820f2ab28e1178cf9574b23143ba39a383677bd465": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x1df2b2d81fa5fa154e9c22e362bdd0b0d48133d69743afd317876d89197ac15f",
+      "txHash": "0xf4e58a2a31942790ee496933b1ddc9aecadb12c1a8c0be9d16c388bf8c85725f",
       "layout": {
         "storage": [
           {
@@ -151,7 +151,7 @@
             "slot": "301",
             "type": "t_mapping(t_uint256,t_uint256)",
             "contract": "SportyChocolate",
-            "src": "contracts/SportyChocolate.sol:28"
+            "src": "contracts/SportyChocolate.sol:32"
           },
           {
             "label": "gateways",
@@ -159,7 +159,7 @@
             "slot": "302",
             "type": "t_mapping(t_uint256,t_string_storage)",
             "contract": "SportyChocolate",
-            "src": "contracts/SportyChocolate.sol:29"
+            "src": "contracts/SportyChocolate.sol:33"
           },
           {
             "label": "tokenLimit",
@@ -167,7 +167,7 @@
             "slot": "303",
             "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
             "contract": "SportyChocolate",
-            "src": "contracts/SportyChocolate.sol:30"
+            "src": "contracts/SportyChocolate.sol:34"
           },
           {
             "label": "gatewayCounter",
@@ -175,7 +175,7 @@
             "slot": "304",
             "type": "t_struct(Counter)2793_storage",
             "contract": "SportyChocolate",
-            "src": "contracts/SportyChocolate.sol:31"
+            "src": "contracts/SportyChocolate.sol:35"
           }
         ],
         "types": {

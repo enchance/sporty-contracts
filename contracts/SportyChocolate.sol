@@ -35,7 +35,7 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _disableInitializers();
     }
 
-    function initialize(string memory _uri) initializer public {
+    function initialize(string memory _uri) public initializer {
         __ERC1155_init("");
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -71,16 +71,16 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
         // Init tokens
         uint supply = 100000;
-        mint(_msgSender(), 0,  supply, 0, "");
-        mint(_msgSender(), 1,  supply, 0, "");
-        mint(_msgSender(), 2,  supply, 0, "");
-        mint(_msgSender(), 3,  supply, 0, "");
-        mint(_msgSender(), 4,  supply, 0, "");
-        mint(_msgSender(), 5,  supply, 0, "");
-        mint(_msgSender(), 6,  supply, 0, "");
-        mint(_msgSender(), 7,  supply, 0, "");
-        mint(_msgSender(), 8,  supply, 0, "");
-        mint(_msgSender(), 9,  supply, 0, "");
+        mint(_msgSender(), 0, supply, 0, "");
+        mint(_msgSender(), 1, supply, 0, "");
+        mint(_msgSender(), 2, supply, 0, "");
+        mint(_msgSender(), 3, supply, 0, "");
+        mint(_msgSender(), 4, supply, 0, "");
+        mint(_msgSender(), 5, supply, 0, "");
+        mint(_msgSender(), 6, supply, 0, "");
+        mint(_msgSender(), 7, supply, 0, "");
+        mint(_msgSender(), 8, supply, 0, "");
+        mint(_msgSender(), 9, supply, 0, "");
         mint(_msgSender(), 10, supply, 0, "");
         mint(_msgSender(), 11, supply, 0, "");
         mint(_msgSender(), 12, supply, 0, "");
@@ -109,7 +109,7 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
     // TEST: For testing
     function setURIBatch(uint[] memory tokenIds, uint gatewayId) public virtual onlyRole(ADMIN) {
-        for(uint i; i < tokenIds.length; i++) {
+        for (uint i; i < tokenIds.length; i++) {
             uris[tokenIds[i]] = gatewayId;
         }
     }
@@ -146,7 +146,7 @@ contract SportyChocolate is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
     function _checkRole(bytes32 role, address account) internal view virtual override {
         if (!hasRole(role, account)) {
-            revert('You shall not pass!');
+            revert("You shall not pass!");
         }
     }
 

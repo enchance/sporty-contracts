@@ -5,8 +5,13 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
+
+// Plugins
 import "solidity-coverage";
-import '@openzeppelin/hardhat-upgrades'
+import "@openzeppelin/hardhat-upgrades"
+import "@nomiclabs/hardhat-solhint";
+import "hardhat-log-remover"
+
 
 dotenv.config();
 
