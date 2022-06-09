@@ -3,7 +3,7 @@ import {ethers, upgrades} from "hardhat";
 import {describe} from "mocha";                                                 // eslint-disable-line
 import {ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy";                                 // eslint-disable-line
+import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy-sporty";                                 // eslint-disable-line
 import {
     EMPTY_STRING,
     INVALID_MINT_AMOUNT,
@@ -15,11 +15,12 @@ import {
 
 
 
-describe('SportyChocolate', () => {
+describe('SportyChocolateV1', () => {
     let factory: ContractFactory, contract: any
     let owneruser: SignerWithAddress, adminuser: SignerWithAddress, upgraderuser: SignerWithAddress
     let foouser: SignerWithAddress, baruser: SignerWithAddress
     let tokenId: number, tokenIds: number[], gatewayId: number
+    
     const OWNER = ethers.utils.formatBytes32String('OWNER')
     const ADMIN = ethers.utils.formatBytes32String('ADMIN')
     const MINTER = ethers.utils.formatBytes32String('MINTER')
@@ -29,7 +30,7 @@ describe('SportyChocolate', () => {
         [owneruser, adminuser, upgraderuser, foouser, baruser] = await ethers.getSigners()
         
         // V1
-        factory = await ethers.getContractFactory('SportyChocolate')
+        factory = await ethers.getContractFactory('SportyChocolateV1')
         contract = await upgrades.deployProxy(factory, [INIT_GATEWAY, SUPPLY], {kind: 'uups'})
         // console.log('PROXY:', contract.address)
     }
