@@ -63,21 +63,23 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(adminuser).setURI(13, 2)).contains.keys(...TXKEYS)
         expect(await contract.connect(owneruser).setURIBatch([14, 15], 2)).contains.keys(...TXKEYS)
         expect(await contract.connect(adminuser).setURIBatch([14, 15], 2)).contains.keys(...TXKEYS)
-        expect(await contract.connect(owneruser).mint(foouser.address, 101, 99, 0, 50, [])).contains.keys(...TXKEYS)
-            .to.emit(contract, 'TransferSingle').withArgs(owneruser, NULL_ADDRESS, foouser.address, 99, [])
-        expect(await contract.connect(adminuser).mint(foouser.address, 102, 99, 0, 50, [])).contains.keys(...TXKEYS)
-            .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
-        expect(await contract.connect(owneruser).mintBatch(foouser.address, [103, 104], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
-            .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [103, 104], [99, 50], [])
-        expect(await contract.connect(adminuser).mintBatch(foouser.address, [105, 106], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
-            .to.emit(contract, 'TransferBatch').withArgs(adminuser, NULL_ADDRESS, foouser.address, [105, 106], [99, 50], [])
+        // expect(await contract.connect(owneruser).mint(foouser.address, 101, 99, 0, 50, [])).contains.keys(...TXKEYS)
+        //     .to.emit(contract, 'TransferSingle').withArgs(owneruser, NULL_ADDRESS, foouser.address, 99, [])
+        // expect(await contract.connect(foouser).mint(foouser.address, 102, 99, 0, 50,
+        // [])).contains.keys(...TXKEYS)
+        //     .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
+        // expect(await contract.connect(owneruser).mintBatch(foouser.address, [103, 104], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
+        //     .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [103, 104], [99, 50], [])
+        // expect(await contract.connect(foouser).mintBatch(foouser.address, [105, 106], [99, 50], 0,
+        // 50, [])).contains.keys(...TXKEYS)
+        //     .to.emit(contract, 'TransferBatch').withArgs(adminuser, NULL_ADDRESS, foouser.address, [105, 106], [99, 50], [])
         
         for(let account of [upgraderuser, foouser, baruser]) {
             await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).setURI(1, 0)).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).setURIBatch([2, 3], 1)).is.revertedWith(NO_ACCESS)
-            await expect(contract.connect(account).mint(foouser.address, 110, 99, 0, 50, [])).is.revertedWith(NO_ACCESS)
-            await expect(contract.connect(account).mintBatch(foouser.address, [111, 112], [99, 50], 0, 50, [])).is.revertedWith(NO_ACCESS)
+            // await expect(contract.connect(account).mint(foouser.address, 110, 99, 0, 50, [])).is.revertedWith(NO_ACCESS)
+            // await expect(contract.connect(account).mintBatch(foouser.address, [111, 112], [99, 50], 0, 50, [])).is.revertedWith(NO_ACCESS)
         }
     
         // UPGRADER
@@ -152,14 +154,14 @@ describe('SportyChocolateV1', () => {
     
     it('Mint single token', async () => {
         // Require
-        await expect(contract.connect(adminuser).mint(foouser.address, 101, 0, 0, 50, [])).is.revertedWith(INVALID_MINT_AMOUNT)
-        await expect(contract.connect(adminuser).mint(foouser.address, 101, 99, 1, 50, [])).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(foouser).mint(foouser.address, 101, 0, 0, 50, [])).is.revertedWith(INVALID_MINT_AMOUNT)
+        await expect(contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])).is.revertedWith(EMPTY_STRING)
     
         await contract.connect(adminuser).addGateway('abc')
         expect(await contract.connect(adminuser).exists(1)).is.true
         
         expect(await contract.connect(adminuser).exists(101)).is.false
-        expect(await contract.connect(adminuser).mint(foouser.address, 101, 99, 1, 50, [])).contains.keys(...TXKEYS)
+        expect(await contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])).contains.keys(...TXKEYS)
             .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
         expect(await contract.connect(adminuser).exists(101)).is.true
         
@@ -167,7 +169,7 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).totalSupply(101)).equals(99)
     
         expect(await contract.connect(adminuser).exists(200)).is.false
-        expect(await contract.connect(adminuser).mint(foouser.address, 200, 99, 1, 50, [])).contains.keys(...TXKEYS)
+        expect(await contract.connect(foouser).mint(foouser.address, 200, 99, 1, 50, [])).contains.keys(...TXKEYS)
             .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
         expect(await contract.connect(adminuser).exists(200)).is.true
         
@@ -177,15 +179,15 @@ describe('SportyChocolateV1', () => {
     
     it('Mint batch tokens', async () => {
         // Require
-        await expect(contract.connect(adminuser).mintBatch(foouser.address, [101, 102], [99, 50], 1, 50, [])).is.revertedWith(EMPTY_STRING)
-        await expect(contract.connect(adminuser).mintBatch(foouser.address, [101, 102], [99, 50], 2, 50, [])).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(foouser).mintBatch(foouser.address, [101, 102], [99, 50], 1, 50, [])).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(foouser).mintBatch(foouser.address, [101, 102], [99, 50], 2, 50, [])).is.revertedWith(EMPTY_STRING)
     
         await contract.connect(adminuser).addGateway('abc')
         await contract.connect(adminuser).addGateway('def')
     
         expect(await contract.connect(adminuser).exists(101)).is.false
         expect(await contract.connect(adminuser).exists(102)).is.false
-        expect(await contract.connect(adminuser).mintBatch(foouser.address, [101, 102], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
+        expect(await contract.connect(foouser).mintBatch(foouser.address, [101, 102], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
             .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [101, 102], [99, 50], [])
         
         expect(await contract.connect(foouser).exists(101)).is.true
@@ -195,7 +197,7 @@ describe('SportyChocolateV1', () => {
         
         expect(await contract.connect(foouser).exists(200)).is.false
         expect(await contract.connect(foouser).exists(300)).is.false
-        expect(await contract.connect(adminuser).mintBatch(foouser.address, [200, 300], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
+        expect(await contract.connect(foouser).mintBatch(foouser.address, [200, 300], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
             .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [200, 300], [99, 50], [])
     
         expect(await contract.connect(foouser).exists(200)).is.true
@@ -216,13 +218,13 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).uri(1)).equals('def')
         expect(await contract.connect(foouser).uri(2)).equals('abc')
     
-        await contract.connect(adminuser).mint(foouser.address, 101, 99, 1, 50, [])
+        await contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])
         expect(await contract.connect(foouser).uri(101)).equals('abc')
     
-        await contract.connect(adminuser).mint(foouser.address, 102, 99, 2, 50, [])
+        await contract.connect(foouser).mint(foouser.address, 102, 99, 2, 50, [])
         expect(await contract.connect(foouser).uri(102)).equals('def')
     
-        await contract.connect(adminuser).mint(foouser.address, 103, 99, 0, 50, [])
+        await contract.connect(foouser).mint(foouser.address, 103, 99, 0, 50, [])
         expect(await contract.connect(foouser).uri(103)).equals(INIT_GATEWAY)
         await contract.connect(adminuser).setURI(103, 2)
         expect(await contract.connect(foouser).uri(103)).equals('def')

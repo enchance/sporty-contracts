@@ -193,36 +193,39 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         return gatewayId;
     }
 
-    function setURI(uint tokenId, uint gatewayId) public virtual onlyRole(ADMIN)
-        validGateway(gatewayId)
-    {
+    function setURI(uint tokenId, uint gatewayId) external virtual onlyRole(ADMIN) validGateway(gatewayId) {
+        _setURI(tokenId, gatewayId);
+    }
+
+    function _setURI(uint tokenId, uint gatewayId) internal virtual validGateway(gatewayId) {
         require(tokenId >= 1, 'Token is invalid');
         uris[tokenId] = gatewayId;
     }
 
-    function setURIBatch(uint[] memory tokenIds, uint gatewayId) public virtual onlyRole(ADMIN)
-        validGateway(gatewayId)
-    {
+    function setURIBatch(uint[] memory tokenIds, uint gatewayId) external virtual onlyRole(ADMIN) validGateway(gatewayId) {
+        _setURIBatch(tokenIds, gatewayId);
+    }
+
+    function _setURIBatch(uint[] memory tokenIds, uint gatewayId) internal virtual validGateway(gatewayId) {
         for (uint i; i < tokenIds.length; i++) {
             uris[tokenIds[i]] = gatewayId;
         }
     }
 
     function mint(address account, uint tokenId, uint amount, uint gatewayId, uint limit,
-        bytes memory data) public virtual onlyRole(ADMIN) validGateway(gatewayId)
+        bytes memory data) public virtual validGateway(gatewayId)
     {
         require(amount >= 1, "Can't mint 0 amount");
         _mint(account, tokenId, amount, data);
-        setURI(tokenId, gatewayId);
+        _setURI(tokenId, gatewayId);
         tokenLimit[tokenId] = limit;
     }
 
     function mintBatch(address to, uint[] memory tokenIds, uint[] memory amounts, uint gatewayId,
-        uint limit, bytes memory data)
-        public virtual onlyRole(ADMIN) validGateway(gatewayId)
+        uint limit, bytes memory data) public virtual validGateway(gatewayId)
     {
         _mintBatch(to, tokenIds, amounts, data);
-        setURIBatch(tokenIds, gatewayId);
+        _setURIBatch(tokenIds, gatewayId);
 
         for (uint i; i < tokenIds.length; i++) {
             tokenLimit[tokenIds[i]] = limit;
@@ -238,7 +241,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     // TEST: For testing
     function transferrableAmount(address addr, uint tokenId) external view virtual validToken(tokenId) returns (uint) {
         require(addr != address(0), 'ADDRESS: cannot be empty');
-        
+
         uint bal = balanceOf(addr, tokenId);
         uint limit = tokenLimit[tokenId];
         uint transferrable = limit - bal;
