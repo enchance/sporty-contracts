@@ -203,4 +203,28 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).totalSupply(200)).equals(99)
         expect(await contract.connect(foouser).totalSupply(300)).equals(50)
     })
+    
+    it('Token uri', async () => {
+        await contract.connect(adminuser).addGateway("abc")
+        await contract.connect(adminuser).addGateway("def")
+        
+        expect(await contract.connect(foouser).uri(1)).equals(INIT_GATEWAY)
+        expect(await contract.connect(foouser).uri(2)).equals(INIT_GATEWAY)
+    
+        await contract.connect(adminuser).setURI(1, 2)
+        await contract.connect(adminuser).setURI(2, 1)
+        expect(await contract.connect(foouser).uri(1)).equals('def')
+        expect(await contract.connect(foouser).uri(2)).equals('abc')
+    
+        await contract.connect(adminuser).mint(foouser.address, 101, 99, 1, [])
+        expect(await contract.connect(foouser).uri(101)).equals('abc')
+    
+        await contract.connect(adminuser).mint(foouser.address, 102, 99, 2, [])
+        expect(await contract.connect(foouser).uri(102)).equals('def')
+    
+        await contract.connect(adminuser).mint(foouser.address, 103, 99, 0, [])
+        expect(await contract.connect(foouser).uri(103)).equals(INIT_GATEWAY)
+        await contract.connect(adminuser).setURI(103, 2)
+        expect(await contract.connect(foouser).uri(103)).equals('def')
+    })
 })

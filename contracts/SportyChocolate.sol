@@ -211,7 +211,6 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         setURIBatch(tokenIds, gatewayId);
     }
 
-    // TEST: For testing
     function uri(uint tokenId) public view virtual override returns (string memory) {
         return gateways[uris[tokenId]];
     }

@@ -15,7 +15,7 @@ async function main() {
   // v1
   factory = await ethers.getContractFactory('SportyChocolateV1')
   contract = await upgrades.deployProxy(factory, [INIT_GATEWAY, SUPPLY], {kind: 'uups'})
-  console.log('PROXY:', contract.address)
+  // console.log('PROXY:', contract.address)
 }
 
 main().catch((error) => {
