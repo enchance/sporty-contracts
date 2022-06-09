@@ -32,70 +32,70 @@
       "kind": "uups"
     },
     {
-      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "txHash": "0x583d7114e0bfcab16237048938ad1f291ea27c87d74d2b799e198fe2819259ab",
-      "kind": "uups"
-    },
-    {
-      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "txHash": "0x3e1f1cef1d4cd8255d45ed4aea9a8d97bd22fdd41248fd8bf05345cc18fa89db",
-      "kind": "uups"
-    },
-    {
       "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
       "txHash": "0x1c99abbd72f616b903666757e555816a38a2efe00000c89df128f887290d7f23",
       "kind": "uups"
     },
     {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0x533963be3d46e2f3ce3014c3e1d0e4cc93b079a77cf4fd7cb17eee103cb49c90",
-      "kind": "uups"
-    },
-    {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x53dc17b7d364af1feeb6c1f33996d77ad9dea66ac8f9d341e52b4e2064058765",
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "txHash": "0x308261429c5a6a72ac9c1e525b7e1e1c5ed55414b5a09522185578fe99d8b5d2",
       "kind": "uups"
     },
     {
       "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0x512f25352a9f388cbfdba1f623643d14b4a6c8ca2741fa20fc8f6b9ec293d149",
+      "txHash": "0xe9fa39cd637fce77c4971b60718291f1104596d1c7dc5289591726b16069d209",
+      "kind": "uups"
+    },
+    {
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "txHash": "0x6b40ad0e1193bfe52bbff7cd3f4dfc66b9c0bef4ed8737c757a9735d569b98fe",
+      "kind": "uups"
+    },
+    {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0xa36522c1be06562e905cb940f5cca761224c04d728a44b5de57883b06cb879cf",
+      "kind": "uups"
+    },
+    {
+      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "txHash": "0xcb03e65d68c74462df49d90cb9b75b0b1efae58780253da5c27f68905f4c9cd8",
       "kind": "uups"
     },
     {
       "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-      "txHash": "0xc4f497009d8d23032c33b88ec22dad3b2ef01e48b3aea6a83a0282bc29571385",
+      "txHash": "0x15dd8b65fd7d94146d274a43c8f4621259d9b40c25f54bbba5e6fa3de3ee678e",
       "kind": "uups"
     },
     {
       "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      "txHash": "0x367a9fd313bb4f6aa65396f876207e3d9c367fd0521b2c089d70e92fb883a617",
+      "txHash": "0x9afb8202080a7468da3deb2b1cfb20ff442d53cc3ccc87234c8af9b7d4146c1c",
       "kind": "uups"
     },
     {
       "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-      "txHash": "0x0e5a6d906e4e34f050084c5a363860a6a6076be551a988e06ff1a39c5ad8cad0",
+      "txHash": "0x28e4c148e380c570611174a777d087ce9c7468ce7381a1bf98acbf16313fce19",
       "kind": "uups"
     },
     {
       "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
-      "txHash": "0x21173b0403b1ceae46b2a61733a11ca1dd36cfebc4a26c1fa83465f6f9eb7d33",
+      "txHash": "0xae1d97b8613e55bae6d0bb36e652213e60912b916d4a16f2455bec98487a7d3f",
       "kind": "uups"
     },
     {
       "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-      "txHash": "0xc4ae9b298f1d6bd073e10643930dd2e43e5c735179de9f356d0c828fdef2c61d",
+      "txHash": "0x52b21231a474fd556db927c7cde9714355a094828b8e430a2b37feda82eb7115",
       "kind": "uups"
     },
     {
       "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
-      "txHash": "0x2966ec010d0d058b6e3943f00d8acdce111491384be5ddb84631e048019ca811",
+      "txHash": "0x12994dbf5176cf7baea43bbf4d760daab14b7baf280bc91a89eb0637d39648fe",
       "kind": "uups"
     }
   ],
   "impls": {
-    "d9b43e9c3b54f03fe5778108787e7804f268781ebc7a2bf1d4033cb5fd09f5a7": {
+    "eda608394ffd4ca1565f53d103bca893b20b963f59ee5334eb906e162f815cea": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x7588de4d2863b377ef95b5b158a7062740946ecbf265dcdbf1ed5226707bbce1",
+      "txHash": "0x78cdf9bb16f6ff3661144854e2c744340a584bd6dce801589e2256d89f8b650a",
       "layout": {
         "storage": [
           {
@@ -212,36 +212,60 @@
             "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
           },
           {
-            "label": "uris",
+            "label": "name",
             "offset": 0,
             "slot": "351",
-            "type": "t_mapping(t_uint256,t_uint256)",
+            "type": "t_string_storage",
             "contract": "SportyChocolateV1",
             "src": "contracts/SportyChocolate.sol:30"
           },
           {
-            "label": "gateways",
+            "label": "symbol",
             "offset": 0,
             "slot": "352",
-            "type": "t_mapping(t_uint256,t_string_storage)",
+            "type": "t_string_storage",
             "contract": "SportyChocolateV1",
             "src": "contracts/SportyChocolate.sol:31"
           },
           {
-            "label": "tokenLimit",
+            "label": "uris",
             "offset": 0,
             "slot": "353",
-            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+            "type": "t_mapping(t_uint256,t_uint256)",
             "contract": "SportyChocolateV1",
             "src": "contracts/SportyChocolate.sol:32"
           },
           {
-            "label": "gatewayCounter",
+            "label": "gateways",
             "offset": 0,
             "slot": "354",
-            "type": "t_struct(Counter)2970_storage",
+            "type": "t_mapping(t_uint256,t_string_storage)",
             "contract": "SportyChocolateV1",
             "src": "contracts/SportyChocolate.sol:33"
+          },
+          {
+            "label": "tokenLimit",
+            "offset": 0,
+            "slot": "355",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "SportyChocolateV1",
+            "src": "contracts/SportyChocolate.sol:34"
+          },
+          {
+            "label": "tokensMinted",
+            "offset": 0,
+            "slot": "356",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+            "contract": "SportyChocolateV1",
+            "src": "contracts/SportyChocolate.sol:35"
+          },
+          {
+            "label": "gatewayCounter",
+            "offset": 0,
+            "slot": "357",
+            "type": "t_struct(Counter)2970_storage",
+            "contract": "SportyChocolateV1",
+            "src": "contracts/SportyChocolate.sol:36"
           }
         ],
         "types": {

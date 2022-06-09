@@ -27,9 +27,12 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     bytes32 internal constant ADMIN = keccak256("ADMIN");
     bytes32 internal constant UPGRADER = keccak256("UPGRADER");
 
+    string public name;
+    string public symbol;
     mapping(uint => uint) public uris;
     mapping(uint => string) public gateways;
-    mapping(uint => mapping(address => uint)) internal tokenLimit;
+    mapping(uint => uint) internal tokenLimit;
+    mapping(uint => mapping(address => uint)) internal tokensMinted;
     CountersUpgradeable.Counter internal gatewayCounter;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -42,6 +45,9 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         __AccessControl_init();
         __ERC1155Supply_init();
         __UUPSUpgradeable_init();
+
+        name = ' Nifty';
+        symbol = 'NIFTY';
 
         // Init roles
 //        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -65,111 +71,117 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 
         // Init tokens
         {
-            mint(_msgSender(), 1, _supply, 0, "");
-            mint(_msgSender(), 2, _supply, 0, "");
-//            mint(_msgSender(), 3, _supply, 0, "");
-//            mint(_msgSender(), 4, _supply, 0, "");
-//            mint(_msgSender(), 5, _supply, 0, "");
-//            mint(_msgSender(), 6, _supply, 0, "");
-//            mint(_msgSender(), 7, _supply, 0, "");
-//            mint(_msgSender(), 8, _supply, 0, "");
-//            mint(_msgSender(), 9, _supply, 0, "");
-//            mint(_msgSender(), 10, _supply, 0, "");
-//            mint(_msgSender(), 11, _supply, 0, "");
-//            mint(_msgSender(), 12, _supply, 0, "");
-//            mint(_msgSender(), 13, _supply, 0, "");
-//            mint(_msgSender(), 14, _supply, 0, "");
-//            mint(_msgSender(), 15, _supply, 0, "");
-//            mint(_msgSender(), 16, _supply, 0, "");
-//            mint(_msgSender(), 17, _supply, 0, "");
-//            mint(_msgSender(), 18, _supply, 0, "");
-//            mint(_msgSender(), 19, _supply, 0, "");
-//            mint(_msgSender(), 20, _supply, 0, "");
-//            mint(_msgSender(), 21, _supply, 0, "");
-//            mint(_msgSender(), 22, _supply, 0, "");
-//            mint(_msgSender(), 23, _supply, 0, "");
-//            mint(_msgSender(), 24, _supply, 0, "");
-//            mint(_msgSender(), 25, _supply, 0, "");
-//            mint(_msgSender(), 26, _supply, 0, "");
-//            mint(_msgSender(), 27, _supply, 0, "");
-//            mint(_msgSender(), 28, _supply, 0, "");
-//            mint(_msgSender(), 29, _supply, 0, "");
-//            mint(_msgSender(), 30, _supply, 0, "");
-//            mint(_msgSender(), 31, _supply, 0, "");
-//            mint(_msgSender(), 32, _supply, 0, "");
-//            mint(_msgSender(), 33, _supply, 0, "");
-//            mint(_msgSender(), 34, _supply, 0, "");
-//            mint(_msgSender(), 35, _supply, 0, "");
-//            mint(_msgSender(), 36, _supply, 0, "");
-//            mint(_msgSender(), 37, _supply, 0, "");
-//            mint(_msgSender(), 38, _supply, 0, "");
-//            mint(_msgSender(), 39, _supply, 0, "");
-//            mint(_msgSender(), 40, _supply, 0, "");
-//            mint(_msgSender(), 41, _supply, 0, "");
-//            mint(_msgSender(), 42, _supply, 0, "");
-//            mint(_msgSender(), 43, _supply, 0, "");
-//            mint(_msgSender(), 44, _supply, 0, "");
-//            mint(_msgSender(), 45, _supply, 0, "");
-//            mint(_msgSender(), 46, _supply, 0, "");
-//            mint(_msgSender(), 47, _supply, 0, "");
-//            mint(_msgSender(), 48, _supply, 0, "");
-//            mint(_msgSender(), 49, _supply, 0, "");
-//            mint(_msgSender(), 50, _supply, 0, "");
-//            mint(_msgSender(), 51, _supply, 0, "");
-//            mint(_msgSender(), 52, _supply, 0, "");
-//            mint(_msgSender(), 53, _supply, 0, "");
-//            mint(_msgSender(), 54, _supply, 0, "");
-//            mint(_msgSender(), 55, _supply, 0, "");
-//            mint(_msgSender(), 56, _supply, 0, "");
-//            mint(_msgSender(), 57, _supply, 0, "");
-//            mint(_msgSender(), 58, _supply, 0, "");
-//            mint(_msgSender(), 59, _supply, 0, "");
-//            mint(_msgSender(), 60, _supply, 0, "");
-//            mint(_msgSender(), 61, _supply, 0, "");
-//            mint(_msgSender(), 62, _supply, 0, "");
-//            mint(_msgSender(), 63, _supply, 0, "");
-//            mint(_msgSender(), 64, _supply, 0, "");
-//            mint(_msgSender(), 65, _supply, 0, "");
-//            mint(_msgSender(), 66, _supply, 0, "");
-//            mint(_msgSender(), 67, _supply, 0, "");
-//            mint(_msgSender(), 68, _supply, 0, "");
-//            mint(_msgSender(), 69, _supply, 0, "");
-//            mint(_msgSender(), 70, _supply, 0, "");
-//            mint(_msgSender(), 71, _supply, 0, "");
-//            mint(_msgSender(), 72, _supply, 0, "");
-//            mint(_msgSender(), 73, _supply, 0, "");
-//            mint(_msgSender(), 74, _supply, 0, "");
-//            mint(_msgSender(), 75, _supply, 0, "");
-//            mint(_msgSender(), 76, _supply, 0, "");
-//            mint(_msgSender(), 77, _supply, 0, "");
-//            mint(_msgSender(), 78, _supply, 0, "");
-//            mint(_msgSender(), 79, _supply, 0, "");
-//            mint(_msgSender(), 80, _supply, 0, "");
-//            mint(_msgSender(), 81, _supply, 0, "");
-//            mint(_msgSender(), 82, _supply, 0, "");
-//            mint(_msgSender(), 83, _supply, 0, "");
-//            mint(_msgSender(), 84, _supply, 0, "");
-//            mint(_msgSender(), 85, _supply, 0, "");
-//            mint(_msgSender(), 86, _supply, 0, "");
-//            mint(_msgSender(), 87, _supply, 0, "");
-//            mint(_msgSender(), 88, _supply, 0, "");
-//            mint(_msgSender(), 89, _supply, 0, "");
-//            mint(_msgSender(), 90, _supply, 0, "");
-//            mint(_msgSender(), 91, _supply, 0, "");
-//            mint(_msgSender(), 92, _supply, 0, "");
-//            mint(_msgSender(), 93, _supply, 0, "");
-//            mint(_msgSender(), 94, _supply, 0, "");
-//            mint(_msgSender(), 95, _supply, 0, "");
-//            mint(_msgSender(), 96, _supply, 0, "");
-//            mint(_msgSender(), 97, _supply, 0, "");
-//            mint(_msgSender(), 98, _supply, 0, "");
-//            mint(_msgSender(), 99, _supply, 0, "");
-//            mint(_msgSender(), 100, _supply, 0, "");
+            uint limit = 50;
+            mint(_msgSender(), 1, _supply, 0, limit, "");
+            mint(_msgSender(), 2, _supply, 0, limit, "");
+            mint(_msgSender(), 3, _supply, 0, limit, "");
+//            mint(_msgSender(), 4, _supply, 0, limit, "");
+//            mint(_msgSender(), 5, _supply, 0, limit, "");
+//            mint(_msgSender(), 6, _supply, 0, limit, "");
+//            mint(_msgSender(), 7, _supply, 0, limit, "");
+//            mint(_msgSender(), 8, _supply, 0, limit, "");
+//            mint(_msgSender(), 9, _supply, 0, limit, "");
+//            mint(_msgSender(), 10, _supply, 0, limit, "");
+//            mint(_msgSender(), 11, _supply, 0, limit, "");
+//            mint(_msgSender(), 12, _supply, 0, limit, "");
+//            mint(_msgSender(), 13, _supply, 0, limit, "");
+//            mint(_msgSender(), 14, _supply, 0, limit, "");
+//            mint(_msgSender(), 15, _supply, 0, limit, "");
+//            mint(_msgSender(), 16, _supply, 0, limit, "");
+//            mint(_msgSender(), 17, _supply, 0, limit, "");
+//            mint(_msgSender(), 18, _supply, 0, limit, "");
+//            mint(_msgSender(), 19, _supply, 0, limit, "");
+//            mint(_msgSender(), 20, _supply, 0, limit, "");
+//            mint(_msgSender(), 21, _supply, 0, limit, "");
+//            mint(_msgSender(), 22, _supply, 0, limit, "");
+//            mint(_msgSender(), 23, _supply, 0, limit, "");
+//            mint(_msgSender(), 24, _supply, 0, limit, "");
+//            mint(_msgSender(), 25, _supply, 0, limit, "");
+//            mint(_msgSender(), 26, _supply, 0, limit, "");
+//            mint(_msgSender(), 27, _supply, 0, limit, "");
+//            mint(_msgSender(), 28, _supply, 0, limit, "");
+//            mint(_msgSender(), 29, _supply, 0, limit, "");
+//            mint(_msgSender(), 30, _supply, 0, limit, "");
+//            mint(_msgSender(), 31, _supply, 0, limit, "");
+//            mint(_msgSender(), 32, _supply, 0, limit, "");
+//            mint(_msgSender(), 33, _supply, 0, limit, "");
+//            mint(_msgSender(), 34, _supply, 0, limit, "");
+//            mint(_msgSender(), 35, _supply, 0, limit, "");
+//            mint(_msgSender(), 36, _supply, 0, limit, "");
+//            mint(_msgSender(), 37, _supply, 0, limit, "");
+//            mint(_msgSender(), 38, _supply, 0, limit, "");
+//            mint(_msgSender(), 39, _supply, 0, limit, "");
+//            mint(_msgSender(), 40, _supply, 0, limit, "");
+//            mint(_msgSender(), 41, _supply, 0, limit, "");
+//            mint(_msgSender(), 42, _supply, 0, limit, "");
+//            mint(_msgSender(), 43, _supply, 0, limit, "");
+//            mint(_msgSender(), 44, _supply, 0, limit, "");
+//            mint(_msgSender(), 45, _supply, 0, limit, "");
+//            mint(_msgSender(), 46, _supply, 0, limit, "");
+//            mint(_msgSender(), 47, _supply, 0, limit, "");
+//            mint(_msgSender(), 48, _supply, 0, limit, "");
+//            mint(_msgSender(), 49, _supply, 0, limit, "");
+//            mint(_msgSender(), 50, _supply, 0, limit, "");
+//            mint(_msgSender(), 51, _supply, 0, limit, "");
+//            mint(_msgSender(), 52, _supply, 0, limit, "");
+//            mint(_msgSender(), 53, _supply, 0, limit, "");
+//            mint(_msgSender(), 54, _supply, 0, limit, "");
+//            mint(_msgSender(), 55, _supply, 0, limit, "");
+//            mint(_msgSender(), 56, _supply, 0, limit, "");
+//            mint(_msgSender(), 57, _supply, 0, limit, "");
+//            mint(_msgSender(), 58, _supply, 0, limit, "");
+//            mint(_msgSender(), 59, _supply, 0, limit, "");
+//            mint(_msgSender(), 60, _supply, 0, limit, "");
+//            mint(_msgSender(), 61, _supply, 0, limit, "");
+//            mint(_msgSender(), 62, _supply, 0, limit, "");
+//            mint(_msgSender(), 63, _supply, 0, limit, "");
+//            mint(_msgSender(), 64, _supply, 0, limit, "");
+//            mint(_msgSender(), 65, _supply, 0, limit, "");
+//            mint(_msgSender(), 66, _supply, 0, limit, "");
+//            mint(_msgSender(), 67, _supply, 0, limit, "");
+//            mint(_msgSender(), 68, _supply, 0, limit, "");
+//            mint(_msgSender(), 69, _supply, 0, limit, "");
+//            mint(_msgSender(), 70, _supply, 0, limit, "");
+//            mint(_msgSender(), 71, _supply, 0, limit, "");
+//            mint(_msgSender(), 72, _supply, 0, limit, "");
+//            mint(_msgSender(), 73, _supply, 0, limit, "");
+//            mint(_msgSender(), 74, _supply, 0, limit, "");
+//            mint(_msgSender(), 75, _supply, 0, limit, "");
+//            mint(_msgSender(), 76, _supply, 0, limit, "");
+//            mint(_msgSender(), 77, _supply, 0, limit, "");
+//            mint(_msgSender(), 78, _supply, 0, limit, "");
+//            mint(_msgSender(), 79, _supply, 0, limit, "");
+//            mint(_msgSender(), 80, _supply, 0, limit, "");
+//            mint(_msgSender(), 81, _supply, 0, limit, "");
+//            mint(_msgSender(), 82, _supply, 0, limit, "");
+//            mint(_msgSender(), 83, _supply, 0, limit, "");
+//            mint(_msgSender(), 84, _supply, 0, limit, "");
+//            mint(_msgSender(), 85, _supply, 0, limit, "");
+//            mint(_msgSender(), 86, _supply, 0, limit, "");
+//            mint(_msgSender(), 87, _supply, 0, limit, "");
+//            mint(_msgSender(), 88, _supply, 0, limit, "");
+//            mint(_msgSender(), 89, _supply, 0, limit, "");
+//            mint(_msgSender(), 90, _supply, 0, limit, "");
+//            mint(_msgSender(), 91, _supply, 0, limit, "");
+//            mint(_msgSender(), 92, _supply, 0, limit, "");
+//            mint(_msgSender(), 93, _supply, 0, limit, "");
+//            mint(_msgSender(), 94, _supply, 0, limit, "");
+//            mint(_msgSender(), 95, _supply, 0, limit, "");
+//            mint(_msgSender(), 96, _supply, 0, limit, "");
+//            mint(_msgSender(), 97, _supply, 0, limit, "");
+//            mint(_msgSender(), 98, _supply, 0, limit, "");
+//            mint(_msgSender(), 99, _supply, 0, limit, "");
+//            mint(_msgSender(), 100, _supply, 0, limit, "");
         }
     }
 
     modifier validGateway(uint gatewayId) {
         require(bytes(gateways[gatewayId]).length != 0, "String cannot be empty");
+        _;
+    }
+
+    modifier validToken(uint tokenId) {
+        require(exists(tokenId), 'Token is invalid');
         _;
     }
 
@@ -196,22 +208,47 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         }
     }
 
-    function mint(address account, uint tokenId, uint amount, uint gatewayId, bytes memory data)
-        public virtual onlyRole(ADMIN) validGateway(gatewayId)
+    function mint(address account, uint tokenId, uint amount, uint gatewayId, uint limit,
+        bytes memory data) public virtual onlyRole(ADMIN) validGateway(gatewayId)
     {
         require(amount >= 1, "Can't mint 0 amount");
         _mint(account, tokenId, amount, data);
         setURI(tokenId, gatewayId);
+        tokenLimit[tokenId] = limit;
     }
 
-    function mintBatch(address to, uint[] memory tokenIds, uint[] memory amounts, uint gatewayId, bytes memory data)
+    function mintBatch(address to, uint[] memory tokenIds, uint[] memory amounts, uint gatewayId,
+        uint limit, bytes memory data)
         public virtual onlyRole(ADMIN) validGateway(gatewayId)
     {
         _mintBatch(to, tokenIds, amounts, data);
         setURIBatch(tokenIds, gatewayId);
+
+        for (uint i; i < tokenIds.length; i++) {
+            tokenLimit[tokenIds[i]] = limit;
+        }
     }
 
-    function uri(uint tokenId) public view virtual override returns (string memory) {
+    // TEST: For testing
+    function getTokenLimit(uint tokenId) external view virtual returns (uint) {
+        require(exists(tokenId), 'Token is invalid');
+        return tokenLimit[tokenId];
+    }
+
+    // TEST: For testing
+    function transferrableAmount(address addr, uint tokenId) external view virtual validToken(tokenId) returns (uint) {
+        require(addr != address(0), 'ADDRESS: cannot be empty');
+        
+        uint bal = balanceOf(addr, tokenId);
+        uint limit = tokenLimit[tokenId];
+        uint transferrable = limit - bal;
+
+        require(transferrable >= 1, 'TOKEN: limit reached');
+
+        return transferrable;
+    }
+
+    function uri(uint tokenId) public view virtual override validToken(tokenId) returns (string memory) {
         return gateways[uris[tokenId]];
     }
 
