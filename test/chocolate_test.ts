@@ -45,14 +45,14 @@ describe('SportyChocolateV1', () => {
         await upgrade_contract()
     })
     
-    it('Init', async () => {
+    it.only('Init', async () => {
         let token: any
         
         // Gateway
         expect(await contract.gateways(0)).equals(INIT_GATEWAY)
     
         // Roles
-        {
+        {   // eslint-disable-line
             expect(await contract.hasRole(OWNER, owneruser.address)).is.true
             expect(await contract.hasRole(OWNER, adminuser.address)).is.false
             expect(await contract.hasRole(OWNER, upgraderuser.address)).is.false
@@ -89,6 +89,45 @@ describe('SportyChocolateV1', () => {
         expect(await contract.exists(1)).is.true
         expect(await contract.exists(2)).is.true
         expect(await contract.exists(3)).is.false
+    
+        // Role admins
+        expect(await contract.getRoleAdmin(OWNER)).equals(OWNER)
+        expect(await contract.getRoleAdmin(ADMIN)).equals(OWNER)
+        expect(await contract.getRoleAdmin(UPGRADER)).equals(OWNER)
+    
+        // Role creation
+        {   // eslint-disable-line
+            let user = owneruser
+            expect(await contract.connect(user).grantRole(OWNER, baruser.address)).contains.keys(...TXKEYS)
+            expect(await contract.connect(user).grantRole(ADMIN, baruser.address)).contains.keys(...TXKEYS)
+            expect(await contract.connect(user).grantRole(UPGRADER, baruser.address)).contains.keys(...TXKEYS)
+    
+            // console.log(await contract.connect(baruser).grantRole(OWNER, foouser.address))
+            // for(let account of [adminuser, upgraderuser, baruser]) {
+            for(let account of [baruser]) {
+                // await expect(contract.connect(account).grantRole(OWNER, foouser.address)).is.revertedWith(NO_ACCESS)
+                // await expect(contract.connect(account).grantRole(ADMIN, foouser.address)).is.revertedWith(NO_ACCESS)
+                // await expect(contract.connect(account).grantRole(UPGRADER, foouser.address)).is.revertedWith(NO_ACCESS)
+            }
+            // expect(await contract.connect(adminuser).grantRole(OWNER, foouser.address)).is.revertedWith(NO_ACCESS)
+            // expect(await contract.connect(adminuser).grantRole(ADMIN, foouser.address)).is.revertedWith(NO_ACCESS)
+            // expect(await contract.connect(adminuser).grantRole(UPGRADER, foouser.address)).is.revertedWith(NO_ACCESS)
+            //
+            // expect(await contract.connect(upgraderuser).grantRole(OWNER, foouser.address)).is.revertedWith(NO_ACCESS)
+            // expect(await contract.connect(upgraderuser).grantRole(ADMIN, foouser.address)).is.revertedWith(NO_ACCESS)
+            // expect(await contract.connect(upgraderuser).grantRole(UPGRADER, foouser.address)).is.revertedWith(NO_ACCESS)
+    
+            // expect(await contract.connect(foouser).grantRole(OWNER, foouser.address)).is.revertedWith(NO_ACCESS)
+            // expect(await contract.connect(foouser).grantRole(ADMIN, foouser.address)).is.revertedWith(NO_ACCESS)
+            // expect(await contract.connect(foouser).grantRole(UPGRADER, foouser.address)).is.revertedWith(NO_ACCESS)
+    
+            // expect(await contract.connect(baruser).grantRole(OWNER, foouser.address)).is.revertedWith(NO_ACCESS)
+            // expect(await contract.connect(baruser).grantRole(ADMIN, foouser.address)).is.revertedWith(NO_ACCESS)
+            // expect(await contract.connect(baruser).grantRole(UPGRADER, foouser.address)).is.revertedWith(NO_ACCESS)
+        }
+        // await contract.connect(owneruser).grantRole(OWNER, foouser.address)
+        // await contract.connect(owneruser).grantRole(ADMIN, foouser.address)
+        // await contract.connect(owneruser).grantRole(UPGRADER, foouser.address)
     })
     
     it('ACCESS CONTROL', async () => {
