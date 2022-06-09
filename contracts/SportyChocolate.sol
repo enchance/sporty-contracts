@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -82,7 +82,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         {
             uint price = .1 ether;
             _tokenMapper(1, price, 50, 0);
-            _tokenMapper(2, price, 50, 0);
+            _tokenMapper(2, .15 ether, 50, 0);
 //            _tokenMapper(3, price, 50, 0);
 //            _tokenMapper(4, price, 50, 0);
 //            _tokenMapper(5, price, 50, 0);

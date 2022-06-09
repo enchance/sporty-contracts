@@ -30,7 +30,7 @@ describe('SportyChocolateV1', () => {
         [owneruser, adminuser, upgraderuser, foouser, baruser] = await ethers.getSigners()
         
         // V1
-        factory = await ethers.getContractFactory('SportyChocolateV1')
+        factory = await ethers.getContractFactory('$SportyChocolateV1', owneruser)
         contract = await upgrades.deployProxy(factory, [INIT_GATEWAY], {kind: 'uups'})
         // console.log('PROXY:', contract.address)
     }
@@ -43,10 +43,28 @@ describe('SportyChocolateV1', () => {
     })
     
     it('Init', async () => {
+        let token: any
+        
         expect(await contract.gateways(0)).equals(INIT_GATEWAY)
-        // for(let i = 1; i <= 2; i++) {
-        //     expect(await contract.balanceOf(owneruser.address, i)).equals(100000)
-        // }
+        
+        // expect(await contract.hasRole(ADMIN, adminuser.address)).is.true
+        // expect(await contract.hasRole(ADMIN, adminuser.address)).is.true
+        // expect(await contract.hasRole(UPGRADER, upgraderuser.address)).is.true
+    
+        // console.log(await contract.$xxx())
+    
+        for(let i = 1; i <= 2; i++) {
+            // expect(await contract.tokenProps(1))
+            token = await contract.connect(foouser).tokenProps(1)
+            expect(token.price).equals(ethers.utils.parseEther('.1'))
+            expect(token.limit).equals(50)
+            expect(token.gatewayId).equals(0)
+    
+            token = await contract.connect(foouser).tokenProps(2)
+            expect(token.price).equals(ethers.utils.parseEther('.15'))
+            expect(token.limit).equals(50)
+            expect(token.gatewayId).equals(0)
+        }
     })
     
     it('ACCESS CONTROL', async () => {

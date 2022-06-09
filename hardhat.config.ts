@@ -11,6 +11,7 @@ import "solidity-coverage";
 import "@openzeppelin/hardhat-upgrades"
 import "@nomiclabs/hardhat-solhint";
 import "hardhat-log-remover"
+import "hardhat-exposed"
 
 
 dotenv.config();
