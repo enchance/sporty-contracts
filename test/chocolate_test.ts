@@ -44,7 +44,7 @@ describe('SportyChocolateV1', () => {
     
     it('Init', async () => {
         expect(await contract.gateways(0)).equals(INIT_GATEWAY)
-        for(let i = 1; i <= 100; i++) {
+        for(let i = 1; i <= 2; i++) {
             expect(await contract.balanceOf(owneruser.address, i)).equals(100000)
         }
     })

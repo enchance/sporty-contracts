@@ -2,11 +2,11 @@
 // Runtime Environment's members available in the global scope.
 import {ethers, upgrades} from "hardhat";
 import {ContractFactory} from "ethers";
-import {SportyChocolateV1} from "../typechain";
+import {SportyChocolateV1} from "../typechain";                             // eslint-disable-line
 
 
 
-export const INIT_GATEWAY = 'https://gateway.pinata.cloud/ipfs/QmX7LXP9KGnS2oNyhdpwXUosNQr3Mez1ETdKhZCvZfN9kD/{id}.json'
+export const INIT_GATEWAY = 'https://gateway.pinata.cloud/ipfs/QmQLLDpXH9DiVvjjzmfoyaM1bBrso6wheS57f67ubqw3C7/{id}.json'
 export const SUPPLY = 100000
 
 async function main() {

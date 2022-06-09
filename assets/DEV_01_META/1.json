@@ -1,22 +1,9 @@
 {
-    // Metadata format: https://docs.opensea.io/docs/metadata-standards
-
-    "name": "<card name>",
-    "description": "<description: 191 max char>",
-
-    // You'll know what the collectionid is once card has been saved to the db
-    "external_url": "https://card.indexsports.io/card/<collectionid>",
-
-    // Image must be 350x350 as per Opensea standards
-    // You'll know what the cid and tokenid are once card have been saved to the db
-    "image": "ipfs://<cid>/<tokenid>.jpg",
-
-    // Card attributes
+    "name": "Walking",
+    "description": "Walking man",
+    "external_url": "https://xxx",
+    "image": "ipfs://QmVNgGWxkcr5Ds84WbNyPgtkdMNgaetVSAmiz4Rjp4xXnv/any1.jpg",
     "attributes": [
-        {
-            "trait_type": "Collection ID",
-            "value": "EOUNTH34THPYN"
-        },
         {
             "trait_type": "Symbol",
             "value": "ABC"
@@ -46,9 +33,6 @@
             "value": 456
         },
 
-        // Dates
-        // Convert date to timestamp here: https://www.unixtimestamp.com/
-
         {
             "display_type": "date",
             "trait_type": "birthday",
@@ -60,7 +44,6 @@
             "value": 12342789
         },
 
-        // Boosts
         {
             "display_type": "boost_number",
             "trait_type": "Attack Value",
@@ -71,9 +54,6 @@
             "trait_type": "Speed",
             "value": 45
         },
-
-
-        // These will be the same for all cards
         {
             "trait_type": "Variant",
             "value": "Genesis Deck"

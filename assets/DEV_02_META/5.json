@@ -1,0 +1,43 @@
+{
+    "name": "EVA Unit 01",
+    "description": "The eva with the most class",
+    "external_url": "https://evangelion.fandom.com/wiki/Evangelion_Unit-01",
+    "image": "ipfs://QmRdAjav6wEwwJXzp1EbjdvANr49Sj5i23B7S9b1tKaaoa/eva.jpg",
+    "background_color": "9147FF",
+    "attributes": [
+        {
+            "max_value": 75,
+            "value": 45
+        },
+        {
+            "value": 123
+        },
+        {
+            "value": "Scary looking"
+        },
+        {
+            "trait_type": "Alignment",
+            "value": "Evil Neutral"
+        },
+        {
+            "display_type": "date",
+            "trait_type": "birthday",
+            "value": 391754838
+        },
+        {
+            "display_type": "boost_number",
+            "trait_type": "Angel Attack",
+            "value": 70
+        },
+        {
+            "display_type": "boost_percentage",
+            "trait_type": "Speed",
+            "value": 45
+        },
+        {
+            "display_type": "number",
+            "trait_type": "Generation",
+            "value": 1
+        }
+    ]
+}
