@@ -11,7 +11,8 @@ import {
     NO_ACCESS,
     NULL_ADDRESS,
     TXKEYS
-} from "./error_messages";                                     // eslint-disable-line
+} from "./error_messages";          // eslint-disable-line
+import {SportyChocolateV1} from "../typechain";                                     // eslint-disable-line
 
 
 
@@ -21,17 +22,19 @@ describe('SportyChocolateV1', () => {
     let foouser: SignerWithAddress, baruser: SignerWithAddress
     let tokenId: number, tokenIds: number[], gatewayId: number
     
-    const OWNER = ethers.utils.formatBytes32String('OWNER')
-    const ADMIN = ethers.utils.formatBytes32String('ADMIN')
-    const MINTER = ethers.utils.formatBytes32String('MINTER')
-    const UPGRADER = ethers.utils.formatBytes32String('UPGRADER')
+    // const OWNER = ethers.utils.formatBytes32String('OWNER')
+    // const ADMIN = ethers.utils.formatBytes32String('ADMIN')
+    // const UPGRADER = ethers.utils.formatBytes32String('UPGRADER')
+    const OWNER = '0x6270edb7c868f86fda4adedba75108201087268ea345934db8bad688e1feb91b'
+    const ADMIN = '0xdf8b4c520ffe197c5343c6f5aec59570151ef9a492f2c624fd45ddde6135ec42'
+    const UPGRADER = '0xa615a8afb6fffcb8c6809ac0997b5c9c12b8cc97651150f14c8f6203168cff4c'
     
     const init_contract = async () => {
         [owneruser, adminuser, upgraderuser, foouser, baruser] = await ethers.getSigners()
         
         // V1
         factory = await ethers.getContractFactory('$SportyChocolateV1', owneruser)
-        contract = await upgrades.deployProxy(factory, [INIT_GATEWAY], {kind: 'uups'})
+        contract = <SportyChocolateV1>await upgrades.deployProxy(factory, [INIT_GATEWAY], {kind: 'uups'})
         // console.log('PROXY:', contract.address)
     }
     
@@ -45,16 +48,32 @@ describe('SportyChocolateV1', () => {
     it('Init', async () => {
         let token: any
         
+        // Gateway
         expect(await contract.gateways(0)).equals(INIT_GATEWAY)
+    
+        // Roles
+        {
+            expect(await contract.hasRole(OWNER, owneruser.address)).is.true
+            expect(await contract.hasRole(OWNER, adminuser.address)).is.false
+            expect(await contract.hasRole(OWNER, upgraderuser.address)).is.false
+            expect(await contract.hasRole(OWNER, foouser.address)).is.false
+            expect(await contract.hasRole(OWNER, baruser.address)).is.false
         
-        // expect(await contract.hasRole(ADMIN, adminuser.address)).is.true
-        // expect(await contract.hasRole(ADMIN, adminuser.address)).is.true
-        // expect(await contract.hasRole(UPGRADER, upgraderuser.address)).is.true
+            expect(await contract.hasRole(ADMIN, owneruser.address)).is.true
+            expect(await contract.hasRole(ADMIN, adminuser.address)).is.true
+            expect(await contract.hasRole(ADMIN, upgraderuser.address)).is.false
+            expect(await contract.hasRole(ADMIN, foouser.address)).is.false
+            expect(await contract.hasRole(ADMIN, baruser.address)).is.false
+        
+            expect(await contract.hasRole(UPGRADER, owneruser.address)).is.true
+            expect(await contract.hasRole(UPGRADER, adminuser.address)).is.false
+            expect(await contract.hasRole(UPGRADER, upgraderuser.address)).is.true
+            expect(await contract.hasRole(UPGRADER, foouser.address)).is.false
+            expect(await contract.hasRole(UPGRADER, baruser.address)).is.false
+        }
     
-        // console.log(await contract.$xxx())
-    
+        // Token mapping
         for(let i = 1; i <= 2; i++) {
-            // expect(await contract.tokenProps(1))
             token = await contract.connect(foouser).tokenProps(1)
             expect(token.price).equals(ethers.utils.parseEther('.1'))
             expect(token.limit).equals(50)
@@ -65,6 +84,11 @@ describe('SportyChocolateV1', () => {
             expect(token.limit).equals(50)
             expect(token.gatewayId).equals(0)
         }
+        
+        // Mint
+        expect(await contract.exists(1)).is.true
+        expect(await contract.exists(2)).is.true
+        expect(await contract.exists(3)).is.false
     })
     
     it('ACCESS CONTROL', async () => {
