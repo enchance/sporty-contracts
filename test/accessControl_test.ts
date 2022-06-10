@@ -13,7 +13,7 @@ import {
     TXKEYS
 } from "./error_messages";          // eslint-disable-line
 import {SportyChocolateV1} from "../typechain";                                     // eslint-disable-line
-import {init_contract, upgrade_contract} from "./chocolate_test";   // eslint-disable-line
+import {init_contract} from "./chocolate_test";   // eslint-disable-line
 
 export const OWNER = '0x6270edb7c868f86fda4adedba75108201087268ea345934db8bad688e1feb91b'
 export const ADMIN = '0xdf8b4c520ffe197c5343c6f5aec59570151ef9a492f2c624fd45ddde6135ec42'
@@ -28,7 +28,6 @@ describe('AccessControl', () => {
     
     beforeEach(async () => {
         [factory, contract, owneruser, adminuser, upgraderuser, foouser, baruser] = await init_contract()
-        // await upgrade_contract()
     })
     
     it('Init', async () => {
@@ -73,7 +72,7 @@ describe('AccessControl', () => {
             await expect(contract.connect(account).grantRole(UPGRADER, baruser.address)).is.revertedWith(NO_ACCESS)
         }
         
-        // Role check
+        // Roles
         {   // eslint-disable-line
             await purge_roles(baruser)
             

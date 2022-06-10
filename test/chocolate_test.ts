@@ -13,7 +13,7 @@ import {
     TXKEYS
 } from "./error_messages";          // eslint-disable-line
 import {SportyChocolateV1} from "../typechain";                                     // eslint-disable-line
-import {OWNER, ADMIN, UPGRADER} from "./accessContral_test";
+
 
 
 let factory: ContractFactory, contract: any
@@ -32,13 +32,10 @@ export const init_contract = async () => {
     return [factory, contract, owneruser, adminuser, upgraderuser, foouser, baruser]
 }
 
-export const upgrade_contract = async () => {}
-
 describe('SportyChocolateV1', () => {
     
     beforeEach(async () => {
         await init_contract()
-        await upgrade_contract()
     })
     
     it('Init', async () => {
@@ -121,6 +118,24 @@ describe('SportyChocolateV1', () => {
         expect(!!(await contract.connect(foouser).gateways(2))).is.false
         await contract.connect(adminuser).addGateway("def")
         expect(await contract.connect(foouser).gateways(2)).equals("def")
+    })
+    
+    it('Token uri', async () => {
+        await contract.connect(adminuser).addGateway("abc")
+        await contract.connect(adminuser).addGateway("def")
+        
+        // No access
+        for(let account of [upgraderuser, foouser, baruser]) {
+            await expect(contract.connect(account).setURI(1, 2)).is.revertedWith(NO_ACCESS)
+        }
+        
+        expect(await contract.connect(foouser).uri(1)).equals(INIT_GATEWAY)
+        expect(await contract.connect(foouser).uri(2)).equals(INIT_GATEWAY)
+        
+        await contract.connect(adminuser).setURI(1, 2)
+        await contract.connect(adminuser).setURI(2, 1)
+        expect(await contract.connect(foouser).uri(1)).equals('def')
+        expect(await contract.connect(foouser).uri(2)).equals('abc')
     })
     
     it.skip('Update single token URI', async () => {
@@ -224,27 +239,4 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).totalSupply(300)).equals(50)
     })
     
-    it('Token uri', async () => {
-        await contract.connect(adminuser).addGateway("abc")
-        await contract.connect(adminuser).addGateway("def")
-        
-        expect(await contract.connect(foouser).uri(1)).equals(INIT_GATEWAY)
-        expect(await contract.connect(foouser).uri(2)).equals(INIT_GATEWAY)
-    
-        await contract.connect(adminuser).setURI(1, 2)
-        await contract.connect(adminuser).setURI(2, 1)
-        expect(await contract.connect(foouser).uri(1)).equals('def')
-        expect(await contract.connect(foouser).uri(2)).equals('abc')
-    
-        // await contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])
-        // expect(await contract.connect(foouser).uri(101)).equals('abc')
-        //
-        // await contract.connect(foouser).mint(foouser.address, 102, 99, 2, 50, [])
-        // expect(await contract.connect(foouser).uri(102)).equals('def')
-        //
-        // await contract.connect(foouser).mint(foouser.address, 103, 99, 0, 50, [])
-        // expect(await contract.connect(foouser).uri(103)).equals(INIT_GATEWAY)
-        // await contract.connect(adminuser).setURI(103, 2)
-        // expect(await contract.connect(foouser).uri(103)).equals('def')
-    })
 })
