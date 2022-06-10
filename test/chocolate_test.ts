@@ -61,7 +61,6 @@ describe('SportyChocolateV1', () => {
         expect(await contract.exists(1)).is.true
         expect(await contract.exists(2)).is.true
         expect(await contract.exists(3)).is.false
-    
     })
     
     it('ACCESS CONTROL', async () => {
@@ -74,8 +73,8 @@ describe('SportyChocolateV1', () => {
         // ADMIN
         expect(await contract.connect(owneruser).addGateway("aaa")).contains.keys(...TXKEYS)
         expect(await contract.connect(adminuser).addGateway("bbb")).contains.keys(...TXKEYS)
-        expect(await contract.connect(owneruser).setURI(12, 1)).contains.keys(...TXKEYS)
-        expect(await contract.connect(adminuser).setURI(13, 2)).contains.keys(...TXKEYS)
+        expect(await contract.connect(owneruser).setURI(2, 1)).contains.keys(...TXKEYS)
+        expect(await contract.connect(adminuser).setURI(3, 2)).contains.keys(...TXKEYS)
         expect(await contract.connect(owneruser).setURIBatch([14, 15], 2)).contains.keys(...TXKEYS)
         expect(await contract.connect(adminuser).setURIBatch([14, 15], 2)).contains.keys(...TXKEYS)
         // expect(await contract.connect(owneruser).mint(foouser.address, 101, 99, 0, 50, [])).contains.keys(...TXKEYS)
@@ -97,12 +96,12 @@ describe('SportyChocolateV1', () => {
             // await expect(contract.connect(account).mintBatch(foouser.address, [111, 112], [99, 50], 0, 50, [])).is.revertedWith(NO_ACCESS)
         }
     
-        // UPGRADER
-        expect(await contract.connect(owneruser).access_upgrader()).equals(42)
-        expect(await contract.connect(upgraderuser).access_upgrader()).equals(42)
-        for(let account of [adminuser, foouser, baruser]) {
-            await expect(contract.connect(account).access_upgrader()).is.revertedWith(NO_ACCESS)
-        }
+        // // UPGRADER
+        // expect(await contract.connect(owneruser).access_upgrader()).equals(42)
+        // expect(await contract.connect(upgraderuser).access_upgrader()).equals(42)
+        // for(let account of [adminuser, foouser, baruser]) {
+        //     await expect(contract.connect(account).access_upgrader()).is.revertedWith(NO_ACCESS)
+        // }
     })
     
     it('Gateway', async () => {
@@ -138,7 +137,7 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).uri(2)).equals('abc')
     })
     
-    it.skip('Update single token URI', async () => {
+    it('Update single token URI', async () => {
         // Require
         await expect(contract.connect(adminuser).setURI(99, 1)).is.revertedWith(EMPTY_STRING)
         await expect(contract.connect(adminuser).setURI(99, 2)).is.revertedWith(EMPTY_STRING)
@@ -150,15 +149,17 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).gateways(1)).equals('abc')
         expect(await contract.connect(foouser).gateways(2)).equals('def')
         
+        tokenId = 1
+        expect(await contract.connect(foouser).uri(tokenId)).equals(INIT_GATEWAY)
+        await contract.connect(adminuser).setURI(tokenId, 2)
+        expect(await contract.connect(foouser).uri(tokenId)).equals('def')
+
         tokenId = 2
         expect(await contract.connect(foouser).uri(tokenId)).equals(INIT_GATEWAY)
         await contract.connect(adminuser).setURI(tokenId, 1)
         expect(await contract.connect(foouser).uri(tokenId)).equals('abc')
-    
-        tokenId = 3
+        await contract.connect(adminuser).setURI(tokenId, 0)
         expect(await contract.connect(foouser).uri(tokenId)).equals(INIT_GATEWAY)
-        await contract.connect(adminuser).setURI(tokenId, 2)
-        expect(await contract.connect(foouser).uri(tokenId)).equals('def')
     })
     
     it.skip('Update multiple token URI', async () => {

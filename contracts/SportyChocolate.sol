@@ -194,7 +194,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     }
 
     modifier validToken(uint tokenId) {
-        require(exists(tokenId), 'Token is invalid');
+        require(exists(tokenId), 'TOKEN: Does not exist');
         _;
     }
 
@@ -206,18 +206,16 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         return gatewayId;
     }
 
-    // TEST: For testing
     function setURI(uint tokenId, uint gatewayId) external virtual onlyRole(ADMIN) validGateway(gatewayId) {
         _setURI(tokenId, gatewayId);
     }
 
     // TEST: For testing
     function _setURI(uint tokenId, uint gatewayId) internal virtual validGateway(gatewayId) {
-        require(tokenId >= 1, 'Token is invalid');
+        require(tokenId >= 1, 'TOKEN: Does not exist');
         uris[tokenId] = gatewayId;
     }
 
-    // TEST: For testing
     function setURIBatch(uint[] memory tokenIds, uint gatewayId) external virtual onlyRole(ADMIN) validGateway(gatewayId) {
         _setURIBatch(tokenIds, gatewayId);
     }
