@@ -27,8 +27,8 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         uint gatewayId;
     }
 
-    string public constant NAME = 'Nifty';
-    string public constant SYMBOL = 'NIFTY';
+    string public constant NAME = 'Shifty';
+    string public constant SYMBOL = 'SHY';
     address internal constant MARKETPLACE_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
     bytes32 internal constant OWNER = keccak256("OWNER");
     bytes32 internal constant ADMIN = keccak256("ADMIN");
