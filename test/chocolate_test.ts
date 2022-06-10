@@ -5,7 +5,7 @@ import {ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy-sporty";                                 // eslint-disable-line
 import {
-    EMPTY_STRING,
+    INVALID_GATEWAY,
     INVALID_MINT_AMOUNT,
     INVALID_TOKEN,
     NO_ACCESS,
@@ -73,10 +73,10 @@ describe('SportyChocolateV1', () => {
         // ADMIN
         expect(await contract.connect(owneruser).addGateway("aaa")).contains.keys(...TXKEYS)
         expect(await contract.connect(adminuser).addGateway("bbb")).contains.keys(...TXKEYS)
-        expect(await contract.connect(owneruser).setURI(2, 1)).contains.keys(...TXKEYS)
-        expect(await contract.connect(adminuser).setURI(3, 2)).contains.keys(...TXKEYS)
-        expect(await contract.connect(owneruser).setURIBatch([14, 15], 2)).contains.keys(...TXKEYS)
-        expect(await contract.connect(adminuser).setURIBatch([14, 15], 2)).contains.keys(...TXKEYS)
+        expect(await contract.connect(owneruser).setURI(1, 1)).contains.keys(...TXKEYS)
+        expect(await contract.connect(adminuser).setURI(2, 2)).contains.keys(...TXKEYS)
+        expect(await contract.connect(owneruser).setURIBatch([1, 2], 1)).contains.keys(...TXKEYS)
+        expect(await contract.connect(adminuser).setURIBatch([2, 1], 2)).contains.keys(...TXKEYS)
         // expect(await contract.connect(owneruser).mint(foouser.address, 101, 99, 0, 50, [])).contains.keys(...TXKEYS)
         //     .to.emit(contract, 'TransferSingle').withArgs(owneruser, NULL_ADDRESS, foouser.address, 99, [])
         // expect(await contract.connect(foouser).mint(foouser.address, 102, 99, 0, 50,
@@ -106,17 +106,17 @@ describe('SportyChocolateV1', () => {
     
     it('Gateway', async () => {
         // Require
-        await expect(contract.connect(adminuser).addGateway("")).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(adminuser).addGateway('')).is.revertedWith(INVALID_GATEWAY)
         
         expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
         
         expect(!!(await contract.connect(foouser).gateways(1))).is.false
-        await contract.connect(adminuser).addGateway("abc")
-        expect(await contract.connect(foouser).gateways(1)).equals("abc")
+        await contract.connect(adminuser).addGateway('abc')
+        expect(await contract.connect(foouser).gateways(1)).equals('abc')
 
         expect(!!(await contract.connect(foouser).gateways(2))).is.false
-        await contract.connect(adminuser).addGateway("def")
-        expect(await contract.connect(foouser).gateways(2)).equals("def")
+        await contract.connect(adminuser).addGateway('def')
+        expect(await contract.connect(foouser).gateways(2)).equals('def')
     })
     
     it('Token uri', async () => {
@@ -139,8 +139,8 @@ describe('SportyChocolateV1', () => {
     
     it('Update single token URI', async () => {
         // Require
-        await expect(contract.connect(adminuser).setURI(99, 1)).is.revertedWith(EMPTY_STRING)
-        await expect(contract.connect(adminuser).setURI(99, 2)).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(adminuser).setURI(1, 1)).is.revertedWith(INVALID_GATEWAY)
+        await expect(contract.connect(adminuser).setURI(1, 2)).is.revertedWith(INVALID_GATEWAY)
         await expect(contract.connect(adminuser).setURI(0, 0)).is.revertedWith(INVALID_TOKEN)
         
         // Add new gateways
@@ -162,10 +162,13 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).uri(tokenId)).equals(INIT_GATEWAY)
     })
     
-    it.skip('Update multiple token URI', async () => {
+    it('Update multiple token URI', async () => {
         // Require
-        await expect(contract.connect(adminuser).setURI([2, 3], 1)).is.revertedWith(EMPTY_STRING)
-        await expect(contract.connect(adminuser).setURI([2, 3], 2)).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(adminuser).setURIBatch([12, 13], 0)).is.revertedWith(INVALID_TOKEN)
+        await expect(contract.connect(adminuser).setURIBatch([0, 1], 0)).is.revertedWith(INVALID_TOKEN)
+        await expect(contract.connect(adminuser).setURIBatch([1, 0], 0)).is.revertedWith(INVALID_TOKEN)
+        await expect(contract.connect(adminuser).setURIBatch([1, 2], 1)).is.revertedWith(INVALID_GATEWAY)
+        await expect(contract.connect(adminuser).setURIBatch([1, 2], 2)).is.revertedWith(INVALID_GATEWAY)
         
         // Add new gateways
         await contract.connect(adminuser).addGateway('abc')
@@ -173,10 +176,10 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).gateways(1)).equals('abc')
         expect(await contract.connect(foouser).gateways(2)).equals('def')
         
-        tokenIds = [2, 3]
+        tokenIds = [1, 2]
         expect(await contract.connect(foouser).uri(tokenIds[0])).equals(INIT_GATEWAY)
         expect(await contract.connect(foouser).uri(tokenIds[1])).equals(INIT_GATEWAY)
-        
+
         await contract.connect(adminuser).setURIBatch(tokenIds, 1)
         expect(await contract.connect(foouser).uri(tokenIds[0])).equals('abc')
         expect(await contract.connect(foouser).uri(tokenIds[1])).equals('abc')
@@ -184,12 +187,16 @@ describe('SportyChocolateV1', () => {
         await contract.connect(adminuser).setURIBatch(tokenIds, 2)
         expect(await contract.connect(foouser).uri(tokenIds[0])).equals('def')
         expect(await contract.connect(foouser).uri(tokenIds[1])).equals('def')
+
+        tokenIds = [1]
+        await contract.connect(adminuser).setURIBatch(tokenIds, 1)
+        expect(await contract.connect(foouser).uri(tokenIds[0])).equals('abc')
     })
     
     it.skip('Mint single token', async () => {
         // Require
         await expect(contract.connect(foouser).mint(foouser.address, 101, 0, 0, 50, [])).is.revertedWith(INVALID_MINT_AMOUNT)
-        await expect(contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])).is.revertedWith(INVALID_GATEWAY)
     
         await contract.connect(adminuser).addGateway('abc')
         expect(await contract.connect(adminuser).exists(1)).is.true
@@ -213,8 +220,8 @@ describe('SportyChocolateV1', () => {
     
     it.skip('Mint batch tokens', async () => {
         // Require
-        await expect(contract.connect(foouser).mintBatch(foouser.address, [101, 102], [99, 50], 1, 50, [])).is.revertedWith(EMPTY_STRING)
-        await expect(contract.connect(foouser).mintBatch(foouser.address, [101, 102], [99, 50], 2, 50, [])).is.revertedWith(EMPTY_STRING)
+        await expect(contract.connect(foouser).mintBatch(foouser.address, [101, 102], [99, 50], 1, 50, [])).is.revertedWith(INVALID_GATEWAY)
+        await expect(contract.connect(foouser).mintBatch(foouser.address, [101, 102], [99, 50], 2, 50, [])).is.revertedWith(INVALID_GATEWAY)
     
         await contract.connect(adminuser).addGateway('abc')
         await contract.connect(adminuser).addGateway('def')

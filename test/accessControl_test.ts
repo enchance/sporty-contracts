@@ -5,7 +5,7 @@ import {ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy-sporty";                                 // eslint-disable-line
 import {
-    EMPTY_STRING,
+    INVALID_GATEWAY,
     INVALID_MINT_AMOUNT,
     INVALID_TOKEN,
     NO_ACCESS,

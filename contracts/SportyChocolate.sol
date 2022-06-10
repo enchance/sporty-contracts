@@ -189,7 +189,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     }
 
     modifier validGateway(uint gatewayId) {
-        require(bytes(gateways[gatewayId]).length != 0, "String cannot be empty");
+        require(bytes(gateways[gatewayId]).length != 0, 'GATEWAY: Does not exist');
         _;
     }
 
@@ -199,29 +199,30 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     }
 
     function addGateway(string memory _uri) public virtual onlyRole(ADMIN) returns (uint) {
-        require(bytes(_uri).length != 0, "String cannot be empty");
+        require(bytes(_uri).length != 0, 'GATEWAY: Does not exist');
         uint gatewayId = gatewayCounter.current();
         gateways[gatewayId] = _uri;
         gatewayCounter.increment();
         return gatewayId;
     }
 
-    function setURI(uint tokenId, uint gatewayId) external virtual onlyRole(ADMIN) validGateway(gatewayId) {
+    function setURI(uint tokenId, uint gatewayId) external virtual onlyRole(ADMIN) validToken(tokenId) validGateway(gatewayId) {
         _setURI(tokenId, gatewayId);
     }
 
-    // TEST: For testing
-    function _setURI(uint tokenId, uint gatewayId) internal virtual validGateway(gatewayId) {
+    function _setURI(uint tokenId, uint gatewayId) internal virtual {
         require(tokenId >= 1, 'TOKEN: Does not exist');
         uris[tokenId] = gatewayId;
     }
 
     function setURIBatch(uint[] memory tokenIds, uint gatewayId) external virtual onlyRole(ADMIN) validGateway(gatewayId) {
+        for (uint i; i < tokenIds.length; i++) {
+            require(exists(tokenIds[i]), 'TOKEN: Does not exist');
+        }
         _setURIBatch(tokenIds, gatewayId);
     }
 
-    // TEST: For testing
-    function _setURIBatch(uint[] memory tokenIds, uint gatewayId) internal virtual validGateway(gatewayId) {
+    function _setURIBatch(uint[] memory tokenIds, uint gatewayId) internal virtual {
         for (uint i; i < tokenIds.length; i++) {
             uris[tokenIds[i]] = gatewayId;
         }
