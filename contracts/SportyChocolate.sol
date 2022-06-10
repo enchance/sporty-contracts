@@ -81,111 +81,115 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         // Init tokens
         {
             uint price = .1 ether;
-            _tokenMapper(1, price, 50, 0);
-            _tokenMapper(2, .15 ether, 50, 0);
-//            _tokenMapper(3, price, 50, 0);
-//            _tokenMapper(4, price, 50, 0);
-//            _tokenMapper(5, price, 50, 0);
-//            _tokenMapper(6, price, 50, 0);
-//            _tokenMapper(7, price, 50, 0);
-//            _tokenMapper(8, price, 50, 0);
-//            _tokenMapper(9, price, 50, 0);
-//            _tokenMapper(10, price, 50, 0);
-//            _tokenMapper(11, price, 50, 0);
-//            _tokenMapper(12, price, 50, 0);
-//            _tokenMapper(13, price, 50, 0);
-//            _tokenMapper(14, price, 50, 0);
-//            _tokenMapper(15, price, 50, 0);
-//            _tokenMapper(16, price, 50, 0);
-//            _tokenMapper(17, price, 50, 0);
-//            _tokenMapper(18, price, 50, 0);
-//            _tokenMapper(19, price, 50, 0);
-//            _tokenMapper(20, price, 50, 0);
-//            _tokenMapper(21, price, 50, 0);
-//            _tokenMapper(22, price, 50, 0);
-//            _tokenMapper(23, price, 50, 0);
-//            _tokenMapper(24, price, 50, 0);
-//            _tokenMapper(25, price, 50, 0);
-//            _tokenMapper(26, price, 50, 0);
-//            _tokenMapper(27, price, 50, 0);
-//            _tokenMapper(28, price, 50, 0);
-//            _tokenMapper(29, price, 50, 0);
-//            _tokenMapper(30, price, 50, 0);
-//            _tokenMapper(31, price, 50, 0);
-//            _tokenMapper(32, price, 50, 0);
-//            _tokenMapper(33, price, 50, 0);
-//            _tokenMapper(34, price, 50, 0);
-//            _tokenMapper(35, price, 50, 0);
-//            _tokenMapper(36, price, 50, 0);
-//            _tokenMapper(37, price, 50, 0);
-//            _tokenMapper(38, price, 50, 0);
-//            _tokenMapper(39, price, 50, 0);
-//            _tokenMapper(40, price, 50, 0);
-//            _tokenMapper(41, price, 50, 0);
-//            _tokenMapper(42, price, 50, 0);
-//            _tokenMapper(43, price, 50, 0);
-//            _tokenMapper(44, price, 50, 0);
-//            _tokenMapper(45, price, 50, 0);
-//            _tokenMapper(46, price, 50, 0);
-//            _tokenMapper(47, price, 50, 0);
-//            _tokenMapper(48, price, 50, 0);
-//            _tokenMapper(49, price, 50, 0);
-//            _tokenMapper(50, price, 50, 0);
-//            _tokenMapper(51, price, 50, 0);
-//            _tokenMapper(52, price, 50, 0);
-//            _tokenMapper(53, price, 50, 0);
-//            _tokenMapper(54, price, 50, 0);
-//            _tokenMapper(55, price, 50, 0);
-//            _tokenMapper(56, price, 50, 0);
-//            _tokenMapper(57, price, 50, 0);
-//            _tokenMapper(58, price, 50, 0);
-//            _tokenMapper(59, price, 50, 0);
-//            _tokenMapper(60, price, 50, 0);
-//            _tokenMapper(61, price, 50, 0);
-//            _tokenMapper(62, price, 50, 0);
-//            _tokenMapper(63, price, 50, 0);
-//            _tokenMapper(64, price, 50, 0);
-//            _tokenMapper(65, price, 50, 0);
-//            _tokenMapper(66, price, 50, 0);
-//            _tokenMapper(67, price, 50, 0);
-//            _tokenMapper(68, price, 50, 0);
-//            _tokenMapper(69, price, 50, 0);
-//            _tokenMapper(70, price, 50, 0);
-//            _tokenMapper(71, price, 50, 0);
-//            _tokenMapper(72, price, 50, 0);
-//            _tokenMapper(73, price, 50, 0);
-//            _tokenMapper(74, price, 50, 0);
-//            _tokenMapper(75, price, 50, 0);
-//            _tokenMapper(76, price, 50, 0);
-//            _tokenMapper(77, price, 50, 0);
-//            _tokenMapper(78, price, 50, 0);
-//            _tokenMapper(79, price, 50, 0);
-//            _tokenMapper(80, price, 50, 0);
-//            _tokenMapper(81, price, 50, 0);
-//            _tokenMapper(82, price, 50, 0);
-//            _tokenMapper(83, price, 50, 0);
-//            _tokenMapper(84, price, 50, 0);
-//            _tokenMapper(85, price, 50, 0);
-//            _tokenMapper(86, price, 50, 0);
-//            _tokenMapper(87, price, 50, 0);
-//            _tokenMapper(88, price, 50, 0);
-//            _tokenMapper(89, price, 50, 0);
-//            _tokenMapper(90, price, 50, 0);
-//            _tokenMapper(91, price, 50, 0);
-//            _tokenMapper(92, price, 50, 0);
-//            _tokenMapper(93, price, 50, 0);
-//            _tokenMapper(94, price, 50, 0);
-//            _tokenMapper(95, price, 50, 0);
-//            _tokenMapper(96, price, 50, 0);
-//            _tokenMapper(97, price, 50, 0);
-//            _tokenMapper(98, price, 50, 0);
-//            _tokenMapper(99, price, 50, 0);
-//            _tokenMapper(100, price, 50, 0);
+            tokenMapper(1, price, 50, 0);
+            tokenMapper(2, .15 ether, 67, 0);
+            tokenMapper(3, 1 ether, 12, 0);
+            tokenMapper(4, 1.3 ether, 7, 0);
+//            tokenMapper(5, price, 50, 0);
+//            tokenMapper(6, price, 50, 0);
+//            tokenMapper(7, price, 50, 0);
+//            tokenMapper(8, price, 50, 0);
+//            tokenMapper(9, price, 50, 0);
+//            tokenMapper(10, price, 50, 0);
+//            tokenMapper(11, price, 50, 0);
+//            tokenMapper(12, price, 50, 0);
+//            tokenMapper(13, price, 50, 0);
+//            tokenMapper(14, price, 50, 0);
+//            tokenMapper(15, price, 50, 0);
+//            tokenMapper(16, price, 50, 0);
+//            tokenMapper(17, price, 50, 0);
+//            tokenMapper(18, price, 50, 0);
+//            tokenMapper(19, price, 50, 0);
+//            tokenMapper(20, price, 50, 0);
+//            tokenMapper(21, price, 50, 0);
+//            tokenMapper(22, price, 50, 0);
+//            tokenMapper(23, price, 50, 0);
+//            tokenMapper(24, price, 50, 0);
+//            tokenMapper(25, price, 50, 0);
+//            tokenMapper(26, price, 50, 0);
+//            tokenMapper(27, price, 50, 0);
+//            tokenMapper(28, price, 50, 0);
+//            tokenMapper(29, price, 50, 0);
+//            tokenMapper(30, price, 50, 0);
+//            tokenMapper(31, price, 50, 0);
+//            tokenMapper(32, price, 50, 0);
+//            tokenMapper(33, price, 50, 0);
+//            tokenMapper(34, price, 50, 0);
+//            tokenMapper(35, price, 50, 0);
+//            tokenMapper(36, price, 50, 0);
+//            tokenMapper(37, price, 50, 0);
+//            tokenMapper(38, price, 50, 0);
+//            tokenMapper(39, price, 50, 0);
+//            tokenMapper(40, price, 50, 0);
+//            tokenMapper(41, price, 50, 0);
+//            tokenMapper(42, price, 50, 0);
+//            tokenMapper(43, price, 50, 0);
+//            tokenMapper(44, price, 50, 0);
+//            tokenMapper(45, price, 50, 0);
+//            tokenMapper(46, price, 50, 0);
+//            tokenMapper(47, price, 50, 0);
+//            tokenMapper(48, price, 50, 0);
+//            tokenMapper(49, price, 50, 0);
+//            tokenMapper(50, price, 50, 0);
+//            tokenMapper(51, price, 50, 0);
+//            tokenMapper(52, price, 50, 0);
+//            tokenMapper(53, price, 50, 0);
+//            tokenMapper(54, price, 50, 0);
+//            tokenMapper(55, price, 50, 0);
+//            tokenMapper(56, price, 50, 0);
+//            tokenMapper(57, price, 50, 0);
+//            tokenMapper(58, price, 50, 0);
+//            tokenMapper(59, price, 50, 0);
+//            tokenMapper(60, price, 50, 0);
+//            tokenMapper(61, price, 50, 0);
+//            tokenMapper(62, price, 50, 0);
+//            tokenMapper(63, price, 50, 0);
+//            tokenMapper(64, price, 50, 0);
+//            tokenMapper(65, price, 50, 0);
+//            tokenMapper(66, price, 50, 0);
+//            tokenMapper(67, price, 50, 0);
+//            tokenMapper(68, price, 50, 0);
+//            tokenMapper(69, price, 50, 0);
+//            tokenMapper(70, price, 50, 0);
+//            tokenMapper(71, price, 50, 0);
+//            tokenMapper(72, price, 50, 0);
+//            tokenMapper(73, price, 50, 0);
+//            tokenMapper(74, price, 50, 0);
+//            tokenMapper(75, price, 50, 0);
+//            tokenMapper(76, price, 50, 0);
+//            tokenMapper(77, price, 50, 0);
+//            tokenMapper(78, price, 50, 0);
+//            tokenMapper(79, price, 50, 0);
+//            tokenMapper(80, price, 50, 0);
+//            tokenMapper(81, price, 50, 0);
+//            tokenMapper(82, price, 50, 0);
+//            tokenMapper(83, price, 50, 0);
+//            tokenMapper(84, price, 50, 0);
+//            tokenMapper(85, price, 50, 0);
+//            tokenMapper(86, price, 50, 0);
+//            tokenMapper(87, price, 50, 0);
+//            tokenMapper(88, price, 50, 0);
+//            tokenMapper(89, price, 50, 0);
+//            tokenMapper(90, price, 50, 0);
+//            tokenMapper(91, price, 50, 0);
+//            tokenMapper(92, price, 50, 0);
+//            tokenMapper(93, price, 50, 0);
+//            tokenMapper(94, price, 50, 0);
+//            tokenMapper(95, price, 50, 0);
+//            tokenMapper(96, price, 50, 0);
+//            tokenMapper(97, price, 50, 0);
+//            tokenMapper(98, price, 50, 0);
+//            tokenMapper(99, price, 50, 0);
+//            tokenMapper(100, price, 50, 0);
         }
 
         // TODO: Remove test mint
         mint(address(0), 1, 12, 0, '');
-        mint(address(0), 2, 12, 0, '');
+        mint(address(0), 1, 3, 0, '');
+        mint(address(0), 1, 1, 0, '');  // 16
+        mint(address(0), 2, 20, 0, '');
+        mint(address(0), 2, 7, 0, '');
+        mint(address(0), 2, 1, 0, '');  // 28
     }
 
     modifier validGateway(uint gatewayId) {
@@ -229,7 +233,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     }
 
     // TEST: For testing
-    function _mintable(address addr, uint tokenId) internal view returns (uint) {
+    function mintable(address addr, uint tokenId) public view onlyRole(ADMIN) returns (uint) {
         TokenProps memory token = tokenProps[tokenId];
         uint minted = tokensMinted[addr];
         uint mintable = token.limit - minted;
@@ -238,20 +242,13 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     }
 
     // TEST: For testing
-    function tokenMapper(uint tokenId, uint _price, uint _limit, uint _gatewayId)
-        external onlyRole(ADMIN) validGateway(_gatewayId)
-    {
+    function tokenMapper(uint tokenId, uint _price, uint _limit, uint _gatewayId) internal {
         TokenProps memory token = tokenProps[tokenId];
         require(
             token.price == 0 && token.limit == 0 && token.gatewayId == 0,
             'TOKEN: Cannot remap existing token'
         );
-        _tokenMapper(tokenId, _price, _limit, _gatewayId);
-    }
 
-    // TEST: For testing
-    function _tokenMapper(uint tokenId, uint _price, uint _limit, uint _gatewayId) internal {
-        TokenProps memory token = tokenProps[tokenId];
         token.price = _price;
         token.limit = _limit;
         token.gatewayId = _gatewayId;
@@ -259,13 +256,13 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     }
 
     // TEST: For testing
-    function mint(address account, uint tokenId, uint amount, uint gatewayId,
-        bytes memory data) public virtual validGateway(gatewayId) payable
+    function mint(address account, uint tokenId, uint amount, uint gatewayId, bytes memory data)
+        public virtual validGateway(gatewayId) payable
     {
-        uint mintable = _mintable(_msgSender(), tokenId);
-        TokenProps memory token = tokenProps[tokenId];
+        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
 
-        require(amount >= 1, "Can't mint 0 amount");
+        TokenProps memory token = tokenProps[tokenId];
+        uint mintable = mintable(_msgSender(), tokenId);
 
         if(hasRole(ADMIN, _msgSender())) {
             _mint(MARKETPLACE_ACCOUNT, tokenId, amount, data);

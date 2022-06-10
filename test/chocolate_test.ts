@@ -1,12 +1,13 @@
 import { expect } from "chai";
 import {ethers, upgrades} from "hardhat";
 import {describe} from "mocha";                                                 // eslint-disable-line
-import {ContractFactory} from "ethers";
+import {parseEther} from "ethers/lib/utils";
+import {BigNumber, BigNumberish, ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy-sporty";                                 // eslint-disable-line
 import {
     INVALID_GATEWAY,
-    INVALID_MINT_AMOUNT,
+    ZERO_AMOUNT,
     INVALID_TOKEN,
     NO_ACCESS,
     NULL_ADDRESS,
@@ -20,6 +21,7 @@ let factory: ContractFactory, contract: any
 let owneruser: SignerWithAddress, adminuser: SignerWithAddress, upgraderuser: SignerWithAddress
 let foouser: SignerWithAddress, baruser: SignerWithAddress
 let tokenId: number, tokenIds: number[], gatewayId: number
+export const MARKETPLACE_ACCOUNT = '0xD07A0C38C6c4485B97c53b883238ac05a14a85D6'
 
 export const init_contract = async () => {
     [owneruser, adminuser, upgraderuser, foouser, baruser] = await ethers.getSigners()
@@ -45,22 +47,35 @@ describe('SportyChocolateV1', () => {
         expect(await contract.gateways(0)).equals(INIT_GATEWAY)
     
         // Token mapping
-        for(let i = 1; i <= 2; i++) {
+        {   // eslint-disable-line
             token = await contract.connect(foouser).tokenProps(1)
-            expect(token.price).equals(ethers.utils.parseEther('.1'))
+            expect(token.price).equals(parseEther('.1'))
             expect(token.limit).equals(50)
             expect(token.gatewayId).equals(0)
-    
+
             token = await contract.connect(foouser).tokenProps(2)
-            expect(token.price).equals(ethers.utils.parseEther('.15'))
-            expect(token.limit).equals(50)
+            expect(token.price).equals(parseEther('.15'))
+            expect(token.limit).equals(67)
+            expect(token.gatewayId).equals(0)
+    
+            token = await contract.connect(foouser).tokenProps(3)
+            expect(token.price).equals(parseEther('1'))
+            expect(token.limit).equals(12)
+            expect(token.gatewayId).equals(0)
+
+            token = await contract.connect(foouser).tokenProps(4)
+            expect(token.price).equals(parseEther('1.3'))
+            expect(token.limit).equals(7)
             expect(token.gatewayId).equals(0)
         }
         
         // Mint
-        expect(await contract.exists(1)).is.true
-        expect(await contract.exists(2)).is.true
-        expect(await contract.exists(3)).is.false
+        expect(await contract.connect(foouser).exists(1)).is.true
+        expect(await contract.connect(foouser).exists(2)).is.true
+        expect(await contract.connect(foouser).exists(3)).is.false
+        expect(await contract.connect(foouser).balanceOf(MARKETPLACE_ACCOUNT, 1)).equals(16)
+        expect(await contract.connect(foouser).balanceOf(MARKETPLACE_ACCOUNT, 2)).equals(28)
+        expect(await contract.connect(foouser).balanceOf(MARKETPLACE_ACCOUNT, 3)).equals(0)
     })
     
     it('ACCESS CONTROL', async () => {
@@ -193,29 +208,40 @@ describe('SportyChocolateV1', () => {
         expect(await contract.connect(foouser).uri(tokenIds[0])).equals('abc')
     })
     
-    it.skip('Mint single token', async () => {
+    it.only('Mint single token', async () => {
         // Require
-        await expect(contract.connect(foouser).mint(foouser.address, 101, 0, 0, 50, [])).is.revertedWith(INVALID_MINT_AMOUNT)
-        await expect(contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])).is.revertedWith(INVALID_GATEWAY)
+        let overrides: BigNumber
+        await expect(contract.connect(foouser).mint(foouser.address, 101, 0, 0, [])).is.revertedWith(ZERO_AMOUNT)
+        await expect(contract.connect(foouser).mint(foouser.address, 101, 99, 1, [])).is.revertedWith(INVALID_GATEWAY)
+        // await expect(contract.connect(foouser).mint(foouser.address, 101, 99, 1, [])).is.revertedWith(INVALID_GATEWAY)
+        
+        // Test _mintable here
+        expect(await contract.connect(foouser).mintable(foouser.address, 1)).equals(16)
     
         await contract.connect(adminuser).addGateway('abc')
-        expect(await contract.connect(adminuser).exists(1)).is.true
+        await contract.connect(adminuser).addGateway('def')
         
-        expect(await contract.connect(adminuser).exists(101)).is.false
-        expect(await contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])).contains.keys(...TXKEYS)
-            .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
-        expect(await contract.connect(adminuser).exists(101)).is.true
+        // expect(await contract.connect(foouser).exists(1)).is.true
+        // expect(await contract.connect(foouser).exists(2)).is.true
+        // expect(await contract.connect(foouser).exists(3)).is.false
+
+        // expect(await contract.connect(foouser).mint(MARKETPLACE_ACCOUNT, 101, 99, 0, [])).contains.keys(...TXKEYS)
         
-        expect(await contract.connect(foouser).uri(101)).equals('abc')
-        expect(await contract.connect(foouser).totalSupply(101)).equals(99)
-    
-        expect(await contract.connect(adminuser).exists(200)).is.false
-        expect(await contract.connect(foouser).mint(foouser.address, 200, 99, 1, 50, [])).contains.keys(...TXKEYS)
-            .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
-        expect(await contract.connect(adminuser).exists(200)).is.true
-        
-        expect(await contract.connect(foouser).uri(200)).equals('abc')
-        expect(await contract.connect(foouser).totalSupply(200)).equals(99)
+        // expect(await contract.connect(foouser).exists(101)).is.false
+        // expect(await contract.connect(foouser).mint(foouser.address, 101, 99, 1, 50, [])).contains.keys(...TXKEYS)
+        //     .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
+        // expect(await contract.connect(foouser).exists(101)).is.true
+        //
+        // expect(await contract.connect(foouser).uri(101)).equals('abc')
+        // expect(await contract.connect(foouser).totalSupply(101)).equals(99)
+        //
+        // expect(await contract.connect(foouser).exists(200)).is.false
+        // expect(await contract.connect(foouser).mint(foouser.address, 200, 99, 1, 50, [])).contains.keys(...TXKEYS)
+        //     .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
+        // expect(await contract.connect(foouser).exists(200)).is.true
+        //
+        // expect(await contract.connect(foouser).uri(200)).equals('abc')
+        // expect(await contract.connect(foouser).totalSupply(200)).equals(99)
     })
     
     it.skip('Mint batch tokens', async () => {
@@ -226,8 +252,8 @@ describe('SportyChocolateV1', () => {
         await contract.connect(adminuser).addGateway('abc')
         await contract.connect(adminuser).addGateway('def')
     
-        expect(await contract.connect(adminuser).exists(101)).is.false
-        expect(await contract.connect(adminuser).exists(102)).is.false
+        expect(await contract.connect(foouser).exists(101)).is.false
+        expect(await contract.connect(foouser).exists(102)).is.false
         expect(await contract.connect(foouser).mintBatch(foouser.address, [101, 102], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
             .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [101, 102], [99, 50], [])
         

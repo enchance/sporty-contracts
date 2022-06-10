@@ -6,7 +6,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy-sporty";                                 // eslint-disable-line
 import {
     INVALID_GATEWAY,
-    INVALID_MINT_AMOUNT,
+    ZERO_AMOUNT,
     INVALID_TOKEN,
     NO_ACCESS,
     NULL_ADDRESS,
