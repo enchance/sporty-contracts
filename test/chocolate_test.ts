@@ -16,7 +16,8 @@ import {
     TOKEN_LIMIT_REACHED,
     MAX_REACHED
 } from "./error_messages";          // eslint-disable-line
-import {SportyChocolateV1} from "../typechain";                                     // eslint-disable-line
+import {SportyChocolateV1, UtilsUint} from "../typechain";          // eslint-disable-line
+import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";                                     // eslint-disable-line
 
 
 
@@ -29,9 +30,20 @@ export const MARKET_ACCOUNT = '0xD07A0C38C6c4485B97c53b883238ac05a14a85D6'
 export const init_contract = async () => {
     [owneruser, adminuser, upgraderuser, foouser, baruser, moderatoruser] = await ethers.getSigners()
     
+    // Lib
+    const UtilsUint: ContractFactory = await ethers.getContractFactory('UtilsUint', owneruser)
+    const utilsuint: any = await UtilsUint.deploy()
+    // console.log('UtilsUint:', utilsuint.address)
+    
     // V1
-    factory = await ethers.getContractFactory('$SportyChocolateV1', owneruser)
-    contract = <SportyChocolateV1>await upgrades.deployProxy(factory, [INIT_GATEWAY], {kind: 'uups'})
+    // https://docs.openzeppelin.com/upgrades-plugins/1.x/faq#why-cant-i-use-external-libraries
+    // https://ethereum.stackexchange.com/questions/85061/hardhat-error-unresolved-libraries-but-why
+    const opts: FactoryOptions = {
+        signer: owneruser,
+        libraries: {'UtilsUint': utilsuint.address}
+    }
+    factory = await ethers.getContractFactory('$SportyChocolateV1', opts)
+    contract = <SportyChocolateV1>await upgrades.deployProxy(factory, [INIT_GATEWAY], {kind: 'uups', unsafeAllowLinkedLibraries: true})
     // console.log('PROXY:', contract.address)
     
     return [factory, contract, owneruser, adminuser, upgraderuser, foouser, baruser, moderatoruser]
