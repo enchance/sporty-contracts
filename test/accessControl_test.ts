@@ -18,34 +18,45 @@ import {init_contract} from "./chocolate_test";   // eslint-disable-line
 export const OWNER = '0x6270edb7c868f86fda4adedba75108201087268ea345934db8bad688e1feb91b'
 export const ADMIN = '0xdf8b4c520ffe197c5343c6f5aec59570151ef9a492f2c624fd45ddde6135ec42'
 export const UPGRADER = '0xa615a8afb6fffcb8c6809ac0997b5c9c12b8cc97651150f14c8f6203168cff4c'
+export const MODERATOR = '0x58c8e11deab7910e89bf18a1168c6e6ef28748f00fd3094549459f01cec5e0aa'
 
 
 describe('AccessControl', () => {
     let factory: ContractFactory, contract: any
-    let owneruser: SignerWithAddress, adminuser: SignerWithAddress, upgraderuser: SignerWithAddress
+    let owneruser: SignerWithAddress, adminuser: SignerWithAddress, upgraderuser: SignerWithAddress, moderatoruser: SignerWithAddress
     let foouser: SignerWithAddress, baruser: SignerWithAddress
     let tokenId: number, tokenIds: number[], gatewayId: number
     
     beforeEach(async () => {
-        [factory, contract, owneruser, adminuser, upgraderuser, foouser, baruser] = await init_contract()
+        [factory, contract, owneruser, adminuser, upgraderuser, foouser, baruser, moderatoruser] = await init_contract()
     })
     
     it('Init', async () => {
         // Roles init
         expect(await contract.hasRole(OWNER, owneruser.address)).is.true
         expect(await contract.hasRole(OWNER, adminuser.address)).is.false
+        expect(await contract.hasRole(OWNER, moderatoruser.address)).is.false
         expect(await contract.hasRole(OWNER, upgraderuser.address)).is.false
         expect(await contract.hasRole(OWNER, foouser.address)).is.false
         expect(await contract.hasRole(OWNER, baruser.address)).is.false
     
         expect(await contract.hasRole(ADMIN, owneruser.address)).is.true
         expect(await contract.hasRole(ADMIN, adminuser.address)).is.true
+        expect(await contract.hasRole(ADMIN, moderatoruser.address)).is.false
         expect(await contract.hasRole(ADMIN, upgraderuser.address)).is.false
         expect(await contract.hasRole(ADMIN, foouser.address)).is.false
         expect(await contract.hasRole(ADMIN, baruser.address)).is.false
+
+        expect(await contract.hasRole(MODERATOR, owneruser.address)).is.true
+        expect(await contract.hasRole(MODERATOR, adminuser.address)).is.false
+        expect(await contract.hasRole(MODERATOR, moderatoruser.address)).is.true
+        expect(await contract.hasRole(MODERATOR, upgraderuser.address)).is.false
+        expect(await contract.hasRole(MODERATOR, foouser.address)).is.false
+        expect(await contract.hasRole(MODERATOR, baruser.address)).is.false
     
         expect(await contract.hasRole(UPGRADER, owneruser.address)).is.true
         expect(await contract.hasRole(UPGRADER, adminuser.address)).is.false
+        expect(await contract.hasRole(UPGRADER, moderatoruser.address)).is.false
         expect(await contract.hasRole(UPGRADER, upgraderuser.address)).is.true
         expect(await contract.hasRole(UPGRADER, foouser.address)).is.false
         expect(await contract.hasRole(UPGRADER, baruser.address)).is.false

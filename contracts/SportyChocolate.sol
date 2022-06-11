@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 
 
 
@@ -17,7 +18,7 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 // TODO: Create a separate page for each token
 
 contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUpgradeable,
-    ERC1155SupplyUpgradeable, UUPSUpgradeable
+    ERC1155SupplyUpgradeable, ERC1155BurnableUpgradeable, UUPSUpgradeable
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
@@ -25,23 +26,24 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         uint price;
         uint limit;
         uint gatewayId;
+        uint circulation;
+        uint max;
     }
 
     string public constant NAME = 'Shifty';
     string public constant SYMBOL = 'SHY';
-    address internal constant MARKETPLACE_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
+    address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
     bytes32 internal constant OWNER = keccak256("OWNER");
     bytes32 internal constant ADMIN = keccak256("ADMIN");
+    bytes32 internal constant MODERATOR = keccak256("MODERATOR");
     bytes32 internal constant UPGRADER = keccak256("UPGRADER");
 
-    string public name;
-    string public symbol;
+    // string public name;
+    // string public symbol;
     mapping(uint => uint) public uris;
     mapping(uint => string) public gateways;
     mapping(uint => TokenProps) public tokenProps;
-    mapping(address => uint) public tokensMinted;
-//    mapping(uint => uint) internal tokenLimit;
-//    mapping(uint => mapping(address => uint)) internal tokensMinted;
+    mapping(uint => mapping(address => uint)) public tokensMinted;
     CountersUpgradeable.Counter internal gatewayCounter;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -52,6 +54,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     function initialize(string memory _uri) public initializer {
         __ERC1155_init("");
         __AccessControl_init();
+        __ERC1155Burnable_init();
         __ERC1155Supply_init();
         __UUPSUpgradeable_init();
 
@@ -62,17 +65,19 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 //        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(OWNER, msg.sender);
         _grantRole(ADMIN, msg.sender);
+        _grantRole(MODERATOR, msg.sender);
         _grantRole(UPGRADER, msg.sender);
-//        _grantRole(ADMIN, "");          // Pierre
-//        _grantRole(ADMIN, "");          // Mike
-//        _grantRole(UPGRADER, "");       // Pierre
+        // Pierre: ADMIN, MODERATOR
+        // Mike: ADMIN, MODERATOR, UPGRADER
 
-        // Test data
+        // TODO: Replace accounts with actual
         _grantRole(ADMIN, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
+        _grantRole(MODERATOR, 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc);
         _grantRole(UPGRADER, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
 
         _setRoleAdmin(OWNER, OWNER);
         _setRoleAdmin(ADMIN, OWNER);
+        _setRoleAdmin(MODERATOR, ADMIN);
         _setRoleAdmin(UPGRADER, OWNER);
 
         // Init gateway
@@ -80,116 +85,19 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 
         // Init tokens
         {
-            uint price = .1 ether;
-            tokenMapper(1, price, 50, 0);
-            tokenMapper(2, .15 ether, 67, 0);
-            tokenMapper(3, 1 ether, 12, 0);
-            tokenMapper(4, 1.3 ether, 7, 0);
-//            tokenMapper(5, price, 50, 0);
-//            tokenMapper(6, price, 50, 0);
-//            tokenMapper(7, price, 50, 0);
-//            tokenMapper(8, price, 50, 0);
-//            tokenMapper(9, price, 50, 0);
-//            tokenMapper(10, price, 50, 0);
-//            tokenMapper(11, price, 50, 0);
-//            tokenMapper(12, price, 50, 0);
-//            tokenMapper(13, price, 50, 0);
-//            tokenMapper(14, price, 50, 0);
-//            tokenMapper(15, price, 50, 0);
-//            tokenMapper(16, price, 50, 0);
-//            tokenMapper(17, price, 50, 0);
-//            tokenMapper(18, price, 50, 0);
-//            tokenMapper(19, price, 50, 0);
-//            tokenMapper(20, price, 50, 0);
-//            tokenMapper(21, price, 50, 0);
-//            tokenMapper(22, price, 50, 0);
-//            tokenMapper(23, price, 50, 0);
-//            tokenMapper(24, price, 50, 0);
-//            tokenMapper(25, price, 50, 0);
-//            tokenMapper(26, price, 50, 0);
-//            tokenMapper(27, price, 50, 0);
-//            tokenMapper(28, price, 50, 0);
-//            tokenMapper(29, price, 50, 0);
-//            tokenMapper(30, price, 50, 0);
-//            tokenMapper(31, price, 50, 0);
-//            tokenMapper(32, price, 50, 0);
-//            tokenMapper(33, price, 50, 0);
-//            tokenMapper(34, price, 50, 0);
-//            tokenMapper(35, price, 50, 0);
-//            tokenMapper(36, price, 50, 0);
-//            tokenMapper(37, price, 50, 0);
-//            tokenMapper(38, price, 50, 0);
-//            tokenMapper(39, price, 50, 0);
-//            tokenMapper(40, price, 50, 0);
-//            tokenMapper(41, price, 50, 0);
-//            tokenMapper(42, price, 50, 0);
-//            tokenMapper(43, price, 50, 0);
-//            tokenMapper(44, price, 50, 0);
-//            tokenMapper(45, price, 50, 0);
-//            tokenMapper(46, price, 50, 0);
-//            tokenMapper(47, price, 50, 0);
-//            tokenMapper(48, price, 50, 0);
-//            tokenMapper(49, price, 50, 0);
-//            tokenMapper(50, price, 50, 0);
-//            tokenMapper(51, price, 50, 0);
-//            tokenMapper(52, price, 50, 0);
-//            tokenMapper(53, price, 50, 0);
-//            tokenMapper(54, price, 50, 0);
-//            tokenMapper(55, price, 50, 0);
-//            tokenMapper(56, price, 50, 0);
-//            tokenMapper(57, price, 50, 0);
-//            tokenMapper(58, price, 50, 0);
-//            tokenMapper(59, price, 50, 0);
-//            tokenMapper(60, price, 50, 0);
-//            tokenMapper(61, price, 50, 0);
-//            tokenMapper(62, price, 50, 0);
-//            tokenMapper(63, price, 50, 0);
-//            tokenMapper(64, price, 50, 0);
-//            tokenMapper(65, price, 50, 0);
-//            tokenMapper(66, price, 50, 0);
-//            tokenMapper(67, price, 50, 0);
-//            tokenMapper(68, price, 50, 0);
-//            tokenMapper(69, price, 50, 0);
-//            tokenMapper(70, price, 50, 0);
-//            tokenMapper(71, price, 50, 0);
-//            tokenMapper(72, price, 50, 0);
-//            tokenMapper(73, price, 50, 0);
-//            tokenMapper(74, price, 50, 0);
-//            tokenMapper(75, price, 50, 0);
-//            tokenMapper(76, price, 50, 0);
-//            tokenMapper(77, price, 50, 0);
-//            tokenMapper(78, price, 50, 0);
-//            tokenMapper(79, price, 50, 0);
-//            tokenMapper(80, price, 50, 0);
-//            tokenMapper(81, price, 50, 0);
-//            tokenMapper(82, price, 50, 0);
-//            tokenMapper(83, price, 50, 0);
-//            tokenMapper(84, price, 50, 0);
-//            tokenMapper(85, price, 50, 0);
-//            tokenMapper(86, price, 50, 0);
-//            tokenMapper(87, price, 50, 0);
-//            tokenMapper(88, price, 50, 0);
-//            tokenMapper(89, price, 50, 0);
-//            tokenMapper(90, price, 50, 0);
-//            tokenMapper(91, price, 50, 0);
-//            tokenMapper(92, price, 50, 0);
-//            tokenMapper(93, price, 50, 0);
-//            tokenMapper(94, price, 50, 0);
-//            tokenMapper(95, price, 50, 0);
-//            tokenMapper(96, price, 50, 0);
-//            tokenMapper(97, price, 50, 0);
-//            tokenMapper(98, price, 50, 0);
-//            tokenMapper(99, price, 50, 0);
-//            tokenMapper(100, price, 50, 0);
+            tokenMapper(1, .1 ether, 0, 15, 45);
+            tokenMapper(2, .15 ether, 0, 15, 100);
+            tokenMapper(3, 1 ether, 0, 15, 45);
+            tokenMapper(4, 1.3 ether, 0, 15, 45);
         }
 
-        // TODO: Remove test mint
-        mint(address(0), 1, 12, 0, '');
-        mint(address(0), 1, 3, 0, '');
-        mint(address(0), 1, 1, 0, '');  // 16
-        mint(address(0), 2, 20, 0, '');
-        mint(address(0), 2, 7, 0, '');
-        mint(address(0), 2, 1, 0, '');  // 28
+        // TODO: Transfer minting to test instead of in here
+        mint(1, 1, '');
+        mint(1, 2, '');
+        mint(1, 3, '');  // 6
+        mint(2, 2, '');
+        mint(2, 3, '');
+        mint(2, 4, '');  // 9
     }
 
     modifier validGateway(uint gatewayId) {
@@ -210,70 +118,126 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         return gatewayId;
     }
 
-    function setURI(uint tokenId, uint gatewayId) external virtual onlyRole(ADMIN) validToken(tokenId) validGateway(gatewayId) {
-        _setURI(tokenId, gatewayId);
-    }
+    // function setURI(uint tokenId, uint gatewayId) external virtual onlyRole(ADMIN) validToken(tokenId) validGateway(gatewayId) {
+    //     _setURI(tokenId, gatewayId);
+    // }
 
-    function _setURI(uint tokenId, uint gatewayId) internal virtual {
-        require(tokenId >= 1, 'TOKEN: Does not exist');
-        uris[tokenId] = gatewayId;
-    }
+    // function _setURI(uint tokenId, uint gatewayId) internal virtual {
+    //     require(tokenId >= 1, 'TOKEN: Does not exist');
+    //     uris[tokenId] = gatewayId;
+    // }
 
-    function setURIBatch(uint[] memory tokenIds, uint gatewayId) external virtual onlyRole(ADMIN) validGateway(gatewayId) {
-        for (uint i; i < tokenIds.length; i++) {
-            require(exists(tokenIds[i]), 'TOKEN: Does not exist');
+
+    // TEST: Untested
+    function setTokenPropsBatch(uint[] memory tokenIds, uint[] memory _maxs, uint[] memory _limits, bool change_gateway, uint _gatewayId) 
+        internal virtual onlyRole(MODERATOR) 
+    {
+        uint tokenlen = tokenIds.length;
+        uint maxlen = _maxs.length;
+        uint limitlen = _limits.length;
+
+        if(maxlen > 0) {
+            require(maxlen == tokenlen, 'OOPS: [] lengths must be the same');
         }
-        _setURIBatch(tokenIds, gatewayId);
-    }
+        if(limitlen > 0) {
+            require(limitlen == tokenlen, 'OOPS: [] lengths must be the same');
+        }
 
-    function _setURIBatch(uint[] memory tokenIds, uint gatewayId) internal virtual {
-        for (uint i; i < tokenIds.length; i++) {
-            uris[tokenIds[i]] = gatewayId;
+        for (uint i; i < tokenlen; i++) {
+            TokenProps memory token = tokenProps[tokenIds[i]];
+            
+            if(maxlen > 0) {
+                // This prevents overminting since the mint() fn is public.
+                require(_maxs[i] > token.max, 'TOKEN: Invalid token value');
+                token.max = _maxs[i];
+            }
+            if(limitlen > 0) {
+                require(_limits[i] > token.limit, 'TOKEN: Invalid token value');
+                
+                uint capvalue = maxlen > 0 ? _maxs[i] : token.max;
+
+                require(_limits[i] < capvalue, 'TOKEN: Invalid token value');
+
+                token.limit = _limits[i];
+            }
+            if(change_gateway) {
+                token.gatewayId = _gatewayId;
+            }
+        
+            tokenProps[tokenIds[i]] = token;
         }
     }
 
-    // TEST: For testing
-    function mintable(address addr, uint tokenId) public view onlyRole(ADMIN) returns (uint) {
+    /**
+     Find out the remaining number of mints an addr can make for a specific token.
+     Marked as "internal" since this is checked off-chain for speed.
+     @param addr:     Account address
+     @param tokenId:  Token
+     */
+    function _mintable(address addr, uint tokenId) internal view returns (uint) {
         TokenProps memory token = tokenProps[tokenId];
-        uint minted = tokensMinted[addr];
-        uint mintable = token.limit - minted;
-
-        return mintable >= 1 ? mintable : 0;
+        if(hasRole(ADMIN, _msgSender())) {
+            // Mint as many as max allows
+            return token.max - token.circulation;
+        }
+        else {
+            // Check user limits
+            uint from_max = token.max - token.circulation;
+            uint from_limit = token.limit - tokensMinted[tokenId][addr];
+            return from_max < from_limit ? from_max : from_limit;
+        }
     }
 
-    // TEST: For testing
-    function tokenMapper(uint tokenId, uint _price, uint _limit, uint _gatewayId) internal {
+    /**
+     1. How many of this token is an account allowed to have?
+     2. How many are mintable at this time? - Prevents overminting. Increase as needed.
+     */
+    function tokenMapper(uint tokenId, uint _price, uint _gatewayId, uint _limit, uint _max) internal {
         TokenProps memory token = tokenProps[tokenId];
         require(
-            token.price == 0 && token.limit == 0 && token.gatewayId == 0,
+            token.price == 0 && token.gatewayId == 0 && token.limit == 0 && token.max == 0,
             'TOKEN: Cannot remap existing token'
         );
+        require(_limit < _max, 'TOKEN: Limit too large');
 
         token.price = _price;
         token.limit = _limit;
         token.gatewayId = _gatewayId;
+        token.max = _max;
         tokenProps[tokenId] = token;
     }
 
     // TEST: For testing
-    function mint(address account, uint tokenId, uint amount, uint gatewayId, bytes memory data)
-        public virtual validGateway(gatewayId) payable
+    function mint(uint tokenId, uint amount, bytes memory data)
+        public virtual payable returns (bool)
     {
         require(amount >= 1, 'TOKEN: Cannot accept zero amount');
 
         TokenProps memory token = tokenProps[tokenId];
-        uint mintable = mintable(_msgSender(), tokenId);
+        uint mintable = _mintable(_msgSender(), tokenId);
+
+        require(
+            token.price > 0 && token.limit > 0 && token.max > token.limit,
+            'TOKEN: Does not exist'
+        );
+        require(amount <= token.max - token.circulation, 'TOKEN: Cannot mint beyond max');
+        require(mintable >= 1 && amount <= mintable, 'TOKEN: limit reached');
+
+        token.circulation += amount;
 
         if(hasRole(ADMIN, _msgSender())) {
-            _mint(MARKETPLACE_ACCOUNT, tokenId, amount, data);
+            tokensMinted[tokenId][MARKET_ACCOUNT] += amount;
+            _mint(MARKET_ACCOUNT, tokenId, amount, data);
         }
         else {
-            require(mintable >= 1, 'TOKEN: limit reached');
-            require(msg.value == token.price, 'TOKEN: Exact amount only');
-            _mint(account, tokenId, amount, data);
+            require(msg.value == token.price * amount, 'TOKEN: Exact amount only');
+            tokensMinted[tokenId][_msgSender()] += amount;
+            _mint(_msgSender(), tokenId, amount, data);
         }
-        _setURI(tokenId, gatewayId);
+        tokenProps[tokenId] = token;
+        return true;
     }
+
 
     // TEST: For testing
     function mintBatch() public {}
@@ -292,6 +256,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 
 
     function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER) override {}
+
 
     // The following functions are overrides required by Solidity.
 
