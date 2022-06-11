@@ -72,43 +72,43 @@
       "kind": "uups"
     },
     {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0xef24d09d8d41e5accd3404a3d95b6f2821180901b8840f1fac1467e6fac253fb",
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "txHash": "0x2d89be10fdeb445de538e8a16da8af0d93d0ade45ee1ef0052f069e27c0beab4",
       "kind": "uups"
     },
     {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0xe0c59f1a33b233e05f7ce8a68d21903d358fc417fe72775d7e56bc0304635c51",
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "txHash": "0x400a2be2c6a96d89b040ffc8f1c72c02516724a0b93225eaaee9a4fc5b8ba720",
       "kind": "uups"
     },
     {
       "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-      "txHash": "0xda5dfa424fc4949c42a3f3ca8cd6dcd7a626775252b1288a5393e5e32e8f6c71",
+      "txHash": "0xdba00f8d6e2bd07b52763c27d726b5ed37aac2eb75561aa00902caf2e0c34e61",
       "kind": "uups"
     },
     {
       "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-      "txHash": "0xde0d82f4411205076e41abe01eccd6a68192eea9e99fbd64a54985fa1a339096",
+      "txHash": "0xe130640696e5e75bc15527df5e1108ef9f29f77a0fc12ce780da7c51d07bf0b5",
       "kind": "uups"
     },
     {
       "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "txHash": "0x763319cb63a18e48af68c8dde0c03feaba530e645c98167ed517d835f9dd2941",
+      "txHash": "0x435442f4d352bddc2ea6c7254d98c2ceccb8f89dd60fcc44f548e4b4cdfd6411",
       "kind": "uups"
     },
     {
       "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-      "txHash": "0x9edf6ab5400891fd999dd98628519a1b9281e9c432b897fee9c88d53662f3925",
+      "txHash": "0xd926d103c3f9cee4f8ef751da0271730b200b9f89783f8aa171cdfa3538ca36f",
       "kind": "uups"
     },
     {
       "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-      "txHash": "0x0a3e7fb1e76b21ae95e0a21bb628bdcf18b9a2c16d5c944a992e65cc67be93bb",
+      "txHash": "0xcf5eb6cdeff36d48d98c72d53122bf2547221f104d9e8d7cd0cdf9efd148fe4d",
       "kind": "uups"
     },
     {
       "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      "txHash": "0x16337089702732600dffe9848bec656e25f2ec76446fcd4afeadd411df80926c",
+      "txHash": "0x0ad6083bd9544ce17ea7b77ded08b4b3c88401cdfc80d12c4ca0665017cd9ea0",
       "kind": "uups"
     }
   ],
@@ -418,9 +418,9 @@
         }
       }
     },
-    "78a1ae31144145cabb52d4fabc0d9e457db5402be9172b2f6f8bf29bd264fe9f": {
+    "41c484dfc4afe489df36c5a16ea9503f12bc6a1ebaa0f248dd56011f1086be56": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0xcdb659db9dc450a9be3f0aad001929d7fb6daa0fb8d48c52bae95296d0163fe3",
+      "txHash": "0x5669d25cd78b717bda6b48cc7cb9473c49c3ff05edbf6d943859e58bd719be0e",
       "layout": {
         "storage": [
           {
@@ -550,7 +550,7 @@
             "slot": "401",
             "type": "t_mapping(t_uint256,t_uint256)",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:43"
+            "src": "contracts/SportyChocolate.sol:45"
           },
           {
             "label": "gateways",
@@ -558,15 +558,15 @@
             "slot": "402",
             "type": "t_mapping(t_uint256,t_string_storage)",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:44"
+            "src": "contracts/SportyChocolate.sol:46"
           },
           {
             "label": "tokenProps",
             "offset": 0,
             "slot": "403",
-            "type": "t_mapping(t_uint256,t_struct(TokenProps)4198_storage)",
+            "type": "t_mapping(t_uint256,t_struct(TokenProps)4201_storage)",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:45"
+            "src": "contracts/SportyChocolate.sol:47"
           },
           {
             "label": "tokensMinted",
@@ -574,7 +574,7 @@
             "slot": "404",
             "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:46"
+            "src": "contracts/SportyChocolate.sol:48"
           },
           {
             "label": "gatewayCounter",
@@ -582,7 +582,7 @@
             "slot": "405",
             "type": "t_struct(Counter)3059_storage",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:47"
+            "src": "contracts/SportyChocolate.sol:49"
           }
         ],
         "types": {
@@ -634,7 +634,7 @@
             "label": "mapping(uint256 => string)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(TokenProps)4198_storage)": {
+          "t_mapping(t_uint256,t_struct(TokenProps)4201_storage)": {
             "label": "mapping(uint256 => struct SportyChocolateV1.TokenProps)",
             "numberOfBytes": "32"
           },
@@ -676,7 +676,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(TokenProps)4198_storage": {
+          "t_struct(TokenProps)4201_storage": {
             "label": "struct SportyChocolateV1.TokenProps",
             "members": [
               {
@@ -723,9 +723,9 @@
         }
       }
     },
-    "6c31eff6def62972d35d8a7eba38f5d3a931eb435bf465dee706c945be252636": {
+    "37b3d45f483efaf8f985a1ba04c4fca73be32a4466898a3df9ad9c1175296976": {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x7c3e53e1f272c44fc4b668371aa9f082f51cfcb8c74a632bf8ff495d04746802",
+      "txHash": "0x5f23d0695d9e5b3e1977e9fc2b2f7391260f09a26d919303f014d9585dab11cd",
       "layout": {
         "storage": [
           {
@@ -855,7 +855,7 @@
             "slot": "401",
             "type": "t_mapping(t_uint256,t_uint256)",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:43"
+            "src": "contracts/SportyChocolate.sol:45"
           },
           {
             "label": "gateways",
@@ -863,15 +863,15 @@
             "slot": "402",
             "type": "t_mapping(t_uint256,t_string_storage)",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:44"
+            "src": "contracts/SportyChocolate.sol:46"
           },
           {
             "label": "tokenProps",
             "offset": 0,
             "slot": "403",
-            "type": "t_mapping(t_uint256,t_struct(TokenProps)4198_storage)",
+            "type": "t_mapping(t_uint256,t_struct(TokenProps)4201_storage)",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:45"
+            "src": "contracts/SportyChocolate.sol:47"
           },
           {
             "label": "tokensMinted",
@@ -879,7 +879,7 @@
             "slot": "404",
             "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:46"
+            "src": "contracts/SportyChocolate.sol:48"
           },
           {
             "label": "gatewayCounter",
@@ -887,7 +887,7 @@
             "slot": "405",
             "type": "t_struct(Counter)3059_storage",
             "contract": "SportyChocolateV1",
-            "src": "contracts/SportyChocolate.sol:47"
+            "src": "contracts/SportyChocolate.sol:49"
           }
         ],
         "types": {
@@ -939,7 +939,7 @@
             "label": "mapping(uint256 => string)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(TokenProps)4198_storage)": {
+          "t_mapping(t_uint256,t_struct(TokenProps)4201_storage)": {
             "label": "mapping(uint256 => struct SportyChocolateV1.TokenProps)",
             "numberOfBytes": "32"
           },
@@ -981,7 +981,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(TokenProps)4198_storage": {
+          "t_struct(TokenProps)4201_storage": {
             "label": "struct SportyChocolateV1.TokenProps",
             "members": [
               {

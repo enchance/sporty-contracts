@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
+import './lib/Utils.sol';
 
 
 
@@ -21,6 +22,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     ERC1155SupplyUpgradeable, ERC1155BurnableUpgradeable, UUPSUpgradeable
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
+    using UtilsUint for uint;
 
     struct TokenProps {
         uint price;
@@ -85,10 +87,10 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 
         // Init tokens
         {
-            tokenMapper(1, .1 ether, 0, 15, 45);
-            tokenMapper(2, .15 ether, 0, 15, 100);
-            tokenMapper(3, 1 ether, 0, 15, 45);
-            tokenMapper(4, 1.3 ether, 0, 15, 45);
+            tokenMapper(1, .1 ether, 15, 45, 0);
+            tokenMapper(2, .15 ether, 15, 100, 0);
+            tokenMapper(3, 1 ether, 15, 45, 0);
+            tokenMapper(4, 1.3 ether, 15, 45, 0);
         }
 
         // TODO: Transfer minting to test instead of in here
@@ -192,19 +194,44 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
      1. How many of this token is an account allowed to have?
      2. How many are mintable at this time? - Prevents overminting. Increase as needed.
      */
-    function tokenMapper(uint tokenId, uint _price, uint _gatewayId, uint _limit, uint _max) internal {
-        TokenProps memory token = tokenProps[tokenId];
-        require(
-            token.price == 0 && token.gatewayId == 0 && token.limit == 0 && token.max == 0,
-            'TOKEN: Cannot remap existing token'
-        );
-        require(_limit < _max, 'TOKEN: Limit too large');
+    function tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId)
+        public onlyRole(MODERATOR) validGateway(gatewayId)
+    {
+        uint[] memory tokenIds = tokenId.asSingleton();
+        uint[] memory prices = price.asSingleton();
+        uint[] memory limits = limit.asSingleton();
+        uint[] memory maxs = max.asSingleton();
 
-        token.price = _price;
-        token.limit = _limit;
-        token.gatewayId = _gatewayId;
-        token.max = _max;
-        tokenProps[tokenId] = token;
+        tokenMapperBatch(tokenIds, prices, limits, maxs, gatewayId);
+    }
+
+    function tokenMapperBatch(
+            uint[] memory tokenIds, uint[] memory prices, uint[] memory limits,
+            uint[] memory maxs, uint _gatewayId
+        ) public onlyRole(MODERATOR) validGateway(_gatewayId)
+    {
+        uint tokenlen = tokenIds.length;
+        uint pricelen = prices.length;
+        uint limitlen = limits.length;
+        uint maxlen = maxs.length;
+
+        // TEST: For testing
+        require(tokenlen == pricelen && pricelen == limitlen && limitlen == maxlen, 'OOPS: [] lengths must be the same');
+
+        for (uint i; i < tokenlen; i++) {
+            TokenProps memory token = tokenProps[tokenIds[i]];
+            require(
+                token.price == 0 && token.gatewayId == 0 && token.limit == 0 && token.max == 0,
+                'TOKEN: Cannot remap existing token'
+            );
+            require(limits[i] < maxs[i], 'TOKEN: Limit too large');
+
+            token.price = prices[i];
+            token.limit = limits[i];
+            token.gatewayId = _gatewayId;
+            token.max = maxs[i];
+            tokenProps[tokenIds[i]] = token;
+        }
     }
 
     // TEST: For testing
