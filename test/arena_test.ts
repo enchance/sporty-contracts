@@ -16,7 +16,7 @@ import {
     TOKEN_LIMIT_REACHED,
     MAX_REACHED, EMPTY_ADDRESS
 } from "./error_messages";          // eslint-disable-line
-import {UtilsUint} from "../typechain";          // eslint-disable-line
+import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
 import {DeployProxyOptions} from "@openzeppelin/hardhat-upgrades/dist/utils";
 
@@ -45,8 +45,11 @@ export const init_contract = async () => {
     await utils.deployed()
     
     // Gatekeeper
+    const admins = [adminuser.address]
+    const staffs = [staffuser.address]
+    
     Gate = await ethers.getContractFactory('Gatekeeper', deployer)
-    gate = await Gate.deploy(owneruser.address, [adminuser.address], [staffuser.address])
+    gate = <Gatekeeper>await Gate.deploy(owneruser.address, admins, staffs)
     await gate.deployed()
     
     // V1

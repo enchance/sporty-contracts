@@ -21,6 +21,7 @@ contract Gatekeeper is AccessControl {
         _grantRole(gkroles['ARENA_STAFF'], owner);
         _grantRole(gkroles['ARENA_CONTRACT'], owner);
 
+        // Role admins
         _setRoleAdmin(GATEKEEPER, GATEKEEPER);
         _setRoleAdmin(gkroles['ARENA_OWNER'], GATEKEEPER);
         _setRoleAdmin(gkroles['ARENA_ADMIN'], gkroles['ARENA_OWNER']);

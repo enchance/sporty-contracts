@@ -23,6 +23,8 @@ import {Gatekeeper} from "../typechain";            // eslint-disable-line
 let deployer: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress, owneruser: SignerWithAddress
 let foouser: SignerWithAddress, baruser: SignerWithAddress
 let Gate: ContractFactory, gate: Gatekeeper
+const placeholder_pierre = '0x3E034Dc9b877E103eB5E29102133503CdFdA60C5'
+const placeholder_mike = '0x56309A15842aF14Ef52082310D26E4517D861aCB'
 
 // keccack256 encoded from contract
 const GATEKEEPER = '0x20162831d2f54c3e11eebafebfeda495d4c52c67b1708251179ec91fb76dd3b2'
@@ -34,8 +36,11 @@ const CONTRACT = '0xa89e6fb581bf21fa2623f4ddc917bd8cec5dc18f1960a95bf5bede67bf51
 export const init_contract = async () => {
     [owneruser, adminuser, staffuser, foouser, baruser, deployer] = await ethers.getSigners()
     
+    const admins = [adminuser.address]
+    const staffs = [staffuser.address]
+    
     Gate = await ethers.getContractFactory('Gatekeeper', deployer)
-    gate = <Gatekeeper>await Gate.deploy(owneruser.address, [adminuser.address], [staffuser.address])
+    gate = <Gatekeeper>await Gate.deploy(owneruser.address, admins, staffs)
     await gate.deployed()
 }
 
