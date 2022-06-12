@@ -4,7 +4,7 @@ import {describe} from "mocha";                                                 
 import {parseEther} from "ethers/lib/utils";
 import {BigNumber, BigNumberish, ContractFactory, PayableOverrides} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy-sporty";                                 // eslint-disable-line
+import {INIT_GATEWAY, MARKET_ACCOUNT} from "../scripts/deploy-sporty";                                 // eslint-disable-line
 import {
     INVALID_GATEWAY,
     ZERO_AMOUNT,
@@ -14,9 +14,9 @@ import {
     TXKEYS,
     EXACT_AMOUNT,
     TOKEN_LIMIT_REACHED,
-    MAX_REACHED, EMPTY_ADDRESS
+    MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED
 } from "./error_messages";          // eslint-disable-line
-import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
+// import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
 import {DeployProxyOptions} from "@openzeppelin/hardhat-upgrades/dist/utils";
 
@@ -36,7 +36,7 @@ const random_addr = '0x3E034Dc9b877E103eB5E29102133503CdFdA60C5'
 * https://ethereum.stackexchange.com/questions/85061/hardhat-error-unresolved-libraries-but-why
 *  */
 
-export const init_contract = async () => {
+const init_contract = async () => {
     [owneruser, adminuser, staffuser, foouser, baruser, deployer] = await ethers.getSigners()
     
     // Utils
@@ -49,7 +49,7 @@ export const init_contract = async () => {
     const staffs = [staffuser.address]
     
     Gate = await ethers.getContractFactory('Gatekeeper', deployer)
-    gate = <Gatekeeper>await Gate.deploy(owneruser.address, admins, staffs)
+    gate = await Gate.deploy(owneruser.address, admins, staffs)
     await gate.deployed()
     
     // V1
@@ -57,6 +57,7 @@ export const init_contract = async () => {
         signer: owneruser,
         libraries: {'UtilsUint': utils.address}
     }
+    // const deploymentOpts: DeployProxyOptions = {kind: 'uups'}
     const deploymentOpts: DeployProxyOptions = {kind: 'uups', unsafeAllowLinkedLibraries: true}
     factory = await ethers.getContractFactory('SportyArenaV1', factoryOpts)
     contract = await upgrades.deployProxy(factory, [INIT_GATEWAY, gate.address], deploymentOpts)
@@ -205,6 +206,111 @@ describe('SportyArenaV1', () => {
         
         await contract.connect(adminuser).setGatekeeper(random_addr)
         expect(await contract.connect(foouser).gk()).equals(random_addr)
+    })
+    
+    it('Gateway', async () => {
+        // Require
+        await expect(contract.connect(adminuser).addGateway('')).is.revertedWith(INVALID_GATEWAY)
+        
+        expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
+        
+        expect(!!(await contract.connect(foouser).gateways(1))).is.false
+        await contract.connect(adminuser).addGateway('abc')
+        expect(await contract.connect(foouser).gateways(1)).equals('abc')
+        
+        expect(!!(await contract.connect(foouser).gateways(2))).is.false
+        await contract.connect(adminuser).addGateway('def')
+        expect(await contract.connect(foouser).gateways(2)).equals('def')
+    })
+    
+    it('Mint single token', async () => {
+        // Require
+        let overrides: PayableOverrides
+        await expect(contract.connect(foouser).mint(1, 0, [])).is.revertedWith(ZERO_AMOUNT)
+        await expect(contract.connect(foouser).mint(1, 16, [])).is.revertedWith(MINTABLE_EXCEEDED)
+        await expect(contract.connect(adminuser).mint(1, 46, [])).is.revertedWith(MINTABLE_EXCEEDED)
+        await expect(contract.connect(foouser).mint(1234543, 1, [])).is.revertedWith(INVALID_TOKEN)
+        
+        // Test _mintable here
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(15)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 2)).equals(15)
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(39)
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 2)).equals(91)
+
+        await contract.connect(adminuser).addGateway('abc')
+        await contract.connect(adminuser).addGateway('def')
+
+        expect(await contract.connect(foouser).exists(1)).is.true
+        expect(await contract.connect(foouser).exists(2)).is.true
+        expect(await contract.connect(foouser).exists(3)).is.false
+
+        // Insufficient value
+        await expect(contract.connect(foouser).mint(1, 3, [], {value: parseEther('.29')})).is.revertedWith(EXACT_AMOUNT)
+        await expect(contract.connect(foouser).mint(1, 3, [], {value: parseEther('.31')})).is.revertedWith(EXACT_AMOUNT)
+        await expect(contract.connect(foouser).mint(2, 3, [], {value: parseEther('.74')})).is.revertedWith(EXACT_AMOUNT)
+        await expect(contract.connect(foouser).mint(2, 3, [], {value: parseEther('.76')})).is.revertedWith(EXACT_AMOUNT)
+    
+        await contract.connect(foouser).mint(1, 3, [], {value: parseEther('.3')})
+        await contract.connect(foouser).mint(2, 5, [], {value: parseEther('.75')})
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(12)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 2)).equals(10)
+
+        await contract.connect(adminuser).mint(1, 1, [])
+        await contract.connect(adminuser).mint(2, 5, [])
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(35)
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 2)).equals(81)
+
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(12)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 2)).equals(10)
+
+        await contract.connect(foouser).mint(1, 2, [], {value: parseEther('.2')})
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(10)
+
+        // Start minting so it's == limit (10 remaining)
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(33)
+        await contract.connect(adminuser).mint(1, 23, [])
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(10)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(10)
+
+        // // Start minting so it's < limit (10 remaining)
+        await contract.connect(adminuser).mint(1, 2, [])
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(8)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(8)
+
+        await expect(contract.connect(foouser).mint(1, 9, [])).is.revertedWith(MINTABLE_EXCEEDED)
+        await contract.connect(foouser).mint(1, 1, [], {value: parseEther('.1')})
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(7)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(7)
+
+        await expect(contract.connect(adminuser).mint(1, 8, [])).is.revertedWith(MINTABLE_EXCEEDED)
+        await contract.connect(adminuser).mint(1, 7, [])
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(0)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(0)
+
+        // Nothing left to mint
+        await expect(contract.connect(adminuser).mint(1, 1, [])).is.revertedWith(MINTABLE_EXCEEDED)
+        await expect(contract.connect(foouser).mint(1, 1, [])).is.revertedWith(MINTABLE_EXCEEDED)
+        
+        
+        
+        
+        // await contract.connect(foouser).mint(434, 1, [])
+        
+        // expect(await contract.connect(foouser).exists(101)).is.false
+        // expect(await contract.connect(foouser).mint(101, 99, 1, 50, [])).contains.keys(...TXKEYS)
+        //
+        // expect(await contract.connect(foouser).exists(101)).is.true
+        //
+        // expect(await contract.connect(foouser).uri(101)).equals('abc')
+        // expect(await contract.connect(foouser).totalSupply(101)).equals(99)
+        //
+        // expect(await contract.connect(foouser).exists(200)).is.false
+        // expect(await contract.connect(foouser).mint(200, 99, 1, 50, [])).contains.keys(...TXKEYS)
+        //     .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
+        // expect(await contract.connect(foouser).exists(200)).is.true
+        //
+        // expect(await contract.connect(foouser).uri(200)).equals('abc')
+        // expect(await contract.connect(foouser).totalSupply(200)).equals(99)
     })
     
 })

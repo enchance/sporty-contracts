@@ -18,9 +18,7 @@ interface IGatekeeper {
     function hasRole(bytes32 role, address account) external view returns (bool);
 }
 
-contract SportyArenaV1 is Initializable, ERC1155Upgradeable,
-    ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable
-{
+contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable {
     using UtilsUint for uint;
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
@@ -73,13 +71,13 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable,
             tokenMapper(4, 1.3 ether, 15, 45, 0);
         }
 
-//        // TODO: Transfer minting to test instead of in here
-//        mint(1, 1, '');
-//        mint(1, 2, '');
-//        mint(1, 3, '');  // 6
-//        mint(2, 2, '');
-//        mint(2, 3, '');
-//        mint(2, 4, '');  // 9
+        // TODO: Transfer minting to test instead of in here
+        mint(1, 1, '');
+        mint(1, 2, '');
+        mint(1, 3, '');  // 6
+        mint(2, 2, '');
+        mint(2, 3, '');
+        mint(2, 4, '');  // 9
     }
 
     modifier validGateway(uint gatewayId) {
@@ -196,24 +194,69 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable,
         gk = IGatekeeper(addr);
     }
 
-
-
-
-
-
-
-
-    function setURI(string memory newuri) public onlyRole(ADMIN) {
-        _setURI(newuri);
+    /**
+     Find out the remaining number of mints an addr can make for a specific token.
+     Marked as "internal" since this is checked off-chain for speed.
+     @param addr:     Account address
+     @param tokenId:  Token
+     */
+    function mintableAmount(address addr, uint tokenId) public view virtual returns (uint) {
+        TokenProps memory token = tokenProps[tokenId];
+        if(gk.hasRole(ADMIN, _msgSender())) {
+            // Mint as many as max allows
+            return token.max - token.circulation;
+        }
+        else {
+            // Check user limits
+            uint from_max = token.max - token.circulation;
+            uint from_limit = token.limit - tokensMinted[tokenId][addr];
+            return from_max < from_limit ? from_max : from_limit;
+        }
     }
 
-    function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(ADMIN) {
-        _mint(account, id, amount, data);
+    function mint(uint tokenId, uint amount, bytes memory data) public virtual payable returns (bool) {
+        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
+
+        TokenProps memory token = tokenProps[tokenId];
+        uint mintable = mintableAmount(_msgSender(), tokenId);
+
+        require(
+            token.price > 0 && token.limit > 0 && token.max > token.limit,
+            'TOKEN: Does not exist'
+        );
+        require(amount <= mintable, 'TOKEN: Mintable amount exceeded');
+
+        token.circulation += amount;
+        tokenProps[tokenId] = token;
+
+        if(gk.hasRole(ADMIN, _msgSender())) {
+            tokensMinted[tokenId][MARKET_ACCOUNT] += amount;
+            _mint(MARKET_ACCOUNT, tokenId, amount, data);
+        }
+        else {
+            require(msg.value == token.price * amount, 'TOKEN: Exact amount only');
+            tokensMinted[tokenId][_msgSender()] += amount;
+            _mint(_msgSender(), tokenId, amount, data);
+        }
+        return true;
     }
 
-    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) public onlyRole(ADMIN) {
-        _mintBatch(to, ids, amounts, data);
-    }
+
+
+
+
+
+//    function setURI(string memory newuri) public onlyRole(ADMIN) {
+//        _setURI(newuri);
+//    }
+//
+//    function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(ADMIN) {
+//        _mint(account, id, amount, data);
+//    }
+//
+//    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) public onlyRole(ADMIN) {
+//        _mintBatch(to, ids, amounts, data);
+//    }
 
     function _authorizeUpgrade(address newImplementation) internal onlyRole(OWNER) override {}
 

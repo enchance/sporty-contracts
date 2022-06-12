@@ -11,7 +11,7 @@ import "solidity-coverage";
 import "@openzeppelin/hardhat-upgrades"
 import "@nomiclabs/hardhat-solhint";
 import "hardhat-log-remover"
-import "hardhat-exposed"
+// import "hardhat-exposed"     // DO NOT USE. CAUSES TESTS TO FAIL DUE TO LARGE SIZE
 
 
 dotenv.config();

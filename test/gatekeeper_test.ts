@@ -33,7 +33,7 @@ const ADMIN = '0x13973373a9af5722b10f2b3042b579b88ed0bb52a97cedfe3f04194bd4f49d3
 const STAFF = '0xe8a5916b3844fbeb4da4e395e80063c5f78b2b5014688c8d370cb7e4499a6e1d'
 const CONTRACT = '0xa89e6fb581bf21fa2623f4ddc917bd8cec5dc18f1960a95bf5bede67bf5192ca'
 
-export const init_contract = async () => {
+const init_contract = async () => {
     [owneruser, adminuser, staffuser, foouser, baruser, deployer] = await ethers.getSigners()
     
     const admins = [adminuser.address]

@@ -10,6 +10,7 @@ export const TOKEN_LIMIT_REACHED = 'TOKEN: limit reached'
 export const EXACT_AMOUNT = 'TOKEN: Exact amount only'
 // export const EXCEEDED_LIMIT = 'TOKEN: Cannot mint more than limit'
 export const MAX_REACHED = 'TOKEN: Cannot mint beyond max'
+export const MINTABLE_EXCEEDED = 'TOKEN: Mintable amount exceeded'
 export const INVALID_PROPERTY = 'TOKEN: Invalid token value'
 
 export const INVALID_LENGTH = 'OOPS: [] lengths must be the same'
