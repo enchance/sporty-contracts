@@ -42,7 +42,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, OwnableUpgradea
 
     // string public name;
     // string public symbol;
-    mapping(uint => uint) public uris;
+//    mapping(uint => uint) public uris;
     mapping(uint => string) public gateways;
     mapping(uint => TokenProps) public tokenProps;
     mapping(uint => mapping(address => uint)) public tokensMinted;
@@ -298,7 +298,8 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, OwnableUpgradea
     /* Overrides */
 
     function uri(uint tokenId) public view virtual override validToken(tokenId) returns (string memory) {
-        return gateways[uris[tokenId]];
+        return tokenProps[tokenId].gatewayId;
+//        return gateways[uris[tokenId]];
     }
 
     function _beforeTokenTransfer(address operator, address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
