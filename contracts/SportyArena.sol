@@ -10,21 +10,19 @@ import "@openzeppelin/contracts-upgradeable/security/PullPaymentUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
 //import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+//import "./lib/Gatekeeper.sol";
 import './lib/Utils.sol';
 
 
+interface IGatekeeper {
+    function hasRole(bytes32 role, address account) external view returns (bool);
+}
 
-
-//interface IWhitelist {
-//    function has_access(string memory _name, address _address) external view returns (bool);
-//    function grant_access(string memory _name, address _address) external;
-//}
-
-contract SportyArenaV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable,
+contract SportyArenaV1 is Initializable, ERC1155Upgradeable,
     ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable
 {
-    using CountersUpgradeable for CountersUpgradeable.Counter;
     using UtilsUint for uint;
+    using CountersUpgradeable for CountersUpgradeable.Counter;
 
     struct TokenProps {
         uint price;
@@ -34,16 +32,22 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable,
         uint max;
     }
 
-    string public constant NAME = 'Shifty';
-    string public constant SYMBOL = 'SHY';
+    string public constant name = 'Shifty';
+    string public constant symbol = 'SHY';
     address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
+    bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
+    bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
+    bytes32 internal constant MODERATOR = keccak256("ARENA_MODERATOR");
+    bytes32 internal constant CONTRACT = keccak256("ARENA_CONTRACT");
 
     // string public name;
     // string public symbol;
     mapping(uint => string) public gateways;
     mapping(uint => TokenProps) public tokenProps;
     mapping(uint => mapping(address => uint)) public tokensMinted;
+
     CountersUpgradeable.Counter internal gatewayCounter;
+    IGatekeeper public gk;
 
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -51,15 +55,17 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable,
         _disableInitializers();
     }
 
-    function initialize(string memory _uri) initializer public {
+    function initialize(string memory _gateway, address _gatekeeperAddr) initializer public {
         __ERC1155_init("");
-        __Ownable_init();
         __ERC1155Supply_init();
         __PullPayment_init();
         __UUPSUpgradeable_init();
 
+        // Init Gatekeeper
+        _setGatekeeper(_gatekeeperAddr);
+
         // Init gateway
-        addGateway(_uri);
+        addGateway(_gateway);
 
         // Init tokens
         {
@@ -88,8 +94,12 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable,
         _;
     }
 
-    // TEST: For testing
-    function addGateway(string memory _uri) public virtual onlyOwner returns (uint) {
+    modifier onlyRole(bytes32 role) {
+        require(gk.hasRole(role, _msgSender()), 'You shall not pass!');
+        _;
+    }
+
+    function addGateway(string memory _uri) public virtual onlyRole(ADMIN) returns (uint) {
         require(bytes(_uri).length != 0, 'GATEWAY: Does not exist');
         uint gatewayId = gatewayCounter.current();
         gateways[gatewayId] = _uri;
@@ -97,14 +107,11 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable,
         return gatewayId;
     }
 
-    // TEST: For testing
     /**
      1. How many of this token is an account allowed to have?
      2. How many are mintable at this time? - Prevents overminting. Increase as needed.
      */
-    function tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId)
-    public onlyOwner validGateway(gatewayId)
-    {
+    function tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId) public onlyRole(ADMIN) {
         uint[] memory tokenIds = tokenId.asSingleton();
         uint[] memory prices = price.asSingleton();
         uint[] memory limits = limit.asSingleton();
@@ -113,11 +120,10 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable,
         tokenMapperBatch(tokenIds, prices, limits, maxs, gatewayId);
     }
 
-    // TEST: For testing
     function tokenMapperBatch(
         uint[] memory tokenIds, uint[] memory prices, uint[] memory limits,
         uint[] memory maxs, uint _gatewayId
-    ) public onlyOwner validGateway(_gatewayId)
+    ) public onlyRole(ADMIN) validGateway(_gatewayId)
     {
         uint tokenlen = tokenIds.length;
         uint pricelen = prices.length;
@@ -143,37 +149,78 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable,
         }
     }
 
+    // TEST: Untested
+    function setTokenPropsBatch(uint[] memory tokenIds, uint[] memory _maxs, uint[] memory _limits, bool change_gateway, uint _gatewayId)
+        internal virtual onlyRole(ADMIN)
+    {
+        uint tokenlen = tokenIds.length;
+        uint maxlen = _maxs.length;
+        uint limitlen = _limits.length;
+
+        if(maxlen > 0) {
+            require(maxlen == tokenlen, 'OOPS: [] lengths must be the same');
+        }
+        if(limitlen > 0) {
+            require(limitlen == tokenlen, 'OOPS: [] lengths must be the same');
+        }
+
+        for (uint i; i < tokenlen; i++) {
+            TokenProps memory token = tokenProps[tokenIds[i]];
+
+            if(maxlen > 0) {
+                // This prevents overminting since the mint() fn is public.
+                require(_maxs[i] > token.max, 'TOKEN: Invalid token value');
+                token.max = _maxs[i];
+            }
+            if(limitlen > 0) {
+                require(_limits[i] > token.limit, 'TOKEN: Invalid token value');
+
+                uint capvalue = maxlen > 0 ? _maxs[i] : token.max;
+
+                require(_limits[i] < capvalue, 'TOKEN: Invalid token value');
+
+                token.limit = _limits[i];
+            }
+            if(change_gateway) {
+                token.gatewayId = _gatewayId;
+            }
+
+            tokenProps[tokenIds[i]] = token;
+        }
+    }
+
+    // TEST: For testing
+    function setGatekeeeper(address addr) public onlyRole(ADMIN) {
+    }
+
+    // TEST: For testing
+    function _setGatekeeper(address addr) private {
+        require(addr != address(0), 'OOPS: Address cannot be null');
+        gk = IGatekeeper(addr);
+    }
 
 
-    function setURI(string memory newuri) public onlyOwner {
+
+
+
+    function setURI(string memory newuri) public onlyRole(ADMIN) {
         _setURI(newuri);
     }
 
-    function mint(address account, uint256 id, uint256 amount, bytes memory data)
-        public
-        onlyOwner
-    {
+    function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(ADMIN) {
         _mint(account, id, amount, data);
     }
 
-    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
-        public
-        onlyOwner
-    {
+    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) public onlyRole(ADMIN) {
         _mintBatch(to, ids, amounts, data);
     }
 
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyOwner
-        override
-    {}
+    function _authorizeUpgrade(address newImplementation) internal onlyRole(OWNER) override {}
 
     // The following functions are overrides required by Solidity.
 
     function _beforeTokenTransfer(address operator, address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
-        internal
-        override(ERC1155Upgradeable, ERC1155SupplyUpgradeable)
+        internal override(ERC1155Upgradeable, ERC1155SupplyUpgradeable)
     {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }

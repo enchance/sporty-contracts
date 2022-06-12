@@ -16,101 +16,105 @@ import {
     TOKEN_LIMIT_REACHED,
     MAX_REACHED
 } from "./error_messages";          // eslint-disable-line
-import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
-import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";                                     // eslint-disable-line
+import {UtilsUint} from "../typechain";          // eslint-disable-line
+import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
+import {DeployProxyOptions} from "@openzeppelin/hardhat-upgrades/dist/utils";
 
 
 
+
+let deployer: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress, owneruser: SignerWithAddress
+let foouser: SignerWithAddress, baruser: SignerWithAddress
 let factory: ContractFactory, contract: any
-let Gate: ContractFactory, gate: Gatekeeper
-let owneruser: SignerWithAddress, adminuser: SignerWithAddress, moduser: SignerWithAddress
-let arenauser: SignerWithAddress, foouser: SignerWithAddress, baruser: SignerWithAddress
+let Gate: ContractFactory, gate: any
 let tokenId: number, tokenIds: number[], gatewayId: number
-export const MARKET_ACCOUNT = '0xD07A0C38C6c4485B97c53b883238ac05a14a85D6'
-const admins = ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8']
-const mods = ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']
+
+/*
+* NOTES:
+* https://docs.openzeppelin.com/upgrades-plugins/1.x/faq#why-cant-i-use-external-libraries
+* https://ethereum.stackexchange.com/questions/85061/hardhat-error-unresolved-libraries-but-why
+*  */
 
 export const init_contract = async () => {
-    [owneruser, adminuser, moduser, arenauser, foouser, baruser] = await ethers.getSigners()
+    [owneruser, adminuser, staffuser, foouser, baruser, deployer] = await ethers.getSigners()
     
     // Utils
-    const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint', owneruser)
+    const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint', deployer)
     const utils: any = await Utils.deploy()
-    // console.log('UtilsUint:', utilsuint.address)
+    await utils.deployed()
     
-    // Gatkekeeper
-    Gate = await ethers.getContractFactory('$Gatekeeper', owneruser)
-    gate = <Gatekeeper>await Gate.deploy(admins, mods)
-    // console.log('Gatekeeper:', gate.address)
+    // Gatekeeper
+    Gate = await ethers.getContractFactory('Gatekeeper', deployer)
+    gate = await Gate.deploy(owneruser.address, [adminuser.address], [staffuser.address])
+    await gate.deployed()
     
     // V1
-    // https://docs.openzeppelin.com/upgrades-plugins/1.x/faq#why-cant-i-use-external-libraries
-    // https://ethereum.stackexchange.com/questions/85061/hardhat-error-unresolved-libraries-but-why
-    const opts: FactoryOptions = {
+    let factoryOpts: FactoryOptions = {
         signer: owneruser,
         libraries: {'UtilsUint': utils.address}
     }
-    factory = await ethers.getContractFactory('$SportyArenaV1', opts)
-    contract = await upgrades.deployProxy(factory, [INIT_GATEWAY], {kind: 'uups', unsafeAllowLinkedLibraries: true})
+    const deploymentOpts: DeployProxyOptions = {kind: 'uups', unsafeAllowLinkedLibraries: true}
+    factory = await ethers.getContractFactory('SportyArenaV1', factoryOpts)
+    contract = await upgrades.deployProxy(factory, [INIT_GATEWAY, gate.address], deploymentOpts)
     // console.log('PROXY:', contract.address)
     
-    return [factory, contract, Gate, gate, owneruser, adminuser, moduser, arenauser, foouser, baruser]
+    return [factory, contract, owneruser, adminuser, staffuser, foouser, baruser, deployer, Gate, gate]
 }
 
-describe('SportyChocolateV1', () => {
+describe('SportyArenaV1', () => {
     
     beforeEach(async () => {
         await init_contract()
     })
     
-    // it.only('Init', async () => {
-    //     let token: any
-    //
-    //     // Gateway
-    //     expect(await contract.gateways(0)).equals(INIT_GATEWAY)
-    //
-    //     // Token mapping
-    //     {   // eslint-disable-line
-    //         token = await contract.connect(foouser).tokenProps(1)
-    //         expect(token.price).equals(parseEther('.1'))
-    //         expect(token.limit).equals(15)
-    //         expect(token.gatewayId).equals(0)
-    //         expect(token.max).equals(45)
-    //
-    //         token = await contract.connect(foouser).tokenProps(2)
-    //         expect(token.price).equals(parseEther('.15'))
-    //         expect(token.limit).equals(15)
-    //         expect(token.gatewayId).equals(0)
-    //         expect(token.max).equals(100)
-    //
-    //         token = await contract.connect(foouser).tokenProps(3)
-    //         expect(token.price).equals(parseEther('1'))
-    //         expect(token.limit).equals(15)
-    //         expect(token.gatewayId).equals(0)
-    //         expect(token.max).equals(45)
-    //
-    //         token = await contract.connect(foouser).tokenProps(4)
-    //         expect(token.price).equals(parseEther('1.3'))
-    //         expect(token.limit).equals(15)
-    //         expect(token.gatewayId).equals(0)
-    //         expect(token.max).equals(45)
-    //
-    //         token = await contract.connect(foouser).tokenProps(5)
-    //         expect(token.price).equals(0)
-    //         expect(token.limit).equals(0)
-    //         expect(token.gatewayId).equals(0)
-    //         expect(token.max).equals(0)
-    //     }
-    //
-    //     // Mint
-    //     expect(await contract.connect(foouser).exists(1)).is.true
-    //     expect(await contract.connect(foouser).exists(2)).is.true
-    //     expect(await contract.connect(foouser).exists(3)).is.false
-    //     expect(await contract.connect(foouser).balanceOf(MARKET_ACCOUNT, 1)).equals(6)
-    //     expect(await contract.connect(foouser).balanceOf(MARKET_ACCOUNT, 2)).equals(9)
-    //     expect(await contract.connect(foouser).balanceOf(MARKET_ACCOUNT, 3)).equals(0)
-    // })
-    //
+    it.only('Init', async () => {
+        let token: any
+
+        // Gateway
+        expect(await contract.gateways(0)).equals(INIT_GATEWAY)
+        
+        // Token mapping
+        {   // eslint-disable-line
+            token = await contract.connect(foouser).tokenProps(1)
+            expect(token.price).equals(parseEther('.1'))
+            expect(token.limit).equals(15)
+            expect(token.gatewayId).equals(0)
+            expect(token.max).equals(45)
+
+            token = await contract.connect(foouser).tokenProps(2)
+            expect(token.price).equals(parseEther('.15'))
+            expect(token.limit).equals(15)
+            expect(token.gatewayId).equals(0)
+            expect(token.max).equals(100)
+
+            token = await contract.connect(foouser).tokenProps(3)
+            expect(token.price).equals(parseEther('1'))
+            expect(token.limit).equals(15)
+            expect(token.gatewayId).equals(0)
+            expect(token.max).equals(45)
+
+            token = await contract.connect(foouser).tokenProps(4)
+            expect(token.price).equals(parseEther('1.3'))
+            expect(token.limit).equals(15)
+            expect(token.gatewayId).equals(0)
+            expect(token.max).equals(45)
+
+            token = await contract.connect(foouser).tokenProps(5)
+            expect(token.price).equals(0)
+            expect(token.limit).equals(0)
+            expect(token.gatewayId).equals(0)
+            expect(token.max).equals(0)
+        }
+
+        // // Mint
+        // expect(await contract.connect(foouser).exists(1)).is.true
+        // expect(await contract.connect(foouser).exists(2)).is.true
+        // expect(await contract.connect(foouser).exists(3)).is.false
+        // expect(await contract.connect(foouser).balanceOf(MARKET_ACCOUNT, 1)).equals(6)
+        // expect(await contract.connect(foouser).balanceOf(MARKET_ACCOUNT, 2)).equals(9)
+        // expect(await contract.connect(foouser).balanceOf(MARKET_ACCOUNT, 3)).equals(0)
+    })
+
     // it('REQUIRE', async () => {
     //     // // OWNER
     //     // expect(await contract.connect(owneruser).access_owner()).equals(42)

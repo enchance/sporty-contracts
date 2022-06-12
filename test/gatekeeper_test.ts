@@ -23,9 +23,9 @@ import {deploy, DeployProxyOptions} from "@openzeppelin/hardhat-upgrades/dist/ut
 
 
 
-let Gate: ContractFactory, gate: Gatekeeper
 let deployer: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress, owneruser: SignerWithAddress
 let foouser: SignerWithAddress, baruser: SignerWithAddress
+let Gate: ContractFactory, gate: Gatekeeper
 
 // keccack256 encoded from contract
 const GATEKEEPER = '0x20162831d2f54c3e11eebafebfeda495d4c52c67b1708251179ec91fb76dd3b2'
