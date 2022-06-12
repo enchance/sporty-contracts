@@ -32,16 +32,14 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable,
         uint max;
     }
 
-    string public constant name = 'Shifty';
-    string public constant symbol = 'SHY';
+    string public constant NAME = 'Shifty';
+    string public constant SYMBOL = 'SHY';
     address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
     bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
     bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
     bytes32 internal constant MODERATOR = keccak256("ARENA_MODERATOR");
     bytes32 internal constant CONTRACT = keccak256("ARENA_CONTRACT");
 
-    // string public name;
-    // string public symbol;
     mapping(uint => string) public gateways;
     mapping(uint => TokenProps) public tokenProps;
     mapping(uint => mapping(address => uint)) public tokensMinted;
@@ -111,7 +109,9 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable,
      1. How many of this token is an account allowed to have?
      2. How many are mintable at this time? - Prevents overminting. Increase as needed.
      */
-    function tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId) public onlyRole(ADMIN) {
+    function tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId)
+        public virtual onlyRole(ADMIN)
+    {
         uint[] memory tokenIds = tokenId.asSingleton();
         uint[] memory prices = price.asSingleton();
         uint[] memory limits = limit.asSingleton();
@@ -120,10 +120,8 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable,
         tokenMapperBatch(tokenIds, prices, limits, maxs, gatewayId);
     }
 
-    function tokenMapperBatch(
-        uint[] memory tokenIds, uint[] memory prices, uint[] memory limits,
-        uint[] memory maxs, uint _gatewayId
-    ) public onlyRole(ADMIN) validGateway(_gatewayId)
+    function tokenMapperBatch(uint[] memory tokenIds, uint[] memory prices, uint[] memory limits,
+        uint[] memory maxs, uint _gatewayId) public virtual onlyRole(ADMIN) validGateway(_gatewayId)
     {
         uint tokenlen = tokenIds.length;
         uint pricelen = prices.length;
@@ -189,13 +187,12 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable,
         }
     }
 
-    // TEST: For testing
-    function setGatekeeeper(address addr) public onlyRole(ADMIN) {
+    function setGatekeeper(address addr) external virtual onlyRole(ADMIN) {
+        _setGatekeeper(addr);
     }
 
-    // TEST: For testing
-    function _setGatekeeper(address addr) private {
-        require(addr != address(0), 'OOPS: Address cannot be null');
+    function _setGatekeeper(address addr) internal virtual {
+        require(addr != address(0), 'OOPS: Address cannot be empty');
         gk = IGatekeeper(addr);
     }
 

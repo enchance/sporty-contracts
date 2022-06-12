@@ -17,9 +17,6 @@ import {
     MAX_REACHED
 } from "./error_messages";          // eslint-disable-line
 import {Gatekeeper} from "../typechain";            // eslint-disable-line
-import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
-import {deploy, DeployProxyOptions} from "@openzeppelin/hardhat-upgrades/dist/utils";
-
 
 
 
