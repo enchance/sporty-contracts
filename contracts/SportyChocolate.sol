@@ -3,7 +3,8 @@ pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+//import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
@@ -15,11 +16,9 @@ import './lib/Utils.sol';
 
 
 
-// TODO: Limit how many an account can mint after a certain amount of time
-// TODO: Set the template for each card
 // TODO: Create a separate page for each token
 
-contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUpgradeable,
+contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable,
     ERC1155SupplyUpgradeable, ERC1155BurnableUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -36,10 +35,10 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     string public constant NAME = 'Shifty';
     string public constant SYMBOL = 'SHY';
     address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
-    bytes32 internal constant OWNER = keccak256("OWNER");
-    bytes32 internal constant ADMIN = keccak256("ADMIN");
-    bytes32 internal constant MODERATOR = keccak256("MODERATOR");
-    bytes32 internal constant UPGRADER = keccak256("UPGRADER");
+//    bytes32 internal constant OWNER = keccak256("OWNER");
+//    bytes32 internal constant ADMIN = keccak256("ADMIN");
+//    bytes32 internal constant MODERATOR = keccak256("MODERATOR");
+//    bytes32 internal constant UPGRADER = keccak256("UPGRADER");
 
     // string public name;
     // string public symbol;
@@ -56,7 +55,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 
     function initialize(string memory _uri) public initializer {
         __ERC1155_init("");
-        __AccessControl_init();
+        __Ownable_init();
         __ERC1155Burnable_init();
         __ERC1155Supply_init();
         __PullPayment_init();
@@ -65,24 +64,24 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 //        name = ' Nifty';
 //        symbol = 'NIFTY';
 
-        // Init roles
-//        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(OWNER, msg.sender);
-        _grantRole(ADMIN, msg.sender);
-        _grantRole(MODERATOR, msg.sender);
-        _grantRole(UPGRADER, msg.sender);
-        // Pierre: ADMIN, MODERATOR
-        // Mike: ADMIN, MODERATOR, UPGRADER
-
-        // TODO: Replace accounts with actual
-        _grantRole(ADMIN, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
-        _grantRole(MODERATOR, 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc);
-        _grantRole(UPGRADER, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
-
-        _setRoleAdmin(OWNER, OWNER);
-        _setRoleAdmin(ADMIN, OWNER);
-        _setRoleAdmin(MODERATOR, ADMIN);
-        _setRoleAdmin(UPGRADER, OWNER);
+//        // Init roles
+////        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+//        _grantRole(OWNER, msg.sender);
+//        _grantRole(ADMIN, msg.sender);
+//        _grantRole(MODERATOR, msg.sender);
+//        _grantRole(UPGRADER, msg.sender);
+//        // Pierre: ADMIN, MODERATOR
+//        // Mike: ADMIN, MODERATOR, UPGRADER
+//
+//        // ACCOUNTS FOR TESTING
+//        _grantRole(ADMIN, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
+//        _grantRole(MODERATOR, 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc);
+//        _grantRole(UPGRADER, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
+//
+//        _setRoleAdmin(OWNER, OWNER);
+//        _setRoleAdmin(ADMIN, OWNER);
+//        _setRoleAdmin(MODERATOR, ADMIN);
+//        _setRoleAdmin(UPGRADER, OWNER);
 
         // Init gateway
         addGateway(_uri);
@@ -114,7 +113,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         _;
     }
 
-    function addGateway(string memory _uri) public virtual onlyRole(ADMIN) returns (uint) {
+    function addGateway(string memory _uri) public virtual onlyOwner returns (uint) {
         require(bytes(_uri).length != 0, 'GATEWAY: Does not exist');
         uint gatewayId = gatewayCounter.current();
         gateways[gatewayId] = _uri;
@@ -134,7 +133,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 
     // TEST: Untested
     function setTokenPropsBatch(uint[] memory tokenIds, uint[] memory _maxs, uint[] memory _limits, bool change_gateway, uint _gatewayId) 
-        internal virtual onlyRole(MODERATOR) 
+        internal virtual onlyOwner
     {
         uint tokenlen = tokenIds.length;
         uint maxlen = _maxs.length;
@@ -180,7 +179,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
      */
     function _mintable(address addr, uint tokenId) internal view returns (uint) {
         TokenProps memory token = tokenProps[tokenId];
-        if(hasRole(ADMIN, _msgSender())) {
+        if(_msgSender() == owner()) {
             // Mint as many as max allows
             return token.max - token.circulation;
         }
@@ -197,7 +196,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
      2. How many are mintable at this time? - Prevents overminting. Increase as needed.
      */
     function tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId)
-        public onlyRole(MODERATOR) validGateway(gatewayId)
+        public onlyOwner validGateway(gatewayId)
     {
         uint[] memory tokenIds = tokenId.asSingleton();
         uint[] memory prices = price.asSingleton();
@@ -210,7 +209,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
     function tokenMapperBatch(
             uint[] memory tokenIds, uint[] memory prices, uint[] memory limits,
             uint[] memory maxs, uint _gatewayId
-        ) public onlyRole(MODERATOR) validGateway(_gatewayId)
+        ) public onlyOwner validGateway(_gatewayId)
     {
         uint tokenlen = tokenIds.length;
         uint pricelen = prices.length;
@@ -254,7 +253,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 
         token.circulation += amount;
 
-        if(hasRole(ADMIN, _msgSender())) {
+        if(_msgSender() == owner()) {
             tokensMinted[tokenId][MARKET_ACCOUNT] += amount;
             _mint(MARKET_ACCOUNT, tokenId, amount, data);
         }
@@ -284,16 +283,16 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
 
 
 
-    function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER) override {}
+    function _authorizeUpgrade(address newImplementation) internal onlyOwner override {}
 
 
-    // The following functions are overrides required by Solidity.
-
-    function supportsInterface(bytes4 interfaceId) public view override(ERC1155Upgradeable,
-        AccessControlUpgradeable) returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
+//    // The following functions are overrides required by Solidity.
+//
+//    function supportsInterface(bytes4 interfaceId) public view override(ERC1155Upgradeable,
+//        AccessControlUpgradeable) returns (bool)
+//    {
+//        return super.supportsInterface(interfaceId);
+//    }
 
 
     /* Overrides */
@@ -308,22 +307,22 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
-    function _checkRole(bytes32 role, address account) internal view virtual override {
-        if (!hasRole(role, account)) {
-            revert("You shall not pass!");
-        }
-    }
+//    function _checkRole(bytes32 role, address account) internal view virtual override {
+//        if (!hasRole(role, account)) {
+//            revert("You shall not pass!");
+//        }
+//    }
 
 
-    /* DELETE BEFORE DEPLOYMENT TO MAINNET */
-
-    function access_owner() external view onlyRole(OWNER) returns (uint) {
-        return 42;
-    }
-//    function access_admin() external view onlyRole(ADMIN) returns (uint) {
+//    /* DELETE BEFORE DEPLOYMENT TO MAINNET */
+//
+//    function access_owner() external view onlyOwner returns (uint) {
 //        return 42;
 //    }
-    function access_upgrader() external view onlyRole(UPGRADER) returns (uint) {
-        return 42;
-    }
+////    function access_admin() external view onlyRole(ADMIN) returns (uint) {
+////        return 42;
+////    }
+//    function access_upgrader() external view onlyOwner returns (uint) {
+//        return 42;
+//    }
 }
