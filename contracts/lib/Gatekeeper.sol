@@ -6,27 +6,32 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract Gatekeeper is AccessControl {
     bytes32 public GATEKEEPER = keccak256("GATEKEEPER");
-    bytes32 public ARENA_CONTRACT = keccak256("ARENA_CONTRACT");
-    bytes32 public ARENA_ADMIN = keccak256("ARENA_ADMIN");
-    bytes32 public ARENA_MODERATOR = keccak256("ARENA_MODERATOR");
 
-    constructor(address[] memory admins, address[] memory mods) {
+    mapping(string => bytes32) public gkroles;
+
+    constructor(address owner, address[] memory admins, address[] memory staffs) {
+        gkroles['ARENA_OWNER'] = keccak256("ARENA_OWNER");
+        gkroles['ARENA_ADMIN'] = keccak256("ARENA_ADMIN");
+        gkroles['ARENA_STAFF'] = keccak256("ARENA_STAFF");
+        gkroles['ARENA_CONTRACT'] = keccak256("ARENA_CONTRACT");
 
         _grantRole(GATEKEEPER, msg.sender);
-        _grantRole(ARENA_ADMIN, msg.sender);
-        _grantRole(ARENA_MODERATOR, msg.sender);
-        _grantRole(ARENA_CONTRACT, msg.sender);
+        _grantRole(gkroles['ARENA_OWNER'], owner);
+        _grantRole(gkroles['ARENA_ADMIN'], owner);
+        _grantRole(gkroles['ARENA_STAFF'], owner);
+        _grantRole(gkroles['ARENA_CONTRACT'], owner);
 
         _setRoleAdmin(GATEKEEPER, GATEKEEPER);
-        _setRoleAdmin(ARENA_ADMIN, GATEKEEPER);
-        _setRoleAdmin(ARENA_MODERATOR, ARENA_ADMIN);
-        _setRoleAdmin(ARENA_CONTRACT, GATEKEEPER);
+        _setRoleAdmin(gkroles['ARENA_OWNER'], GATEKEEPER);
+        _setRoleAdmin(gkroles['ARENA_ADMIN'], gkroles['ARENA_OWNER']);
+        _setRoleAdmin(gkroles['ARENA_STAFF'], gkroles['ARENA_ADMIN']);
+        _setRoleAdmin(gkroles['ARENA_CONTRACT'], gkroles['ARENA_OWNER']);
 
         for (uint i; i < admins.length; i++) {
-            _grantRole(ARENA_ADMIN, admins[i]);
+            _grantRole(gkroles['ARENA_ADMIN'], admins[i]);
         }
-        for (uint i; i < mods.length; i++) {
-            _grantRole(ARENA_MODERATOR, mods[i]);
+        for (uint i; i < staffs.length; i++) {
+            _grantRole(gkroles['ARENA_STAFF'], staffs[i]);
         }
     }
 
