@@ -86,6 +86,12 @@ describe('SportyChocolateV1', () => {
             expect(token.limit).equals(15)
             expect(token.gatewayId).equals(0)
             expect(token.max).equals(45)
+    
+            token = await contract.connect(foouser).tokenProps(5)
+            expect(token.price).equals(0)
+            expect(token.limit).equals(0)
+            expect(token.gatewayId).equals(0)
+            expect(token.max).equals(0)
         }
         
         // Mint

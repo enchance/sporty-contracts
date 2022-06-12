@@ -7,9 +7,10 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
+import "@openzeppelin/contracts-upgradeable/security/PullPaymentUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import './lib/Utils.sol';
 
 
@@ -19,7 +20,7 @@ import './lib/Utils.sol';
 // TODO: Create a separate page for each token
 
 contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUpgradeable,
-    ERC1155SupplyUpgradeable, ERC1155BurnableUpgradeable, UUPSUpgradeable
+    ERC1155SupplyUpgradeable, ERC1155BurnableUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using UtilsUint for uint;
@@ -58,6 +59,7 @@ contract SportyChocolateV1 is Initializable, ERC1155Upgradeable, AccessControlUp
         __AccessControl_init();
         __ERC1155Burnable_init();
         __ERC1155Supply_init();
+        __PullPayment_init();
         __UUPSUpgradeable_init();
 
 //        name = ' Nifty';
