@@ -241,9 +241,16 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         return true;
     }
 
+    // TEST: For testing
+    function mintBatch() public {}
 
 
+    /* Overrides */
 
+    function uri(uint tokenId) public view virtual override validToken(tokenId) returns (string memory) {
+        uint gatewayId = tokenProps[tokenId].gatewayId;
+        return gateways[gatewayId];
+    }
 
 
 //    function setURI(string memory newuri) public onlyRole(ADMIN) {

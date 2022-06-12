@@ -135,6 +135,8 @@ describe('SportyArenaV1', () => {
         await contract.connect(adminuser).setGatekeeper(gate.address)
         await contract.connect(owneruser).addGateway("aaa")
         await contract.connect(adminuser).addGateway("aaa")
+        await contract.connect(owneruser).tokenMapper(9, parseEther('1'), 12, 100, 0)
+        await contract.connect(adminuser).tokenMapper(10, parseEther('1'), 12, 100, 0)
     //     // expect(await contract.connect(adminuser).addGateway("bbb")).contains.keys(...TXKEYS)
     //     // expect(await contract.connect(owneruser).setURI(1, 1)).contains.keys(...TXKEYS)
     //     // expect(await contract.connect(adminuser).setURI(2, 2)).contains.keys(...TXKEYS)
@@ -154,6 +156,7 @@ describe('SportyArenaV1', () => {
         for(let account of [foouser, baruser, deployer]) {
             await expect(contract.connect(account).setGatekeeper(gate.address)).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).tokenMapper(9, parseEther('1'), 12, 100, 0)).is.revertedWith(NO_ACCESS)
             // await expect(contract.connect(account).setURI(1, 0)).is.revertedWith(NO_ACCESS)
             // await expect(contract.connect(account).setURIBatch([2, 3], 1)).is.revertedWith(NO_ACCESS)
             // await expect(contract.connect(account).mint(foouser.address, 110, 99, 0, 50, [])).is.revertedWith(NO_ACCESS)
@@ -223,9 +226,26 @@ describe('SportyArenaV1', () => {
         expect(await contract.connect(foouser).gateways(2)).equals('def')
     })
     
+    it('Get token uri', async () => {
+        await contract.connect(adminuser).addGateway("abc")
+        await contract.connect(adminuser).addGateway("def")
+        
+        // // No access
+        // for(let account of [upgraderuser, foouser, baruser]) {
+        //     await expect(contract.connect(account).setURI(1, 2)).is.revertedWith(NO_ACCESS)
+        // }
+        
+        expect(await contract.connect(foouser).uri(1)).equals(INIT_GATEWAY)
+        expect(await contract.connect(foouser).uri(2)).equals(INIT_GATEWAY)
+        
+        // await contract.connect(adminuser).setURI(1, 2)
+        // await contract.connect(adminuser).setURI(2, 1)
+        // expect(await contract.connect(foouser).uri(1)).equals('def')
+        // expect(await contract.connect(foouser).uri(2)).equals('abc')
+    })
+    
     it('Mint single token', async () => {
         // Require
-        let overrides: PayableOverrides
         await expect(contract.connect(foouser).mint(1, 0, [])).is.revertedWith(ZERO_AMOUNT)
         await expect(contract.connect(foouser).mint(1, 16, [])).is.revertedWith(MINTABLE_EXCEEDED)
         await expect(contract.connect(adminuser).mint(1, 46, [])).is.revertedWith(MINTABLE_EXCEEDED)
@@ -272,7 +292,7 @@ describe('SportyArenaV1', () => {
         expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(10)
         expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(10)
 
-        // // Start minting so it's < limit (10 remaining)
+        // Start minting so it's < limit (10 remaining)
         await contract.connect(adminuser).mint(1, 2, [])
         expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 1)).equals(8)
         expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(8)
@@ -290,27 +310,6 @@ describe('SportyArenaV1', () => {
         // Nothing left to mint
         await expect(contract.connect(adminuser).mint(1, 1, [])).is.revertedWith(MINTABLE_EXCEEDED)
         await expect(contract.connect(foouser).mint(1, 1, [])).is.revertedWith(MINTABLE_EXCEEDED)
-        
-        
-        
-        
-        // await contract.connect(foouser).mint(434, 1, [])
-        
-        // expect(await contract.connect(foouser).exists(101)).is.false
-        // expect(await contract.connect(foouser).mint(101, 99, 1, 50, [])).contains.keys(...TXKEYS)
-        //
-        // expect(await contract.connect(foouser).exists(101)).is.true
-        //
-        // expect(await contract.connect(foouser).uri(101)).equals('abc')
-        // expect(await contract.connect(foouser).totalSupply(101)).equals(99)
-        //
-        // expect(await contract.connect(foouser).exists(200)).is.false
-        // expect(await contract.connect(foouser).mint(200, 99, 1, 50, [])).contains.keys(...TXKEYS)
-        //     .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
-        // expect(await contract.connect(foouser).exists(200)).is.true
-        //
-        // expect(await contract.connect(foouser).uri(200)).equals('abc')
-        // expect(await contract.connect(foouser).totalSupply(200)).equals(99)
     })
     
 })
