@@ -1,21 +1,9 @@
 import { expect } from "chai";
 import {ethers, upgrades} from "hardhat";
 import {describe} from "mocha";                                                 // eslint-disable-line
-import {parseEther} from "ethers/lib/utils";
-import {BigNumber, BigNumberish, ContractFactory, PayableOverrides} from "ethers";
+import {ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {INIT_GATEWAY, SUPPLY} from "../scripts/deploy-sporty";                                 // eslint-disable-line
-import {
-    INVALID_GATEWAY,
-    ZERO_AMOUNT,
-    INVALID_TOKEN,
-    NO_ACCESS,
-    NULL_ADDRESS,
-    TXKEYS,
-    EXACT_AMOUNT,
-    TOKEN_LIMIT_REACHED,
-    MAX_REACHED
-} from "./error_messages";          // eslint-disable-line
+import {NO_ACCESS} from "./error_messages";          // eslint-disable-line
 import {Gatekeeper} from "../typechain";            // eslint-disable-line
 
 

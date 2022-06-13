@@ -4,7 +4,7 @@ import {describe} from "mocha";                                                 
 import {parseEther} from "ethers/lib/utils";
 import {BigNumber, BigNumberish, ContractFactory, PayableOverrides} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {INIT_GATEWAY, MARKET_ACCOUNT} from "../scripts/deploy-sporty";                                 // eslint-disable-line
+import {CONTRACT_ACCOUNTS, INIT_GATEWAY, MARKET_ACCOUNT} from "../scripts/deploy-sporty";                                 // eslint-disable-line
 import {
     INVALID_GATEWAY,
     ZERO_AMOUNT,
@@ -44,7 +44,8 @@ const init_contract = async () => {
     const utils: any = await Utils.deploy()
     await utils.deployed()
     
-    // Gatekeeper
+    // TODO: Replace with live addresses
+    // Gatekeeper:
     const admins = [adminuser.address]
     const staffs = [staffuser.address]
     
@@ -59,8 +60,9 @@ const init_contract = async () => {
     }
     // const deploymentOpts: DeployProxyOptions = {kind: 'uups'}
     const deploymentOpts: DeployProxyOptions = {kind: 'uups', unsafeAllowLinkedLibraries: true}
+    const args = [INIT_GATEWAY, gate.address, CONTRACT_ACCOUNTS.admins, CONTRACT_ACCOUNTS.shares]
     factory = await ethers.getContractFactory('SportyArenaV1', factoryOpts)
-    contract = await upgrades.deployProxy(factory, [INIT_GATEWAY, gate.address], deploymentOpts)
+    contract = await upgrades.deployProxy(factory, args, deploymentOpts)
     // console.log('PROXY:', contract.address)
     
     return [factory, contract, owneruser, adminuser, staffuser, foouser, baruser, deployer, Gate, gate]

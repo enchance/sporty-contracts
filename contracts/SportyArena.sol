@@ -51,7 +51,10 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _disableInitializers();
     }
 
-    function initialize(string memory _gateway, address _gatekeeperAddr) initializer public {
+    function initialize(
+        string memory _gateway, address _gatekeeperAddr,
+        address payable[] memory recipients, uint[] memory shares) initializer public
+    {
         __ERC1155_init("");
         __ERC1155Supply_init();
         __PullPayment_init();
