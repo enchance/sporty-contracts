@@ -12,7 +12,7 @@ import {
     NO_ACCESS,
     NULL_ADDRESS,
     TXKEYS,
-    EXACT_AMOUNT,
+    INSUFFICIENT_AMOUNT,
     TOKEN_LIMIT_REACHED,
     MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED
 } from "./error_messages";          // eslint-disable-line
@@ -60,7 +60,7 @@ const init_contract = async () => {
     }
     // const deploymentOpts: DeployProxyOptions = {kind: 'uups'}
     const deploymentOpts: DeployProxyOptions = {kind: 'uups', unsafeAllowLinkedLibraries: true}
-    const args = [INIT_GATEWAY, gate.address, CONTRACT_ACCOUNTS.admins, CONTRACT_ACCOUNTS.shares]
+    const args = [INIT_GATEWAY, gate.address, [adminuser.address], [30000]]
     factory = await ethers.getContractFactory('SportyArenaV1', factoryOpts)
     contract = await upgrades.deployProxy(factory, args, deploymentOpts)
     // console.log('PROXY:', contract.address)
@@ -246,7 +246,7 @@ describe('SportyArenaV1', () => {
         // expect(await contract.connect(foouser).uri(2)).equals('abc')
     })
     
-    it('Mint single token', async () => {
+    it.only('Mint single token', async () => {
         // Require
         await expect(contract.connect(foouser).mint(1, 0, [])).is.revertedWith(ZERO_AMOUNT)
         await expect(contract.connect(foouser).mint(1, 16, [])).is.revertedWith(MINTABLE_EXCEEDED)
@@ -267,10 +267,8 @@ describe('SportyArenaV1', () => {
         expect(await contract.connect(foouser).exists(3)).is.false
 
         // Insufficient value
-        await expect(contract.connect(foouser).mint(1, 3, [], {value: parseEther('.29')})).is.revertedWith(EXACT_AMOUNT)
-        await expect(contract.connect(foouser).mint(1, 3, [], {value: parseEther('.31')})).is.revertedWith(EXACT_AMOUNT)
-        await expect(contract.connect(foouser).mint(2, 3, [], {value: parseEther('.74')})).is.revertedWith(EXACT_AMOUNT)
-        await expect(contract.connect(foouser).mint(2, 3, [], {value: parseEther('.76')})).is.revertedWith(EXACT_AMOUNT)
+        await expect(contract.connect(foouser).mint(1, 3, [], {value: parseEther('.29')})).is.revertedWith(INSUFFICIENT_AMOUNT)
+        await expect(contract.connect(foouser).mint(2, 3, [], {value: parseEther('.44')})).is.revertedWith(INSUFFICIENT_AMOUNT)
     
         await contract.connect(foouser).mint(1, 3, [], {value: parseEther('.3')})
         await contract.connect(foouser).mint(2, 5, [], {value: parseEther('.75')})
@@ -312,6 +310,10 @@ describe('SportyArenaV1', () => {
         // Nothing left to mint
         await expect(contract.connect(adminuser).mint(1, 1, [])).is.revertedWith(MINTABLE_EXCEEDED)
         await expect(contract.connect(foouser).mint(1, 1, [])).is.revertedWith(MINTABLE_EXCEEDED)
+        
+        // Mint paying higher than the total amount
+        await contract.connect(foouser).mint(3, 1, [], {value: parseEther('1.000000000001')})
+        await contract.connect(foouser).mint(4, 1, [], {value: parseEther('1.300000000001')})
     })
     
 })

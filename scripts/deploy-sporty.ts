@@ -14,9 +14,9 @@ export const CONTRACT_ACCOUNTS = {
         // Recipient accounts
         '0xFF01E7B2329BBd74bb1d28B75164eB7DCAbDD8F3',           // JIM
         '0x1fd0515D45B2d1b8f12df35Eb3a16f3B95C1eCDf',           // PIERRE
-        // '',                                                     // MIKE
+        '0x00',                                                     // MIKE
     ],
-    shares: [3400, 3400, 2400],
+    shares: [2400, 3400, 0],
     market: '0xD07A0C38C6c4485B97c53b883238ac05a14a85D6'        // indexMARKET
 }
 export const INIT_GATEWAY = 'https://gateway.pinata.cloud/ipfs/QmQLLDpXH9DiVvjjzmfoyaM1bBrso6wheS57f67ubqw3C7/{id}.json'

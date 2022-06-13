@@ -41,10 +41,10 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     mapping(uint => string) public gateways;
     mapping(uint => TokenProps) public tokenProps;
     mapping(uint => mapping(address => uint)) public tokensMinted;
+    mapping(address => uint) internal holders;
 
     CountersUpgradeable.Counter internal gatewayCounter;
     IGatekeeper public gk;
-
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -53,8 +53,10 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
     function initialize(
         string memory _gateway, address _gatekeeperAddr,
-        address payable[] memory recipients, uint[] memory shares) initializer public
+        address payable[] memory _holders, uint[] memory _shares) initializer public
     {
+        require(_holders.length == _shares.length, 'OOPS: [] lengths must be the same');
+
         __ERC1155_init("");
         __ERC1155Supply_init();
         __PullPayment_init();
@@ -72,6 +74,11 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             tokenMapper(2, .15 ether, 15, 100, 0);
             tokenMapper(3, 1 ether, 15, 45, 0);
             tokenMapper(4, 1.3 ether, 15, 45, 0);
+        }
+
+        // Avatars
+        for (uint i; i < _holders.length; i++) {
+            holders[_holders[i]] = _shares[i];
         }
 
         // TODO: Transfer minting to test instead of in here
@@ -217,35 +224,45 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    function mint(uint tokenId, uint amount, bytes memory data) public virtual payable returns (bool) {
-        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
-
-        TokenProps memory token = tokenProps[tokenId];
-        uint mintable = mintableAmount(_msgSender(), tokenId);
-
-        require(
-            token.price > 0 && token.limit > 0 && token.max > token.limit,
-            'TOKEN: Does not exist'
-        );
-        require(amount <= mintable, 'TOKEN: Mintable amount exceeded');
-
-        token.circulation += amount;
-        tokenProps[tokenId] = token;
-
-        if(gk.hasRole(ADMIN, _msgSender())) {
-            tokensMinted[tokenId][MARKET_ACCOUNT] += amount;
-            _mint(MARKET_ACCOUNT, tokenId, amount, data);
-        }
-        else {
-            require(msg.value == token.price * amount, 'TOKEN: Exact amount only');
-            tokensMinted[tokenId][_msgSender()] += amount;
-            _mint(_msgSender(), tokenId, amount, data);
-        }
-        return true;
+    function mint(uint tokenId, uint amount, bytes memory data) public virtual payable {
+        mintBatch(tokenId.asSingleton(), amount.asSingleton(), data);
     }
 
     // TEST: For testing
-    function mintBatch() public {}
+    function mintBatch(uint[] memory tokenIds, uint[] memory amounts, bytes memory data)
+        public virtual payable
+    {
+        require(tokenIds.length == amounts.length, 'OOPS: [] lengths must be the same');
+
+        for (uint i; i < tokenIds.length; i++) {
+            uint tokenId = tokenIds[i];
+            uint amount = amounts[i];
+            require(amount >= 1, 'TOKEN: Cannot accept zero amount');
+
+            TokenProps memory token = tokenProps[tokenId];
+            uint mintable = mintableAmount(_msgSender(), tokenIds[i]);
+
+            require(
+                token.price > 0 && token.limit > 0 && token.max > token.limit,
+                'TOKEN: Does not exist'
+            );
+            require(token.circulation < token.max, 'TOKEN: Mintable amount exceeded');
+            require(amount <= mintable, 'TOKEN: Mintable amount exceeded');
+
+            token.circulation += amount;
+            tokenProps[tokenId] = token;
+
+            if(gk.hasRole(ADMIN, _msgSender())) {
+                tokensMinted[tokenId][MARKET_ACCOUNT] += amount;
+                _mint(MARKET_ACCOUNT, tokenId, amount, data);
+            }
+            else {
+                require(msg.value >= token.price * amount, 'OOPS: Insufficient amount');
+                tokensMinted[tokenId][_msgSender()] += amount;
+                _mint(_msgSender(), tokenId, amount, data);
+            }
+        }
+    }
 
 
     /* Overrides */
@@ -254,6 +271,17 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         uint gatewayId = tokenProps[tokenId].gatewayId;
         return gateways[gatewayId];
     }
+
+
+    /* Privates */
+
+//    function _toUintArr(uint8[] memory arr) private returns (uint[] memory) {
+//        uint[] memory uintArr = new uint[](arr.length);
+//        for (uint i; i < arr.length; i++) {
+//            uintArr[i] = arr[i];
+//        }
+//        return uintArr;
+//    }
 
 
 //    function setURI(string memory newuri) public onlyRole(ADMIN) {

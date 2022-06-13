@@ -123,32 +123,32 @@
     },
     {
       "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0xc195a971f351297b085fde622393b2d95b59de6dd770996da47e74f385b3e6c2",
+      "txHash": "0x5cdeba8adb084b0a2ecc20ef47fc6a148e855f132f422abad6eefb22d9ed61c7",
       "kind": "uups"
     },
     {
       "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0x6c7cb3c1c7c7b4c04604731679cff720ed45e4c587bf8984fe5d5574f7ee439e",
+      "txHash": "0x707c616dd6bbda875746f64c9a8bbe4c6cd50b0d0cbf3660a2b22876308c6f7c",
       "kind": "uups"
     },
     {
       "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-      "txHash": "0x5976a0e0e969ffe183a4bf1fff147891251f4b3481728541d18b1fd6f76272ba",
+      "txHash": "0xe257bec1ed37c1bd2a77eac4a4317602815585e238e30e0111b7c153bb1f247e",
       "kind": "uups"
     },
     {
       "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      "txHash": "0xcb2349224af2809cf1c18de408bd395e582dabae5327853869d1e296c845e2eb",
+      "txHash": "0x7280b2f95a9fe68c244e5848481cd130cf7f1cb29d7a50ddb2357b9280d7a58e",
       "kind": "uups"
     },
     {
       "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
-      "txHash": "0x098d4b02689d8c936677923f26351acb1107c6a5bb855f29991c9b16b405ac14",
+      "txHash": "0xddfe5f3e381fa3a6cf13b226085fff6cdf288e54b4e233f552e491d5d2598886",
       "kind": "uups"
     },
     {
       "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
-      "txHash": "0xa6685d93c219d8a22dde551e5bbf2463d5165ce55c128d19519cc8cade2f456f",
+      "txHash": "0xffbc78eecc1b0266f098f79707e0da1fdf27b363fa63ce832752983311d507b5",
       "kind": "uups"
     }
   ],
@@ -5513,9 +5513,9 @@
         }
       }
     },
-    "d824b039b134e8010e7369c718ef9ebe4084653557a11886591e99b651adff87": {
+    "6859a22fad2b75013c67e608478186b0b65a732c4f8eaa1ba3634fa4258a123c": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x230ba4fe32e3829be91fc0f09b22a375b73ef2cda35f5053e5adafb249dbd24f",
+      "txHash": "0x22fac1bf451eefec8071c7e6a1685de23ab5f18f0592269a9d3b8187a85eb5cf",
       "layout": {
         "storage": [
           {
@@ -5656,20 +5656,28 @@
             "src": "contracts/SportyArena.sol:43"
           },
           {
-            "label": "gatewayCounter",
+            "label": "holders",
             "offset": 0,
             "slot": "355",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "SportyArenaV1",
+            "src": "contracts/SportyArena.sol:44"
+          },
+          {
+            "label": "gatewayCounter",
+            "offset": 0,
+            "slot": "356",
             "type": "t_struct(Counter)2768_storage",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:45"
+            "src": "contracts/SportyArena.sol:46"
           },
           {
             "label": "gk",
             "offset": 0,
-            "slot": "356",
+            "slot": "357",
             "type": "t_contract(IGatekeeper)3100",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:46"
+            "src": "contracts/SportyArena.sol:47"
           }
         ],
         "types": {
@@ -5792,9 +5800,9 @@
         }
       }
     },
-    "5fb83527cf442e81ca8cc70132f68429bf55f276a589dea3bd2bdae2cf1861fd": {
+    "8d8f802f30d2b4f42c1e7daef6ca575d6e29f270d73c4de7402c96c5e3223748": {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x8b7138e1819a9ba9a7209957f5c4bf684811ed47b203a0798b226acd8227b530",
+      "txHash": "0x425ba14ba12594d50e15cfaaf8aae7718f94e4edde69eb1d8c031c151df00075",
       "layout": {
         "storage": [
           {
@@ -5935,20 +5943,28 @@
             "src": "contracts/SportyArena.sol:43"
           },
           {
-            "label": "gatewayCounter",
+            "label": "holders",
             "offset": 0,
             "slot": "355",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "SportyArenaV1",
+            "src": "contracts/SportyArena.sol:44"
+          },
+          {
+            "label": "gatewayCounter",
+            "offset": 0,
+            "slot": "356",
             "type": "t_struct(Counter)2768_storage",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:45"
+            "src": "contracts/SportyArena.sol:46"
           },
           {
             "label": "gk",
             "offset": 0,
-            "slot": "356",
+            "slot": "357",
             "type": "t_contract(IGatekeeper)3100",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:46"
+            "src": "contracts/SportyArena.sol:47"
           }
         ],
         "types": {
@@ -6071,9 +6087,9 @@
         }
       }
     },
-    "dfbf3351a4cb6343c0b98065a75dcdbe6061ccae352b0d948e4bc4a6e478e1b9": {
+    "87e332b57064e0606003c9cafa647ebc1d7024c37d8e4220187e29f007620dcd": {
       "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "txHash": "0xe84666ae4602cb1b9f74f12942655428f1dd90fd201293355990b3f04322afa2",
+      "txHash": "0xec06d1d0032bcc9a083191be1081feadb684b0e0e03e7256ff6ce2e902ca21b1",
       "layout": {
         "storage": [
           {
@@ -6214,20 +6230,28 @@
             "src": "contracts/SportyArena.sol:43"
           },
           {
-            "label": "gatewayCounter",
+            "label": "holders",
             "offset": 0,
             "slot": "355",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "SportyArenaV1",
+            "src": "contracts/SportyArena.sol:44"
+          },
+          {
+            "label": "gatewayCounter",
+            "offset": 0,
+            "slot": "356",
             "type": "t_struct(Counter)2768_storage",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:45"
+            "src": "contracts/SportyArena.sol:46"
           },
           {
             "label": "gk",
             "offset": 0,
-            "slot": "356",
+            "slot": "357",
             "type": "t_contract(IGatekeeper)3100",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:46"
+            "src": "contracts/SportyArena.sol:47"
           }
         ],
         "types": {
@@ -6350,9 +6374,9 @@
         }
       }
     },
-    "57a18939bc7b1e3f7eb1d5fb354bdf74ea97ff577d72844d611b878072ca5595": {
+    "fca66d9f844d249a31f7854c52e6ad3371a4242e994c34a47f0fe89278e0c507": {
       "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-      "txHash": "0xc870f1cc3c29c5ac9028464ca2093e1240f5ea174e2d55de9d7039a5c5ac324f",
+      "txHash": "0x7f59282cb1ef37c156652dc4bc67cd095178971acbabd0f446dbe93886b18bed",
       "layout": {
         "storage": [
           {
@@ -6493,20 +6517,28 @@
             "src": "contracts/SportyArena.sol:43"
           },
           {
-            "label": "gatewayCounter",
+            "label": "holders",
             "offset": 0,
             "slot": "355",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "SportyArenaV1",
+            "src": "contracts/SportyArena.sol:44"
+          },
+          {
+            "label": "gatewayCounter",
+            "offset": 0,
+            "slot": "356",
             "type": "t_struct(Counter)2768_storage",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:45"
+            "src": "contracts/SportyArena.sol:46"
           },
           {
             "label": "gk",
             "offset": 0,
-            "slot": "356",
+            "slot": "357",
             "type": "t_contract(IGatekeeper)3100",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:46"
+            "src": "contracts/SportyArena.sol:47"
           }
         ],
         "types": {
@@ -6629,9 +6661,9 @@
         }
       }
     },
-    "b031478008ee927d8e9e8917ae561a4ab094ec02aa5148704a97248780609c07": {
+    "830868fc8349c318e373420e6e3b6ababf86c39ec2ab3ece2f69a9b5405ae7de": {
       "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-      "txHash": "0x02027210e53a4e9127e585973146205ea8430859eabb6033101949f38e779341",
+      "txHash": "0x25cd2cff0217b500bf99659a0cb4626925bbbea6769c6ce72e752ee4bfec80e8",
       "layout": {
         "storage": [
           {
@@ -6772,20 +6804,28 @@
             "src": "contracts/SportyArena.sol:43"
           },
           {
-            "label": "gatewayCounter",
+            "label": "holders",
             "offset": 0,
             "slot": "355",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "SportyArenaV1",
+            "src": "contracts/SportyArena.sol:44"
+          },
+          {
+            "label": "gatewayCounter",
+            "offset": 0,
+            "slot": "356",
             "type": "t_struct(Counter)2768_storage",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:45"
+            "src": "contracts/SportyArena.sol:46"
           },
           {
             "label": "gk",
             "offset": 0,
-            "slot": "356",
+            "slot": "357",
             "type": "t_contract(IGatekeeper)3100",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:46"
+            "src": "contracts/SportyArena.sol:47"
           }
         ],
         "types": {
@@ -6908,9 +6948,9 @@
         }
       }
     },
-    "e765c27e2e85da70f8bdd06bdb5d3d6b4983de03e29f94f4001bb9d1fcc8c4e2": {
+    "4f1e153322ef3b8b4b6ac9340151427476b8607d2398a431bbfb58984f4de206": {
       "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-      "txHash": "0x8df37fd42c1040a93dda9c77b65a71b61b617cdf799afe52f0d3f942b5d89935",
+      "txHash": "0x43b894e51b0cccce17af64ec3818dc705d17418f17ae3e2c9979f37ebab7c7d3",
       "layout": {
         "storage": [
           {
@@ -7051,20 +7091,28 @@
             "src": "contracts/SportyArena.sol:43"
           },
           {
-            "label": "gatewayCounter",
+            "label": "holders",
             "offset": 0,
             "slot": "355",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "SportyArenaV1",
+            "src": "contracts/SportyArena.sol:44"
+          },
+          {
+            "label": "gatewayCounter",
+            "offset": 0,
+            "slot": "356",
             "type": "t_struct(Counter)2768_storage",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:45"
+            "src": "contracts/SportyArena.sol:46"
           },
           {
             "label": "gk",
             "offset": 0,
-            "slot": "356",
+            "slot": "357",
             "type": "t_contract(IGatekeeper)3100",
             "contract": "SportyArenaV1",
-            "src": "contracts/SportyArena.sol:46"
+            "src": "contracts/SportyArena.sol:47"
           }
         ],
         "types": {
