@@ -14,7 +14,7 @@ import {
     TXKEYS,
     INSUFFICIENT_AMOUNT,
     TOKEN_LIMIT_REACHED,
-    MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED
+    MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED, INVALID_LENGTH
 } from "./error_messages";          // eslint-disable-line
 // import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
@@ -246,7 +246,7 @@ describe('SportyArenaV1', () => {
         // expect(await contract.connect(foouser).uri(2)).equals('abc')
     })
     
-    it.only('Mint single token', async () => {
+    it('Mint single token', async () => {
         // Require
         await expect(contract.connect(foouser).mint(1, 0, [])).is.revertedWith(ZERO_AMOUNT)
         await expect(contract.connect(foouser).mint(1, 16, [])).is.revertedWith(MINTABLE_EXCEEDED)
@@ -316,4 +316,29 @@ describe('SportyArenaV1', () => {
         await contract.connect(foouser).mint(4, 1, [], {value: parseEther('1.300000000001')})
     })
     
+    it('Mint Batch tokens', async () => {
+        // Require
+        await expect(contract.connect(foouser).mintBatch([1, 2], [1], [])).is.revertedWith(INVALID_LENGTH)
+        await expect(contract.connect(foouser).mintBatch([1, 2], [0, 1], [])).is.revertedWith(ZERO_AMOUNT)
+        await expect(contract.connect(foouser).mintBatch([1, 9999], [1, 1], [], {value: parseEther('1')})).is.revertedWith(INVALID_TOKEN)
+        await expect(contract.connect(foouser).mintBatch([1, 2], [16, 1], [])).is.revertedWith(MINTABLE_EXCEEDED)
+        await expect(contract.connect(adminuser).mintBatch([1, 2], [46, 1], [])).is.revertedWith(MINTABLE_EXCEEDED)
+        
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 3)).equals(15)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 4)).equals(15)
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 3)).equals(45)
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 4)).equals(45)
+
+        await contract.connect(foouser).mintBatch([3, 4], [1, 3], [], {value: parseEther('4.9')})
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 3)).equals(14)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 4)).equals(12)
+
+        await contract.connect(foouser).mintBatch([3, 4], [1, 1], [], {value: parseEther('2.3')})
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 3)).equals(13)
+        expect(await contract.connect(foouser).mintableAmount(foouser.address, 4)).equals(11)
+
+        await contract.connect(adminuser).mintBatch([3, 4], [5, 9], [])
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 3)).equals(38)
+        expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 4)).equals(32)
+    })
 })

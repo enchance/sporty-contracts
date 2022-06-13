@@ -85,6 +85,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         mint(1, 1, '');
         mint(1, 2, '');
         mint(1, 3, '');  // 6
+//        mintBatch([2, 2, 2], [2, 3, 4], '');   // 9
         mint(2, 2, '');
         mint(2, 3, '');
         mint(2, 4, '');  // 9
@@ -225,13 +226,38 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     }
 
     function mint(uint tokenId, uint amount, bytes memory data) public virtual payable {
-        mintBatch(tokenId.asSingleton(), amount.asSingleton(), data);
+//        mintBatch(tokenId.asSingleton(), amount.asSingleton(), data);
+        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
+
+        TokenProps memory token = tokenProps[tokenId];
+        uint mintable = mintableAmount(_msgSender(), tokenId);
+
+        require(
+            token.price > 0 && token.limit > 0 && token.max > token.limit,
+            'TOKEN: Does not exist'
+        );
+        require(token.circulation < token.max, 'TOKEN: Mintable amount exceeded');
+        require(amount <= mintable, 'TOKEN: Mintable amount exceeded');
+
+        token.circulation += amount;
+        tokenProps[tokenId] = token;
+
+        if(gk.hasRole(ADMIN, _msgSender())) {
+            tokensMinted[tokenId][MARKET_ACCOUNT] += amount;
+            _mint(MARKET_ACCOUNT, tokenId, amount, data);
+        }
+        else {
+            require(msg.value >= token.price * amount, 'OOPS: Insufficient amount');
+            tokensMinted[tokenId][_msgSender()] += amount;
+            _mint(_msgSender(), tokenId, amount, data);
+        }
     }
 
     // TEST: For testing
     function mintBatch(uint[] memory tokenIds, uint[] memory amounts, bytes memory data)
         public virtual payable
     {
+        uint total;
         require(tokenIds.length == amounts.length, 'OOPS: [] lengths must be the same');
 
         for (uint i; i < tokenIds.length; i++) {
@@ -240,13 +266,14 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             require(amount >= 1, 'TOKEN: Cannot accept zero amount');
 
             TokenProps memory token = tokenProps[tokenId];
-            uint mintable = mintableAmount(_msgSender(), tokenIds[i]);
+            uint mintable = mintableAmount(_msgSender(), tokenId);
 
             require(
                 token.price > 0 && token.limit > 0 && token.max > token.limit,
                 'TOKEN: Does not exist'
             );
             require(token.circulation < token.max, 'TOKEN: Mintable amount exceeded');
+            require(amount >= 1, 'TOKEN: Cannot accept zero amount');
             require(amount <= mintable, 'TOKEN: Mintable amount exceeded');
 
             token.circulation += amount;
@@ -254,13 +281,19 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
             if(gk.hasRole(ADMIN, _msgSender())) {
                 tokensMinted[tokenId][MARKET_ACCOUNT] += amount;
-                _mint(MARKET_ACCOUNT, tokenId, amount, data);
             }
             else {
-                require(msg.value >= token.price * amount, 'OOPS: Insufficient amount');
                 tokensMinted[tokenId][_msgSender()] += amount;
-                _mint(_msgSender(), tokenId, amount, data);
+                total += token.price * amount;
             }
+        }
+
+        if(gk.hasRole(ADMIN, _msgSender())) {
+            _mintBatch(MARKET_ACCOUNT, tokenIds, amounts, data);
+        }
+        else {
+            require(msg.value >= total, 'OOPS: Insufficient amount');
+            _mintBatch(_msgSender(), tokenIds, amounts, data);
         }
     }
 
