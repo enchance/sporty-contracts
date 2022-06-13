@@ -19,6 +19,7 @@ interface IGatekeeper {
     function hasRole(bytes32 role, address account) external view returns (bool);
 }
 
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable {
     using UtilsUint for uint;
     using CountersUpgradeable for CountersUpgradeable.Counter;

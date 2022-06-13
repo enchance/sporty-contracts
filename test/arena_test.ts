@@ -27,7 +27,6 @@ let deployer: SignerWithAddress, adminuser: SignerWithAddress, staffuser: Signer
 let foouser: SignerWithAddress, baruser: SignerWithAddress
 let factory: ContractFactory, contract: any
 let Gate: ContractFactory, gate: any
-let tokenId: number, tokenIds: number[], gatewayId: number
 const random_addr = '0x3E034Dc9b877E103eB5E29102133503CdFdA60C5'
 
 /*
@@ -59,10 +58,10 @@ const init_contract = async () => {
         libraries: {'UtilsUint': utils.address}
     }
     // const deploymentOpts: DeployProxyOptions = {kind: 'uups'}
-    const deploymentOpts: DeployProxyOptions = {kind: 'uups', unsafeAllowLinkedLibraries: true}
+    // const deploymentOpts: DeployProxyOptions = {kind: 'uups', unsafeAllowLinkedLibraries: true}
     const args = [INIT_GATEWAY, gate.address, [adminuser.address], [3000]]
     factory = await ethers.getContractFactory('SportyArenaV1', factoryOpts)
-    contract = await upgrades.deployProxy(factory, args, deploymentOpts)
+    contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
     // console.log('PROXY:', contract.address)
     
     return [factory, contract, owneruser, adminuser, staffuser, foouser, baruser, deployer, Gate, gate]
