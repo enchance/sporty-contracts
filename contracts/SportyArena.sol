@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import 'hardhat/console.sol';
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -233,15 +234,23 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    // TEST: For testing
-    function _allocate(uint _amount) internal virtual {
-        uint amount = _amount.split(8000);  // Only distribute 80%
+    // PLACEHOLDER: Toggle the active setting of a holder
+    function toggleHolder(address addr, bool active) external onlyRole(ADMIN) {
+        
+    }
 
-        uint len = holders.length;
-        for (uint i; i < len; i++) {
-            if(holders[i].active) {
-                uint to_send = amount.split(holders[i].share);
-                _asyncTransfer(holders[i].addr, to_send);
+    function _allocate(uint _amount) internal virtual {
+        uint bp = 10000;
+        if(_amount > bp) {
+            uint amount = _amount.split(8000);  // Only distribute 80%
+            uint len = holders.length;
+
+            for (uint i; i < len; i++) {
+                HolderProps memory holder = holders[i];
+                if(holder.active) {
+                    uint to_send = amount.split(holder.share);
+                    _asyncTransfer(holder.addr, to_send);
+                }
             }
         }
     }
@@ -272,7 +281,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             tokensMinted[tokenId][_msgSender()] += amount;
             _mint(_msgSender(), tokenId, amount, data);
         }
-//        _allocate(msg.value);
+        _allocate(msg.value);
     }
 
     function mintBatch(uint[] memory tokenIds, uint[] memory amounts, bytes memory data)
@@ -316,7 +325,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             require(msg.value >= total, 'OOPS: Insufficient amount');
             _mintBatch(_msgSender(), tokenIds, amounts, data);
         }
-//        _allocate(msg.value);
+        _allocate(msg.value);
     }
 
 

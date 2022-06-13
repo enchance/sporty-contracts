@@ -60,7 +60,7 @@ const init_contract = async () => {
     }
     // const deploymentOpts: DeployProxyOptions = {kind: 'uups'}
     const deploymentOpts: DeployProxyOptions = {kind: 'uups', unsafeAllowLinkedLibraries: true}
-    const args = [INIT_GATEWAY, gate.address, [adminuser.address], [30000]]
+    const args = [INIT_GATEWAY, gate.address, [adminuser.address], [3000]]
     factory = await ethers.getContractFactory('SportyArenaV1', factoryOpts)
     contract = await upgrades.deployProxy(factory, args, deploymentOpts)
     // console.log('PROXY:', contract.address)
@@ -316,7 +316,7 @@ describe('SportyArenaV1', () => {
         await contract.connect(foouser).mint(4, 1, [], {value: parseEther('1.300000000001')})
     })
     
-    it('Mint Batch tokens', async () => {
+    it('Mint batch tokens', async () => {
         // Require
         await expect(contract.connect(foouser).mintBatch([1, 2], [1], [])).is.revertedWith(INVALID_LENGTH)
         await expect(contract.connect(foouser).mintBatch([1, 2], [0, 1], [])).is.revertedWith(ZERO_AMOUNT)
@@ -340,5 +340,36 @@ describe('SportyArenaV1', () => {
         await contract.connect(adminuser).mintBatch([3, 4], [5, 9], [])
         expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 3)).equals(38)
         expect(await contract.connect(adminuser).mintableAmount(MARKET_ACCOUNT, 4)).equals(32)
+    })
+    
+    it('Payment and Withdrawals from single and batch minting', async () => {
+        // Single
+        await contract.connect(foouser).mint(3, 1, [], {value: parseEther('1')})
+        expect(await contract.payments(adminuser.address)).equals(parseEther('.24'))
+        
+        await contract.connect(foouser).mint(3, 3, [], {value: parseEther('3')})
+        expect(await contract.payments(adminuser.address)).equals(parseEther('.96'))
+    
+        let bal = await adminuser.getBalance()
+        await contract.connect(foouser).withdrawPayments(adminuser.address)
+        expect(await contract.payments(adminuser.address)).equals(0)
+        expect(await adminuser.getBalance()).equals(bal.add(parseEther('.96')))
+    
+        bal = await adminuser.getBalance()
+        await contract.connect(foouser).mint(4, 2, [], {value: parseEther('2.6')})
+        expect(await contract.payments(adminuser.address)).equals(parseEther('.624'))
+        
+        await contract.connect(foouser).withdrawPayments(adminuser.address)
+        expect(await contract.payments(adminuser.address)).equals(0)
+        expect(await adminuser.getBalance()).equals(bal.add(parseEther('.624')))
+        
+        // Batch
+        bal = await adminuser.getBalance()
+        await contract.connect(foouser).mintBatch([3, 3], [2, 3], [], {value: parseEther('5')})
+        expect(await contract.payments(adminuser.address)).equals(parseEther('1.2'))
+    
+        await contract.connect(foouser).withdrawPayments(adminuser.address)
+        expect(await contract.payments(adminuser.address)).equals(0)
+        expect(await adminuser.getBalance()).equals(bal.add(parseEther('1.2')))
     })
 })

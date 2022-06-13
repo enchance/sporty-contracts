@@ -1,7 +1,6 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import 'hardhat/console.sol';
 
 library UtilsUint {
     /*
@@ -22,6 +21,6 @@ library UtilsUint {
     function split(uint pool_amount, uint shares) external pure returns (uint) {
         uint bp = 10000;    // Base point
         require(pool_amount >= bp, "Too small to compute");
-        return pool_amount * (shares * 100) / bp;
+        return pool_amount * shares / bp;
     }
 }
