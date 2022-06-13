@@ -233,13 +233,18 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-//    function allocate(uint amount) internal {
-//        uint len = holdersList.length;
-//        for (uint i; i < len; i++) {
-//            uint to_send = amount.split(holdersList[i]);
-//            _asyncTransfer(holders[holdersList[i]], to_send);
-//        }
-//    }
+    // TEST: For testing
+    function _allocate(uint _amount) internal virtual {
+        uint amount = _amount.split(8000);  // Only distribute 80%
+
+        uint len = holders.length;
+        for (uint i; i < len; i++) {
+            if(holders[i].active) {
+                uint to_send = amount.split(holders[i].share);
+                _asyncTransfer(holders[i].addr, to_send);
+            }
+        }
+    }
 
     function mint(uint tokenId, uint amount, bytes memory data) public virtual payable {
 //        mintBatch(tokenId.asSingleton(), amount.asSingleton(), data);
@@ -267,6 +272,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             tokensMinted[tokenId][_msgSender()] += amount;
             _mint(_msgSender(), tokenId, amount, data);
         }
+//        _allocate(msg.value);
     }
 
     function mintBatch(uint[] memory tokenIds, uint[] memory amounts, bytes memory data)
@@ -310,6 +316,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             require(msg.value >= total, 'OOPS: Insufficient amount');
             _mintBatch(_msgSender(), tokenIds, amounts, data);
         }
+//        _allocate(msg.value);
     }
 
 
