@@ -30,6 +30,12 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         uint max;
     }
 
+    struct HolderProps {
+        address addr;
+        uint share;
+        bool active;
+    }
+
     string public constant NAME = 'Shifty';
     string public constant SYMBOL = 'SHY';
     address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
@@ -41,7 +47,9 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     mapping(uint => string) public gateways;
     mapping(uint => TokenProps) public tokenProps;
     mapping(uint => mapping(address => uint)) public tokensMinted;
-    mapping(address => uint) internal holders;
+//    mapping(address => uint) internal holders;
+//    address[] internal holdersList;
+    HolderProps[] internal holders;
 
     CountersUpgradeable.Counter internal gatewayCounter;
     IGatekeeper public gk;
@@ -76,9 +84,9 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             tokenMapper(4, 1.3 ether, 15, 45, 0);
         }
 
-        // Avatars
+        // Holders
         for (uint i; i < _holders.length; i++) {
-            holders[_holders[i]] = _shares[i];
+            holders.push(HolderProps(_holders[i], _shares[i], true));
         }
 
         // TODO: Transfer minting to test instead of in here
@@ -225,6 +233,14 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
+//    function allocate(uint amount) internal {
+//        uint len = holdersList.length;
+//        for (uint i; i < len; i++) {
+//            uint to_send = amount.split(holdersList[i]);
+//            _asyncTransfer(holders[holdersList[i]], to_send);
+//        }
+//    }
+
     function mint(uint tokenId, uint amount, bytes memory data) public virtual payable {
 //        mintBatch(tokenId.asSingleton(), amount.asSingleton(), data);
         require(amount >= 1, 'TOKEN: Cannot accept zero amount');
@@ -253,7 +269,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    // TEST: For testing
     function mintBatch(uint[] memory tokenIds, uint[] memory amounts, bytes memory data)
         public virtual payable
     {
