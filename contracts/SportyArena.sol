@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import 'hardhat/console.sol';
+//import 'hardhat/console.sol';
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -11,7 +11,6 @@ import "@openzeppelin/contracts-upgradeable/security/PullPaymentUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
 //import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-//import "./lib/Gatekeeper.sol";
 import './lib/Utils.sol';
 
 
@@ -49,8 +48,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     mapping(uint => string) public gateways;
     mapping(uint => TokenProps) public tokenProps;
     mapping(uint => mapping(address => uint)) public tokensMinted;
-//    mapping(address => uint) internal holders;
-//    address[] internal holdersList;
     HolderProps[] internal holders;
 
     CountersUpgradeable.Counter internal gatewayCounter;
@@ -357,29 +354,8 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         return gateways[gatewayId];
     }
 
+    /* END Overrides */
 
-    /* Privates */
-
-//    function _toUintArr(uint8[] memory arr) private returns (uint[] memory) {
-//        uint[] memory uintArr = new uint[](arr.length);
-//        for (uint i; i < arr.length; i++) {
-//            uintArr[i] = arr[i];
-//        }
-//        return uintArr;
-//    }
-
-
-//    function setURI(string memory newuri) public onlyRole(ADMIN) {
-//        _setURI(newuri);
-//    }
-//
-//    function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(ADMIN) {
-//        _mint(account, id, amount, data);
-//    }
-//
-//    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) public onlyRole(ADMIN) {
-//        _mintBatch(to, ids, amounts, data);
-//    }
 
     function _authorizeUpgrade(address newImplementation) internal onlyRole(OWNER) override {}
 

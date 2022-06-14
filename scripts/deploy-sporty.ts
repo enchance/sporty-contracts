@@ -25,7 +25,6 @@ CONTRACT_ACCOUNTS.holders = CONTRACT_ACCOUNTS.admins
 export const INIT_GATEWAY = 'https://gateway.pinata.cloud/ipfs/QmQLLDpXH9DiVvjjzmfoyaM1bBrso6wheS57f67ubqw3C7/{id}.json'
 export const MARKET_ACCOUNT = CONTRACT_ACCOUNTS.market
 
-let owneruser: SignerWithAddress
 let factory: ContractFactory, contract: any
 let Gate: ContractFactory, gate: any
 export const STAFF_ROLE = keccak256(toUtf8Bytes('ARENA_STAFF'))
@@ -35,12 +34,10 @@ async function main() {
     const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
     const utils: any = await Utils.deploy()
     await utils.deployed()
-    console.log('Utils:', utils.address)
     
     Gate = await ethers.getContractFactory('Gatekeeper')
     gate = await Gate.deploy(CONTRACT_ACCOUNTS.owner, CONTRACT_ACCOUNTS.admins)
     await gate.deployed()
-    console.log('Gate:', gate.address)
     
     // V1
     factory = await ethers.getContractFactory('SportyArenaV1', {
@@ -49,9 +46,13 @@ async function main() {
     const args = [INIT_GATEWAY, gate.address, CONTRACT_ACCOUNTS.holders, CONTRACT_ACCOUNTS.shares]
     contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
     await contract.deployed()
+    
+    // Contract addresses
+    console.log('Utils:', utils.address)
+    console.log('Gate:', gate.address)
     console.log('PROXY:', contract.address)
     
-    // // Add staffer: works but not needed right now
+    // // Add staffer
     // const adminuser = contract.provider.getSigner(CONTRACT_ACCOUNTS.admins[0])
     // const staffaddr = randomAddressString()
     // await gate.connect(adminuser).grantRole(STAFF_ROLE, staffaddr);

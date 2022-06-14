@@ -16,7 +16,7 @@ library UtilsUint {
     /*
      Handles up to 2 decimal places.
      @param pool_amount:    Total amount to get a percentage of
-     @param shares:         Multiply shares by 100 e.g. 5% => 500, 30% => 3000, 25.25% => 2525
+     @param shares:         Multiply shares by 10_000 e.g. 5% => 500, 30% => 3000, 25.25% => 2525
      */
     function split(uint pool_amount, uint shares) external pure returns (uint) {
         uint bp = 10000;    // Base point

@@ -56,7 +56,6 @@ const init_contract = async () => {
     const args = [INIT_GATEWAY, gate.address, holders, [3000]]
     contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
     await contract.deployed()
-    // console.log('PROXY:', contract.address)
 }
 
 describe('SportyArenaV1', () => {
