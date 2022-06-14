@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import {ethers, upgrades} from "hardhat";
 import {describe} from "mocha";                                                 // eslint-disable-line
-import {parseEther} from "ethers/lib/utils";
+import {keccak256, parseEther, toUtf8Bytes} from "ethers/lib/utils";
 import {BigNumber, BigNumberish, ContractFactory, PayableOverrides} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {CONTRACT_ACCOUNTS, INIT_GATEWAY, MARKET_ACCOUNT} from "../scripts/deploy-sporty";                                 // eslint-disable-line
@@ -19,15 +19,15 @@ import {
 // import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
 import {DeployProxyOptions} from "@openzeppelin/hardhat-upgrades/dist/utils";
+import {randomAddressString} from "hardhat/internal/hardhat-network/provider/fork/random";
 
 
 
-
-let deployer: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress, owneruser: SignerWithAddress
+let owneruser: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress, deployer: SignerWithAddress
 let foouser: SignerWithAddress, baruser: SignerWithAddress
 let factory: ContractFactory, contract: any
 let Gate: ContractFactory, gate: any
-const random_addr = '0x3E034Dc9b877E103eB5E29102133503CdFdA60C5'
+const STAFF_ROLE = keccak256(toUtf8Bytes('ARENA_STAFF'))
 
 /*
 * NOTES:
@@ -43,28 +43,24 @@ const init_contract = async () => {
     const utils: any = await Utils.deploy()
     await utils.deployed()
     
-    // TODO: Replace with live addresses
     // Gatekeeper:
     const admins = [adminuser.address]
-    const staffs = [staffuser.address]
     
     Gate = await ethers.getContractFactory('Gatekeeper', deployer)
-    gate = await Gate.deploy(owneruser.address, admins, staffs)
+    gate = await Gate.deploy(owneruser.address, admins)
     await gate.deployed()
     
     // V1
-    let factoryOpts: FactoryOptions = {
-        signer: owneruser,
+    factory = await ethers.getContractFactory('SportyArenaV1', {
         libraries: {'UtilsUint': utils.address}
-    }
-    // const deploymentOpts: DeployProxyOptions = {kind: 'uups'}
-    // const deploymentOpts: DeployProxyOptions = {kind: 'uups', unsafeAllowLinkedLibraries: true}
+    })
     const args = [INIT_GATEWAY, gate.address, [adminuser.address], [3000]]
-    factory = await ethers.getContractFactory('SportyArenaV1', factoryOpts)
     contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
+    await contract.deployed()
     // console.log('PROXY:', contract.address)
     
-    return [factory, contract, owneruser, adminuser, staffuser, foouser, baruser, deployer, Gate, gate]
+    // Add staffer
+    await gate.connect(adminuser).grantRole(STAFF_ROLE, staffuser.address);
 }
 
 describe('SportyArenaV1', () => {
@@ -154,7 +150,7 @@ describe('SportyArenaV1', () => {
     //     // 50, [])).contains.keys(...TXKEYS)
     //     //     .to.emit(contract, 'TransferBatch').withArgs(adminuser, NULL_ADDRESS, foouser.address, [105, 106], [99, 50], [])
     //
-        for(let account of [foouser, baruser, deployer]) {
+        for(let account of [foouser, baruser]) {
             await expect(contract.connect(account).setGatekeeper(gate.address)).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).tokenMapper(9, parseEther('1'), 12, 100, 0)).is.revertedWith(NO_ACCESS)
@@ -206,10 +202,14 @@ describe('SportyArenaV1', () => {
     })
     
     it('Gatekeeeper', async () => {
+        // Require
+        await expect(contract.connect(adminuser).setGatekeeper(NULL_ADDRESS)).is.revertedWith(EMPTY_ADDRESS)
+        
         expect(await contract.connect(foouser).gk()).equals(gate.address)
         
-        await contract.connect(adminuser).setGatekeeper(random_addr)
-        expect(await contract.connect(foouser).gk()).equals(random_addr)
+        let addr = randomAddressString()
+        await contract.connect(adminuser).setGatekeeper(addr)
+        expect((await contract.connect(foouser).gk()).toLowerCase()).equals(addr)
     })
     
     it('Gateway', async () => {

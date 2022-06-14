@@ -4,7 +4,7 @@ import {ethers, upgrades} from "hardhat";
 import {ContractFactory} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
-import {randomAddress} from "hardhat/internal/hardhat-network/provider/fork/random";                             // eslint-disable-line
+import {randomAddressString} from "hardhat/internal/hardhat-network/provider/fork/random";
 
 
 
@@ -15,7 +15,7 @@ export const CONTRACT_ACCOUNTS: any = {
         // Recipient accounts
         '0xFF01E7B2329BBd74bb1d28B75164eB7DCAbDD8F3',           // JIM
         '0x1fd0515D45B2d1b8f12df35Eb3a16f3B95C1eCDf',           // PIERRE
-        randomAddress(),                                                     // MIKE
+        randomAddressString(),                                                     // MIKE
     ],
     shares: [2400, 3400, 3400],
     market: '0xD07A0C38C6c4485B97c53b883238ac05a14a85D6'        // indexMARKET
