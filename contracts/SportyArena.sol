@@ -38,8 +38,8 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         bool active;
     }
 
-    string public constant NAME = 'Shifty';
-    string public constant SYMBOL = 'SHY';
+    string public constant name = 'Shifty';
+    string public constant symbol = 'SHY';
     address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
     bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
     bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
@@ -76,14 +76,14 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _setGatekeeper(_gatekeeperAddr);
 
         // Init gateway
-        addGateway(_gateway);
+        _addGateway(_gateway);
 
         // Init tokens
         {
-            tokenMapper(1, .1 ether, 15, 45, 0);
-            tokenMapper(2, .15 ether, 15, 100, 0);
-            tokenMapper(3, 1 ether, 15, 45, 0);
-            tokenMapper(4, 1.3 ether, 15, 45, 0);
+            _tokenMapper(1, .1 ether, 15, 45, 0);
+            _tokenMapper(2, .15 ether, 15, 100, 0);
+            _tokenMapper(3, 1 ether, 15, 45, 0);
+            _tokenMapper(4, 1.3 ether, 15, 45, 0);
         }
 
         // Holders
@@ -92,13 +92,12 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
 
         // TODO: Transfer minting to test instead of in here
-        mint(1, 1, '');
-        mint(1, 2, '');
-        mint(1, 3, '');  // 6
-//        mintBatch([2, 2, 2], [2, 3, 4], '');   // 9
-        mint(2, 2, '');
-        mint(2, 3, '');
-        mint(2, 4, '');  // 9
+        _mintInit(1, 1);
+        _mintInit(1, 2);
+        _mintInit(1, 3);  // 6
+        _mintInit(2, 2);
+        _mintInit(2, 3);
+        _mintInit(2, 4);  // 9
     }
 
     modifier validGateway(uint gatewayId) {
@@ -116,31 +115,41 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _;
     }
 
-    function addGateway(string memory _uri) public virtual onlyRole(ADMIN) returns (uint) {
+    function addGateway(string memory _uri) public virtual onlyRole(ADMIN) {
+        _addGateway(_uri);
+    }
+
+    function _addGateway(string memory _uri) internal virtual {
         require(bytes(_uri).length != 0, 'GATEWAY: Does not exist');
         uint gatewayId = gatewayCounter.current();
         gateways[gatewayId] = _uri;
         gatewayCounter.increment();
-        return gatewayId;
     }
 
     /**
      1. How many of this token is an account allowed to have?
      2. How many are mintable at this time? - Prevents overminting. Increase as needed.
      */
-    function tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId)
-        public virtual onlyRole(ADMIN)
-    {
+    function tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId) public virtual onlyRole(ADMIN) {
+        _tokenMapper(tokenId, price, limit, max, gatewayId);
+    }
+
+    function _tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId) internal virtual {
         uint[] memory tokenIds = tokenId.asSingleton();
         uint[] memory prices = price.asSingleton();
         uint[] memory limits = limit.asSingleton();
         uint[] memory maxs = max.asSingleton();
-
-        tokenMapperBatch(tokenIds, prices, limits, maxs, gatewayId);
+        _tokenMapperBatch(tokenIds, prices, limits, maxs, gatewayId);
     }
 
-    function tokenMapperBatch(uint[] memory tokenIds, uint[] memory prices, uint[] memory limits,
-        uint[] memory maxs, uint _gatewayId) public virtual onlyRole(ADMIN) validGateway(_gatewayId)
+    function tokenMapperBatch(uint[] memory tokenIds, uint[] memory prices, uint[] memory limits, uint[] memory maxs, uint _gatewayId)
+        public virtual onlyRole(ADMIN) validGateway(_gatewayId)
+    {
+        _tokenMapperBatch(tokenIds, prices, limits, maxs, _gatewayId);
+    }
+
+    function _tokenMapperBatch(uint[] memory tokenIds, uint[] memory prices, uint[] memory limits,
+        uint[] memory maxs, uint _gatewayId) internal virtual
     {
         uint tokenlen = tokenIds.length;
         uint pricelen = prices.length;
@@ -256,19 +265,37 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    function mint(uint tokenId, uint amount, bytes memory data) public virtual payable {
-//        mintBatch(tokenId.asSingleton(), amount.asSingleton(), data);
-        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
-
-        TokenProps memory token = tokenProps[tokenId];
-        uint mintable = mintableAmount(_msgSender(), tokenId);
-
+    function _preMintRequirements(TokenProps memory token, uint mintable, uint amount) internal virtual {
         require(
             token.price > 0 && token.limit > 0 && token.max > token.limit,
             'TOKEN: Does not exist'
         );
         require(token.circulation < token.max, 'TOKEN: Mintable amount exceeded');
+        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
         require(amount <= mintable, 'TOKEN: Mintable amount exceeded');
+    }
+
+    function _mintInit(uint tokenId, uint amount) private {
+        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
+
+        TokenProps memory token = tokenProps[tokenId];
+        uint mintable = mintableAmount(_msgSender(), tokenId);
+
+        _preMintRequirements(token, mintable, amount);
+
+        token.circulation += amount;
+        tokenProps[tokenId] = token;
+
+        tokensMinted[tokenId][MARKET_ACCOUNT] += amount;
+        _mint(MARKET_ACCOUNT, tokenId, amount, '');
+        _allocate(msg.value);
+    }
+
+    function mint(uint tokenId, uint amount, bytes memory data) public virtual payable {
+        TokenProps memory token = tokenProps[tokenId];
+        uint mintable = mintableAmount(_msgSender(), tokenId);
+
+        _preMintRequirements(token, mintable, amount);
 
         token.circulation += amount;
         tokenProps[tokenId] = token;
@@ -294,18 +321,11 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         for (uint i; i < tokenIds.length; i++) {
             uint tokenId = tokenIds[i];
             uint amount = amounts[i];
-            require(amount >= 1, 'TOKEN: Cannot accept zero amount');
 
             TokenProps memory token = tokenProps[tokenId];
             uint mintable = mintableAmount(_msgSender(), tokenId);
 
-            require(
-                token.price > 0 && token.limit > 0 && token.max > token.limit,
-                'TOKEN: Does not exist'
-            );
-            require(token.circulation < token.max, 'TOKEN: Mintable amount exceeded');
-            require(amount >= 1, 'TOKEN: Cannot accept zero amount');
-            require(amount <= mintable, 'TOKEN: Mintable amount exceeded');
+            _preMintRequirements(token, mintable, amount);
 
             token.circulation += amount;
             tokenProps[tokenId] = token;

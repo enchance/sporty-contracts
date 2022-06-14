@@ -20,14 +20,14 @@ import {
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
 import {DeployProxyOptions} from "@openzeppelin/hardhat-upgrades/dist/utils";
 import {randomAddressString} from "hardhat/internal/hardhat-network/provider/fork/random";
+import {STAFF_ROLE} from "../scripts/deploy-sporty";                // eslint-disable-line
 
 
 
-let owneruser: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress, deployer: SignerWithAddress
+let deployer: SignerWithAddress, owneruser: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress
 let foouser: SignerWithAddress, baruser: SignerWithAddress
 let factory: ContractFactory, contract: any
 let Gate: ContractFactory, gate: any
-const STAFF_ROLE = keccak256(toUtf8Bytes('ARENA_STAFF'))
 
 /*
 * NOTES:
@@ -36,37 +36,36 @@ const STAFF_ROLE = keccak256(toUtf8Bytes('ARENA_STAFF'))
 *  */
 
 const init_contract = async () => {
-    [owneruser, adminuser, staffuser, foouser, baruser, deployer] = await ethers.getSigners()
+    [owneruser, adminuser, staffuser, foouser, baruser] = await ethers.getSigners()
     
     // Utils
-    const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint', deployer)
+    const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
     const utils: any = await Utils.deploy()
     await utils.deployed()
     
     // Gatekeeper:
-    const admins = [adminuser.address]
-    
-    Gate = await ethers.getContractFactory('Gatekeeper', deployer)
-    gate = await Gate.deploy(owneruser.address, admins)
+    Gate = await ethers.getContractFactory('Gatekeeper')
+    gate = await Gate.deploy(owneruser.address, [adminuser.address])
     await gate.deployed()
-    
+
     // V1
+    const holders = [adminuser.address]
     factory = await ethers.getContractFactory('SportyArenaV1', {
         libraries: {'UtilsUint': utils.address}
     })
-    const args = [INIT_GATEWAY, gate.address, [adminuser.address], [3000]]
+    const args = [INIT_GATEWAY, gate.address, holders, [3000]]
     contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
     await contract.deployed()
     // console.log('PROXY:', contract.address)
-    
-    // Add staffer
-    await gate.connect(adminuser).grantRole(STAFF_ROLE, staffuser.address);
 }
 
 describe('SportyArenaV1', () => {
     
     beforeEach(async () => {
         await init_contract()
+    
+        // Add staffer
+        // await gate.connect(adminuser).grantRole(STAFF_ROLE, staffuser.address);
     })
     
     it('Init', async () => {
@@ -251,7 +250,7 @@ describe('SportyArenaV1', () => {
         await expect(contract.connect(foouser).mint(1, 16, [])).is.revertedWith(MINTABLE_EXCEEDED)
         await expect(contract.connect(adminuser).mint(1, 46, [])).is.revertedWith(MINTABLE_EXCEEDED)
         await expect(contract.connect(foouser).mint(1234543, 1, [])).is.revertedWith(INVALID_TOKEN)
-        
+
         // Test _mintable here
         expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(15)
         expect(await contract.connect(foouser).mintableAmount(foouser.address, 2)).equals(15)
@@ -268,7 +267,7 @@ describe('SportyArenaV1', () => {
         // Insufficient value
         await expect(contract.connect(foouser).mint(1, 3, [], {value: parseEther('.29')})).is.revertedWith(INSUFFICIENT_AMOUNT)
         await expect(contract.connect(foouser).mint(2, 3, [], {value: parseEther('.44')})).is.revertedWith(INSUFFICIENT_AMOUNT)
-    
+
         await contract.connect(foouser).mint(1, 3, [], {value: parseEther('.3')})
         await contract.connect(foouser).mint(2, 5, [], {value: parseEther('.75')})
         expect(await contract.connect(foouser).mintableAmount(foouser.address, 1)).equals(12)
@@ -309,7 +308,7 @@ describe('SportyArenaV1', () => {
         // Nothing left to mint
         await expect(contract.connect(adminuser).mint(1, 1, [])).is.revertedWith(MINTABLE_EXCEEDED)
         await expect(contract.connect(foouser).mint(1, 1, [])).is.revertedWith(MINTABLE_EXCEEDED)
-        
+
         // Mint paying higher than the total amount
         await contract.connect(foouser).mint(3, 1, [], {value: parseEther('1.000000000001')})
         await contract.connect(foouser).mint(4, 1, [], {value: parseEther('1.300000000001')})
