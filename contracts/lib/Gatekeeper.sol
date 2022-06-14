@@ -5,11 +5,16 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 
 contract Gatekeeper is AccessControl {
-    bytes32 public OWNER = keccak256("OWNER");
+    error InvalidRole();
+    error InvalidAdmin();
 
+    bytes32 internal constant OWNER = keccak256("OWNER");
+    address internal immutable OWNERADDR;
     mapping(string => bytes32) public gkroles;
 
     constructor(address arena_owner, address[] memory admins) {
+        OWNERADDR = msg.sender;
+
         gkroles['ARENA_OWNER'] = keccak256("ARENA_OWNER");
         gkroles['ARENA_ADMIN'] = keccak256("ARENA_ADMIN");
         gkroles['ARENA_STAFF'] = keccak256("ARENA_STAFF");
@@ -48,21 +53,24 @@ contract Gatekeeper is AccessControl {
         }
     }
 
-//    // TEST: For testing
-//    function getKeccak256(string memory role) external returns (bytes32) {
-//        return keccak256(role);
-//    }
-//
-//    // TEST: For testing
-//    function addRole(string memory _role, address[] memory addrs) public onlyRole(OWNER) {
-//        bytes32 role = keccak256(_role);
-//        gkroles[_role] = role;
-//
-//        _grantRole(role, OWNER);
-//        _setRoleAdmin(role, OWNER);
-//
-//        for (uint i; i < addrs.length; i++) {
-//            _grantRole(role, addrs[i]);
-//        }
-//    }
+    function _exists(string memory role) private view returns (bool) {
+        bytes32 kcrole = keccak256(abi.encodePacked(role));
+        return kcrole == keccak256(abi.encodePacked('OWNER')) || kcrole == keccak256(abi.encodePacked('')) || kcrole == gkroles[role];
+    }
+
+    function addRole(string memory _role, string memory _admin, address[] memory addrs) public onlyRole(OWNER) {
+        if(_exists(_role)) revert InvalidRole();
+        if(!_exists(_admin)) revert InvalidAdmin();
+
+        bytes32 role = keccak256(bytes(_role));
+        gkroles[_role] = role;
+        bytes32 admin = keccak256(bytes(_admin)) == OWNER ? OWNER : gkroles[_admin];
+
+        _grantRole(role, msg.sender);
+        _setRoleAdmin(role, admin);
+
+        for (uint i; i < addrs.length; i++) {
+            _grantRole(role, addrs[i]);
+        }
+    }
 }
