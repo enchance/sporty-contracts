@@ -22,6 +22,7 @@ contract Gatekeeper is AccessControl {
 
         // OWNER only has access to create itself and ARENA_OWNER
         _grantRole(OWNER, msg.sender);
+        _grantRole(gkroles['ARENA_OWNER'], msg.sender);     // For updating SportyArena
 
         // ARENA_OWNER has all ARENA_* roles
         _grantRole(gkroles['ARENA_OWNER'], arena_owner);

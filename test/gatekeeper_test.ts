@@ -58,7 +58,7 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(GKOWNER, foouser.address)).is.false
             expect(await gate.connect(foouser).hasRole(GKOWNER, baruser.address)).is.false
 
-            expect(await gate.connect(foouser).hasRole(OWNER, gkuser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(OWNER, gkuser.address)).is.true
             expect(await gate.connect(foouser).hasRole(OWNER, owneruser.address)).is.true
             expect(await gate.connect(foouser).hasRole(OWNER, adminuser.address)).is.false
             expect(await gate.connect(foouser).hasRole(OWNER, staffuser.address)).is.false
