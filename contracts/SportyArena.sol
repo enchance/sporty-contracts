@@ -206,7 +206,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    // TEST: For testing
     function updateTokenGateway(uint tokenId, uint gatewayId) external onlyRole(STAFF) validGateway(gatewayId) {
         TokenProps memory token = tokenProps[tokenId];
         if(gatewayId != token.gatewayId) {

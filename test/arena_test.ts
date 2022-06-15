@@ -64,7 +64,7 @@ describe('SportyArenaV1', () => {
         await init_contract()
     
         // Add staffer
-        // await gate.connect(adminuser).grantRole(STAFF_ROLE, staffuser.address);
+        await gate.connect(adminuser).grantRole(STAFF_ROLE, staffuser.address);
     })
     
     it('Init', async () => {
@@ -223,6 +223,24 @@ describe('SportyArenaV1', () => {
         expect(!!(await contract.connect(foouser).gateways(2))).is.false
         await contract.connect(adminuser).addGateway('def')
         expect(await contract.connect(foouser).gateways(2)).equals('def')
+    })
+    
+    it('Token mapping gateway', async () => {
+        let token: any
+        await contract.connect(adminuser).addGateway('abc')
+        await contract.connect(adminuser).addGateway('def')
+    
+        await contract.connect(staffuser).updateTokenGateway(1, 1)
+        token = await contract.connect(foouser).tokenProps(1)
+        expect(token.gatewayId).equals(1)
+    
+        await contract.connect(staffuser).updateTokenGateway(1, 2)
+        token = await contract.connect(foouser).tokenProps(1)
+        expect(token.gatewayId).equals(2)
+    
+        await contract.connect(staffuser).updateTokenGateway(1, 0)
+        token = await contract.connect(foouser).tokenProps(1)
+        expect(token.gatewayId).equals(0)
     })
     
     it('Get token uri', async () => {
