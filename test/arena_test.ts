@@ -14,7 +14,7 @@ import {
     TXKEYS,
     INSUFFICIENT_AMOUNT,
     TOKEN_LIMIT_REACHED,
-    MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED, INVALID_LENGTH, WINDOW_CLOSED
+    MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED, INVALID_LENGTH, WINDOW_CLOSED, INACTIVE_HOLDER
 } from "./error_messages";          // eslint-disable-line
 // import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
@@ -359,6 +359,11 @@ describe('SportyArenaV1', () => {
         await contract.connect(foouser).mint(4, 2, [], {value: parseEther('2.6')})
         expect(await contract.payments(adminuser.address)).equals(parseEther('.624'))
         
+        // Disable holder
+        await contract.connect(owneruser).toggleHolder(adminuser.address, false)
+        await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(INACTIVE_HOLDER)
+        await contract.connect(owneruser).toggleHolder(adminuser.address, true)
+        
         // Delay
         await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(WINDOW_CLOSED)
         for(let i of [1, 1, 1, 1, 1, 1]) {
@@ -382,6 +387,12 @@ describe('SportyArenaV1', () => {
             await time.increase(time.duration.days(i))
             await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(WINDOW_CLOSED)
         }
+        
+        // Disable holder
+        await contract.connect(owneruser).toggleHolder(adminuser.address, false)
+        await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(INACTIVE_HOLDER)
+        await contract.connect(owneruser).toggleHolder(adminuser.address, true)
+        
         await time.increase(time.duration.days(1))
         await contract.connect(foouser).withdrawPayments(adminuser.address)
         

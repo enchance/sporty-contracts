@@ -349,7 +349,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _allocate(msg.value);
     }
 
-    // TEST: For testing
     function toggleHolder(address addr, bool active) external onlyRole(OWNER) {
         uint len = holders.length;
         for (uint i; i < len; i++) {
