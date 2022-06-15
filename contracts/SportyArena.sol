@@ -19,6 +19,8 @@ interface IGatekeeper {
     function hasRole(bytes32 role, address account) external view returns (bool);
 }
 
+interface IPunchOut {}
+
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable {
     using UtilsUint for uint;
@@ -54,6 +56,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
     CountersUpgradeable.Counter internal gatewayCounter;
     IGatekeeper public gk;
+    IPunchOut public punchout;
 
     error InactiveHolder();
     error WindowIsClosed();
