@@ -241,11 +241,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    // PLACEHOLDER: Toggle the active setting of a holder
-    function toggleHolder(address addr, bool active) external onlyRole(ADMIN) {
-        
-    }
-
     function _allocate(uint _amount) internal virtual {
         uint bp = 10000;
         if(_amount > bp) {
@@ -254,10 +249,8 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
             for (uint i; i < len; i++) {
                 HolderProps memory holder = holders[i];
-                if(holder.active) {
-                    uint to_send = amount.split(holder.share);
-                    _asyncTransfer(holder.addr, to_send);
-                }
+                uint to_send = amount.split(holder.share);
+                _asyncTransfer(holder.addr, to_send);
             }
         }
     }
@@ -346,6 +339,20 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _allocate(msg.value);
     }
 
+    // TEST: For testing
+    function toggleHolder(address addr, bool active) external onlyRole(OWNER) {
+        uint len = holders.length;
+        for (uint i; i < len; i++) {
+            HolderProps memory holder = holders[i];
+            if(holder.addr == addr) {
+                if(holder.active != active) {
+                    holder.active = active;
+                    holders[i] = holder;
+                }
+                break;
+            }
+        }
+    }
 
     /* Overrides */
 
@@ -353,6 +360,20 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         uint gatewayId = tokenProps[tokenId].gatewayId;
         return gateways[gatewayId];
     }
+
+    // TEST: For testing
+    function withdrawPayments(address payable payee) public virtual override {
+        uint len = holders.length;
+        for (uint i; i < len; i++) {
+            HolderProps memory holder = holders[i];
+            if(holder.addr == payee) {
+                if(holder.active) _escrow.withdraw(payee);
+                break;
+            }
+        }
+    }
+
+
 
     /* END Overrides */
 

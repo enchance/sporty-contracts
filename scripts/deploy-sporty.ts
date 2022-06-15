@@ -12,15 +12,18 @@ import {keccak256, toUtf8Bytes} from "ethers/lib/utils";
 export const CONTRACT_ACCOUNTS: any = {
     owner: '0xEC615ad1Be355D16163bc2dDCb359788Bc93ED44',        // indexOWNER
     admins: [
-        // Recipient accounts
         '0xFF01E7B2329BBd74bb1d28B75164eB7DCAbDD8F3',           // JIM
         '0x1fd0515D45B2d1b8f12df35Eb3a16f3B95C1eCDf',           // PIERRE
-        randomAddressString(),                                                     // MIKE
+        randomAddressString(),                                  // MIKE
+    ],
+    holders: [
+        '0xFcC7815802A587E026B8F2F84485b12E1BD570D0',           // JIM
+        '0x1fd0515D45B2d1b8f12df35Eb3a16f3B95C1eCDf',           // PIERRE
+        randomAddressString()                                   // MIKE
     ],
     shares: [2400, 3400, 3400],
     market: '0xD07A0C38C6c4485B97c53b883238ac05a14a85D6'        // indexMARKET
 }
-CONTRACT_ACCOUNTS.holders = CONTRACT_ACCOUNTS.admins
 
 export const INIT_GATEWAY = 'https://gateway.pinata.cloud/ipfs/QmQLLDpXH9DiVvjjzmfoyaM1bBrso6wheS57f67ubqw3C7/{id}.json'
 export const MARKET_ACCOUNT = CONTRACT_ACCOUNTS.market
@@ -30,26 +33,25 @@ let Gate: ContractFactory, gate: any
 export const STAFF_ROLE = keccak256(toUtf8Bytes('ARENA_STAFF'))
 
 async function main() {
-    // Utils
-    const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
-    const utils: any = await Utils.deploy()
-    await utils.deployed()
+    // // Utils
+    // const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
+    // const utils: any = await Utils.deploy()
+    // await utils.deployed()
+    // console.log('Utils:', utils.address)
     
     Gate = await ethers.getContractFactory('Gatekeeper')
     gate = await Gate.deploy(CONTRACT_ACCOUNTS.owner, CONTRACT_ACCOUNTS.admins)
     await gate.deployed()
+    console.log('Gate:', gate.address)
     
     // V1
     factory = await ethers.getContractFactory('SportyArenaV1', {
-        libraries: {'UtilsUint': utils.address}
+        // libraries: {'UtilsUint': utils.address}
+        libraries: {'UtilsUint': '0x4bde28d755D7d22Bc84251BD3a9A66c0306b0dE4'}   // Rinkeby
     })
     const args = [INIT_GATEWAY, gate.address, CONTRACT_ACCOUNTS.holders, CONTRACT_ACCOUNTS.shares]
     contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
     await contract.deployed()
-    
-    // Contract addresses
-    console.log('Utils:', utils.address)
-    console.log('Gate:', gate.address)
     console.log('PROXY:', contract.address)
     
     // // Add staffer

@@ -46,7 +46,8 @@ const config: HardhatUserConfig = {
         },
         rinkeby: {
             url: process.env.RINKEBY_URL || "",
-            accounts: [process.env.TESTNET_PRIVATE_KEY!],
+            // accounts: [process.env.TESTNET_PRIVATE_KEY!],
+            accounts: [process.env.DEPLOY_PRIVATE_KEY!],
         },
         ropsten: {
             url: process.env.ROPSTEN_URL || "",
