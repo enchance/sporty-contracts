@@ -399,4 +399,33 @@ describe('SportyArenaV1', () => {
         expect(await contract.payments(adminuser.address)).equals(0)
         expect(await adminuser.getBalance()).equals(bal.add(parseEther('1.2')))
     })
+    
+    it('Window', async () => {
+        const {time} = testUtils
+        
+        expect(await contract.connect(foouser).window(adminuser.address)).equals(0)
+        
+        await contract.connect(foouser).mint(3, 1, [], {value: parseEther('1')})
+        await contract.connect(foouser).mint(3, 1, [], {value: parseEther('1')})
+        await contract.connect(foouser).mint(3, 1, [], {value: parseEther('2')})
+        expect(await contract.payments(adminuser.address)).equals(parseEther('.96'))
+        
+        await contract.connect(foouser).withdrawPayments(adminuser.address)
+        expect(await contract.connect(foouser).window(adminuser.address)).gt(0)
+    
+        // Mint again
+        await contract.connect(foouser).mintBatch([3, 3, 3], [1, 2, 3], [], {value: parseEther('7.8')})
+        expect(await contract.payments(adminuser.address)).equals(parseEther('1.872'))
+        expect(await contract.connect(foouser).window(adminuser.address)).gt(0)
+        
+        // Delay
+        for(let i of [1, 1, 1, 1, 1, 1]) {
+            await time.increase(time.duration.days(i))
+            await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(WINDOW_CLOSED)
+            expect(await contract.connect(foouser).window(adminuser.address)).gt(0)
+        }
+        await time.increase(time.duration.days(1))
+        expect(await contract.connect(foouser).window(adminuser.address)).equals(0)
+        await contract.connect(foouser).withdrawPayments(adminuser.address)
+    })
 })

@@ -389,7 +389,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    // TEST: For testing
     function window(address payee) external view returns (uint) {
         uint delay = 7 days;
         uint remaining;
