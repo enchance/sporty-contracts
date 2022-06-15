@@ -305,9 +305,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _allocate(msg.value);
     }
 
-    function mintBatch(uint[] memory tokenIds, uint[] memory amounts, bytes memory data)
-        public virtual payable
-    {
+    function mintBatch(uint[] memory tokenIds, uint[] memory amounts, bytes memory data) public virtual payable {
         uint total;
 
         if(tokenIds.length != amounts.length) revert InvalidArrayLengths();
@@ -397,9 +395,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
         return remaining;
     }
-
-    /* END Overrides */
-
 
     function _authorizeUpgrade(address newImplementation) internal onlyRole(OWNER) override {}
 

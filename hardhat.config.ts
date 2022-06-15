@@ -54,8 +54,8 @@ const config: HardhatUserConfig = {
             url: process.env.ROPSTEN_URL || "",
             accounts: [process.env.TESTNET_PRIVATE_KEY!],
         },
-        matic: {
-            url: process.env.MATIC_URL || "",
+        mumbai: {
+            url: process.env.MUMBAI_URL || "",
             accounts: [process.env.TESTNET_PRIVATE_KEY!]
         }
     },
