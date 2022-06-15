@@ -44,7 +44,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
     bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
     bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
-    bytes32 internal constant MODERATOR = keccak256("ARENA_MODERATOR");
+    bytes32 internal constant STAFF = keccak256("ARENA_STAFF");
     bytes32 internal constant CONTRACT = keccak256("ARENA_CONTRACT");
 
     mapping(uint => string) public gateways;
@@ -57,6 +57,9 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
     error InactiveHolder();
     error WindowIsClosed();
+    error InvalidArrayLengths();
+    error RemappingToken();
+    error LargeTokenLimit();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -163,16 +166,15 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         uint limitlen = limits.length;
         uint maxlen = maxs.length;
 
-        // TEST: For testing
-        require(tokenlen == pricelen && pricelen == limitlen && limitlen == maxlen, 'OOPS: [] lengths must be the same');
+        if(tokenlen != pricelen || tokenlen != limitlen || tokenlen != maxlen) revert InvalidArrayLengths();
+//        require(tokenlen == pricelen && pricelen == limitlen && limitlen == maxlen, 'OOPS: [] lengths must be the same');
 
         for (uint i; i < tokenlen; i++) {
             TokenProps memory token = tokenProps[tokenIds[i]];
-            require(
-                token.price == 0 && token.gatewayId == 0 && token.limit == 0 && token.max == 0,
-                'TOKEN: Cannot remap existing token'
-            );
-            require(limits[i] < maxs[i], 'TOKEN: Limit too large');
+
+            // Reverts
+            if(token.price != 0 && token.limit != 0 && token.max != 0 && token.circulation != 0) revert RemappingToken();
+            if(limits[i] >= maxs[i]) revert LargeTokenLimit();
 
             token.price = prices[i];
             token.limit = limits[i];
@@ -182,43 +184,34 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    // TEST: Untested
-    function setTokenPropsBatch(uint[] memory tokenIds, uint[] memory _maxs, uint[] memory _limits, bool change_gateway, uint _gatewayId)
-        internal virtual onlyRole(ADMIN)
-    {
+    // TEST: For testing
+    function updateTokenMaps(uint[] calldata tokenIds, uint[] calldata limits, uint[] calldata maxs) external virtual onlyRole(STAFF) {
         uint tokenlen = tokenIds.length;
-        uint maxlen = _maxs.length;
-        uint limitlen = _limits.length;
+        uint limitlen = limits.length;
+        uint maxlen = maxs.length;
 
-        if(maxlen > 0) {
-            require(maxlen == tokenlen, 'OOPS: [] lengths must be the same');
-        }
-        if(limitlen > 0) {
-            require(limitlen == tokenlen, 'OOPS: [] lengths must be the same');
-        }
+        if(tokenlen != limitlen || tokenlen != maxlen) revert InvalidArrayLengths();
 
         for (uint i; i < tokenlen; i++) {
             TokenProps memory token = tokenProps[tokenIds[i]];
+            uint tokenId = tokenIds[i];
+            uint limit = limits[i] > token.limit ? limits[i] : token.limit;
+            uint max = maxs[i] > token.max ? maxs[i] : token.max;
 
-            if(maxlen > 0) {
-                // This prevents overminting since the mint() fn is public.
-                require(_maxs[i] > token.max, 'TOKEN: Invalid token value');
-                token.max = _maxs[i];
-            }
-            if(limitlen > 0) {
-                require(_limits[i] > token.limit, 'TOKEN: Invalid token value');
+            if(limit >= max) revert LargeTokenLimit();
 
-                uint capvalue = maxlen > 0 ? _maxs[i] : token.max;
+            token.limit = limit;
+            token.max = max;
+            tokenProps[tokenId] = token;
+        }
+    }
 
-                require(_limits[i] < capvalue, 'TOKEN: Invalid token value');
-
-                token.limit = _limits[i];
-            }
-            if(change_gateway) {
-                token.gatewayId = _gatewayId;
-            }
-
-            tokenProps[tokenIds[i]] = token;
+    // TEST: For testing
+    function updateTokenGateway(uint tokenId, uint gatewayId) external onlyRole(STAFF) validGateway(gatewayId) {
+        TokenProps memory token = tokenProps[tokenId];
+        if(gatewayId != token.gatewayId) {
+            token.gatewayId = gatewayId;
+            tokenProps[tokenId] = token;
         }
     }
 
