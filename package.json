@@ -37,6 +37,7 @@
     "hardhat-exposed": "^0.2.3",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-log-remover": "^2.0.2",
+    "hardhat-test-utils": "^0.1.1",
     "nyc": "^15.1.0",
     "prettier": "^2.3.2",
     "prettier-plugin-solidity": "^1.0.0-beta.13",

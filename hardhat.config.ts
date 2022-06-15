@@ -10,8 +10,9 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "@openzeppelin/hardhat-upgrades"
 import "@nomiclabs/hardhat-solhint";
-import "hardhat-log-remover"
-// import "hardhat-exposed"     // DO NOT USE. CAUSES TESTS TO FAIL DUE TO LARGE SIZE
+// import "hardhat-log-remover"
+import 'hardhat-test-utils'
+
 
 
 dotenv.config();
