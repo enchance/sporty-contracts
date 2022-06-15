@@ -14,7 +14,13 @@ import {
     TXKEYS,
     INSUFFICIENT_AMOUNT,
     TOKEN_LIMIT_REACHED,
-    MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED, INVALID_LENGTH, WINDOW_CLOSED, INACTIVE_HOLDER
+    MAX_REACHED,
+    EMPTY_ADDRESS,
+    MINTABLE_EXCEEDED,
+    INVALID_LENGTH,
+    WINDOW_CLOSED,
+    INACTIVE_HOLDER,
+    INVALID_ARRAY_LENGTHS
 } from "./error_messages";          // eslint-disable-line
 // import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
@@ -333,7 +339,7 @@ describe('SportyArenaV1', () => {
     
     it('Mint batch tokens', async () => {
         // Require
-        await expect(contract.connect(foouser).mintBatch([1, 2], [1], [])).is.revertedWith(INVALID_LENGTH)
+        await expect(contract.connect(foouser).mintBatch([1, 2], [1], [])).is.revertedWith(INVALID_ARRAY_LENGTHS)
         await expect(contract.connect(foouser).mintBatch([1, 2], [0, 1], [])).is.revertedWith(ZERO_AMOUNT)
         await expect(contract.connect(foouser).mintBatch([1, 9999], [1, 1], [], {value: parseEther('1')})).is.revertedWith(INVALID_TOKEN)
         await expect(contract.connect(foouser).mintBatch([1, 2], [16, 1], [])).is.revertedWith(MINTABLE_EXCEEDED)

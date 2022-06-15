@@ -60,6 +60,8 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     error InvalidArrayLengths();
     error RemappingToken();
     error LargeTokenLimit();
+    error MintableExceeded();
+    error ZeroAmount();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -70,7 +72,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         string memory _gateway, address _gatekeeperAddr,
         address payable[] memory _holders, uint[] memory _shares) initializer public
     {
-        require(_holders.length == _shares.length, 'OOPS: [] lengths must be the same');
+        if(_holders.length != _shares.length) revert InvalidArrayLengths();
 
         __ERC1155_init("");
         __ERC1155Supply_init();
@@ -167,7 +169,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         uint maxlen = maxs.length;
 
         if(tokenlen != pricelen || tokenlen != limitlen || tokenlen != maxlen) revert InvalidArrayLengths();
-//        require(tokenlen == pricelen && pricelen == limitlen && limitlen == maxlen, 'OOPS: [] lengths must be the same');
 
         for (uint i; i < tokenlen; i++) {
             TokenProps memory token = tokenProps[tokenIds[i]];
@@ -262,13 +263,13 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             token.price > 0 && token.limit > 0 && token.max > token.limit,
             'TOKEN: Does not exist'
         );
-        require(token.circulation < token.max, 'TOKEN: Mintable amount exceeded');
-        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
-        require(amount <= mintable, 'TOKEN: Mintable amount exceeded');
+        if(token.circulation >= token.max) revert MintableExceeded();
+        if(amount == 0) revert ZeroAmount();
+        if(amount > mintable) revert MintableExceeded();
     }
 
     function _mintInit(uint tokenId, uint amount) private {
-        require(amount >= 1, 'TOKEN: Cannot accept zero amount');
+        if(amount == 0) revert ZeroAmount();
 
         TokenProps memory token = tokenProps[tokenId];
         uint mintable = mintableAmount(_msgSender(), tokenId);
@@ -308,7 +309,8 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         public virtual payable
     {
         uint total;
-        require(tokenIds.length == amounts.length, 'OOPS: [] lengths must be the same');
+
+        if(tokenIds.length != amounts.length) revert InvalidArrayLengths();
 
         for (uint i; i < tokenIds.length; i++) {
             uint tokenId = tokenIds[i];
