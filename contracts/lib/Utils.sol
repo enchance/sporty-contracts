@@ -23,4 +23,15 @@ library UtilsUint {
         require(pool_amount >= bp, "Too small to compute");
         return pool_amount * shares / bp;
     }
+
+    /*
+     Check if block.timestamp has exceeded the allotted window.
+     @param base:       The last time an action was taken
+     @param duration:   Duration
+     */
+    function window(uint base, uint delay) external view returns (uint) {
+        uint rn = block.timestamp;
+        uint release_time = base + delay;
+        return rn >= release_time ? 0 : release_time - rn;
+    }
 }
