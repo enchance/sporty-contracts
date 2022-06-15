@@ -33,11 +33,11 @@ let Gate: ContractFactory, gate: any
 export const STAFF_ROLE = keccak256(toUtf8Bytes('ARENA_STAFF'))
 
 async function main() {
-    // // Utils
-    // const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
-    // const utils: any = await Utils.deploy()
-    // await utils.deployed()
-    // console.log('Utils:', utils.address)
+    // Utils
+    const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
+    const utils: any = await Utils.deploy()
+    await utils.deployed()
+    console.log('Utils:', utils.address)
     
     Gate = await ethers.getContractFactory('Gatekeeper')
     gate = await Gate.deploy(CONTRACT_ACCOUNTS.owner, CONTRACT_ACCOUNTS.admins)
@@ -46,8 +46,8 @@ async function main() {
     
     // V1
     factory = await ethers.getContractFactory('SportyArenaV1', {
-        // libraries: {'UtilsUint': utils.address}
-        libraries: {'UtilsUint': '0x4bde28d755D7d22Bc84251BD3a9A66c0306b0dE4'}   // Rinkeby
+        libraries: {'UtilsUint': utils.address}
+        // libraries: {'UtilsUint': ''}   // Rinkeby
     })
     const args = [INIT_GATEWAY, gate.address, CONTRACT_ACCOUNTS.holders, CONTRACT_ACCOUNTS.shares]
     contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})

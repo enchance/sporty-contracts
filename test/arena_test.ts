@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import {ethers, upgrades} from "hardhat";
+import {ethers, upgrades, testUtils} from "hardhat";
 import {describe} from "mocha";                                                 // eslint-disable-line
 import {keccak256, parseEther, toUtf8Bytes} from "ethers/lib/utils";
 import {BigNumber, BigNumberish, ContractFactory, PayableOverrides} from "ethers";
@@ -14,7 +14,7 @@ import {
     TXKEYS,
     INSUFFICIENT_AMOUNT,
     TOKEN_LIMIT_REACHED,
-    MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED, INVALID_LENGTH
+    MAX_REACHED, EMPTY_ADDRESS, MINTABLE_EXCEEDED, INVALID_LENGTH, WINDOW_CLOSED
 } from "./error_messages";          // eslint-disable-line
 // import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
@@ -340,6 +340,9 @@ describe('SportyArenaV1', () => {
     })
     
     it('Payment and Withdrawals from single and batch minting', async () => {
+        const {time} = testUtils
+        let bal: any
+        
         // Single
         await contract.connect(foouser).mint(3, 1, [], {value: parseEther('1')})
         expect(await contract.payments(adminuser.address)).equals(parseEther('.24'))
@@ -347,7 +350,7 @@ describe('SportyArenaV1', () => {
         await contract.connect(foouser).mint(3, 3, [], {value: parseEther('3')})
         expect(await contract.payments(adminuser.address)).equals(parseEther('.96'))
     
-        let bal = await adminuser.getBalance()
+        bal = await adminuser.getBalance()
         await contract.connect(foouser).withdrawPayments(adminuser.address)
         expect(await contract.payments(adminuser.address)).equals(0)
         expect(await adminuser.getBalance()).equals(bal.add(parseEther('.96')))
@@ -356,16 +359,32 @@ describe('SportyArenaV1', () => {
         await contract.connect(foouser).mint(4, 2, [], {value: parseEther('2.6')})
         expect(await contract.payments(adminuser.address)).equals(parseEther('.624'))
         
+        // Delay
+        await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(WINDOW_CLOSED)
+        for(let i of [1, 1, 1, 1, 1, 1]) {
+            await time.increase(time.duration.days(i))
+            await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(WINDOW_CLOSED)
+        }
+        await time.increase(time.duration.days(1))
         await contract.connect(foouser).withdrawPayments(adminuser.address)
+        
         expect(await contract.payments(adminuser.address)).equals(0)
         expect(await adminuser.getBalance()).equals(bal.add(parseEther('.624')))
-        
+
         // Batch
         bal = await adminuser.getBalance()
         await contract.connect(foouser).mintBatch([3, 3], [2, 3], [], {value: parseEther('5')})
         expect(await contract.payments(adminuser.address)).equals(parseEther('1.2'))
     
+        // Delay
+        await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(WINDOW_CLOSED)
+        for(let i of [1, 1, 1, 1, 1, 1]) {
+            await time.increase(time.duration.days(i))
+            await expect(contract.connect(foouser).withdrawPayments(adminuser.address)).is.revertedWith(WINDOW_CLOSED)
+        }
+        await time.increase(time.duration.days(1))
         await contract.connect(foouser).withdrawPayments(adminuser.address)
+        
         expect(await contract.payments(adminuser.address)).equals(0)
         expect(await adminuser.getBalance()).equals(bal.add(parseEther('1.2')))
     })

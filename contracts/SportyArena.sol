@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-//import 'hardhat/console.sol';
+import 'hardhat/console.sol';
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import "@openzeppelin/contracts-upgradeable/security/PullPaymentUpgradeable.sol";
+//import "@openzeppelin/contracts-upgradeable/security/PullPaymentUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
 //import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import './lib/Utils.sol';
+import './lib/PullPaymentUpgradeableMOD.sol';
 
 
 interface IGatekeeper {
@@ -34,6 +35,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     struct HolderProps {
         address addr;
         uint share;
+        uint basetime;
         bool active;
     }
 
@@ -52,6 +54,9 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
     CountersUpgradeable.Counter internal gatewayCounter;
     IGatekeeper public gk;
+
+    error InactiveHolder();
+    error WindowIsClosed();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -85,7 +90,12 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
         // Holders
         for (uint i; i < _holders.length; i++) {
-            holders.push(HolderProps(_holders[i], _shares[i], true));
+            holders.push(HolderProps({
+                addr: _holders[i],
+                share: _shares[i],
+                basetime: 0,
+                active: true
+            }));
         }
 
         // TODO: Transfer minting to test instead of in here
@@ -354,26 +364,47 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    /* Overrides */
-
     function uri(uint tokenId) public view virtual override validToken(tokenId) returns (string memory) {
         uint gatewayId = tokenProps[tokenId].gatewayId;
         return gateways[gatewayId];
     }
 
-    // TEST: For testing
     function withdrawPayments(address payable payee) public virtual override {
+        uint delay = 7 days;
         uint len = holders.length;
+
         for (uint i; i < len; i++) {
             HolderProps memory holder = holders[i];
             if(holder.addr == payee) {
-                if(holder.active) _escrow.withdraw(payee);
+                uint prevTime = holder.basetime;
+                holder.basetime = block.timestamp;
+                holders[i] = holder;
+
+                // Window
+                if(!holder.active) revert InactiveHolder();
+                if(prevTime.window(delay) > 0) revert WindowIsClosed();
+
+                _escrow.withdraw(payee);
                 break;
             }
         }
     }
 
+    // TEST: For testing
+    function window(address payee) external view returns (uint) {
+        uint delay = 7 days;
+        uint remaining;
+        uint len = holders.length;
 
+        for (uint i; i < len; i++) {
+            HolderProps memory holder = holders[i];
+            if(holder.addr == payee) {
+                remaining = holder.basetime.window(delay);
+                break;
+            }
+        }
+        return remaining;
+    }
 
     /* END Overrides */
 
