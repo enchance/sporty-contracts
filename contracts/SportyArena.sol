@@ -12,27 +12,20 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 //import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 
 import './lib/Utils.sol';
+import "./lib/Errors.sol";
 import './modified/PullPaymentUpgradeableMOD.sol';
 import './deployed/GatekeeperUpgInherit.sol';
-
+import "./token/Mapping.sol";
 
 
 interface IPunchOut {}
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable,
-    GatekeeperUpgInherit
+    GatekeeperUpgInherit, Errors, Mapping
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using UtilsUint for uint;
-
-    struct TokenProps {
-        uint price;
-        uint limit;
-        uint gatewayId;
-        uint circulation;
-        uint max;
-    }
 
     struct HolderProps {
         address addr;
@@ -50,7 +43,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     bytes32 internal constant CONTRACT = keccak256("ARENA_CONTRACT");
 
     mapping(uint => string) public gateways;
-    mapping(uint => TokenProps) public tokenProps;
     mapping(uint => mapping(address => uint)) public tokensMinted;
     HolderProps[] internal holders;
 
@@ -59,9 +51,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
     error InactiveHolder();
     error WindowIsClosed();
-    error InvalidArrayLengths();
-    error RemappingToken();
-    error LargeTokenLimit();
     error MintableExceeded();
     error ZeroAmount();
 
@@ -143,13 +132,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _tokenMapper(tokenId, price, limit, max, gatewayId);
     }
 
-    function _tokenMapper(uint tokenId, uint price, uint limit, uint max, uint gatewayId) internal virtual {
-        uint[] memory tokenIds = tokenId.asSingleton();
-        uint[] memory prices = price.asSingleton();
-        uint[] memory limits = limit.asSingleton();
-        uint[] memory maxs = max.asSingleton();
-        _tokenMapperBatch(tokenIds, prices, limits, maxs, gatewayId);
-    }
+
 
     function tokenMapperBatch(uint[] memory tokenIds, uint[] memory prices, uint[] memory limits, uint[] memory maxs, uint _gatewayId)
         public virtual onlyRole(ADMIN) validGateway(_gatewayId)
@@ -157,30 +140,7 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _tokenMapperBatch(tokenIds, prices, limits, maxs, _gatewayId);
     }
 
-    function _tokenMapperBatch(uint[] memory tokenIds, uint[] memory prices, uint[] memory limits,
-        uint[] memory maxs, uint _gatewayId) internal virtual
-    {
-        uint tokenlen = tokenIds.length;
-        uint pricelen = prices.length;
-        uint limitlen = limits.length;
-        uint maxlen = maxs.length;
 
-        if(tokenlen != pricelen || tokenlen != limitlen || tokenlen != maxlen) revert InvalidArrayLengths();
-
-        for (uint i; i < tokenlen; i++) {
-            TokenProps memory token = tokenProps[tokenIds[i]];
-
-            // Reverts
-            if(token.price != 0 && token.limit != 0 && token.max != 0 && token.circulation != 0) revert RemappingToken();
-            if(limits[i] >= maxs[i]) revert LargeTokenLimit();
-
-            token.price = prices[i];
-            token.limit = limits[i];
-            token.gatewayId = _gatewayId;
-            token.max = maxs[i];
-            tokenProps[tokenIds[i]] = token;
-        }
-    }
 
     // TEST: For testing
     function updateTokenMaps(uint[] calldata tokenIds, uint[] calldata limits, uint[] calldata maxs) external virtual onlyRole(STAFF) {
