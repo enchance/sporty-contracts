@@ -74,7 +74,7 @@ const upgrade_contract = async () => {
     contract = await upgrades.upgradeProxy(PROXY, factory)
 }
 
-describe('SportyArenaV1', () => {
+describe('SportyArena', () => {
     
     beforeEach(async () => {
         await init_contract()

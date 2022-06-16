@@ -9,23 +9,23 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import './GatekeeperUpgInherit.sol';
 import '../lib/Utils.sol';
+import "../lib/Errors.sol";
 
-
-interface IGatekeeper {
-    function hasRole(bytes32 role, address account) external view returns (bool);
-}
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract PunchOut is Initializable, ERC1155Upgradeable, OwnableUpgradeable, PausableUpgradeable, UUPSUpgradeable {
-    using UtilsUint for uint;
+contract PunchOutV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable, PausableUpgradeable, UUPSUpgradeable,
+    GatekeeperUpgInherit, Errors
+{
+//    using UtilsUint for uint;
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
     //    struct Match {}
 
     //    struct Bet {}
 
-    string public constant name = 'Punchout';
+    string public constant name = 'IndexSports Punchout';
     string public constant symbol = 'PUNCH';
     bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
     bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
@@ -33,24 +33,20 @@ contract PunchOut is Initializable, ERC1155Upgradeable, OwnableUpgradeable, Paus
 
     mapping(uint => string) public gateways;
     CountersUpgradeable.Counter internal gatewayCounter;
-    IGatekeeper public gk;
-
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    function initialize() initializer public {
+    function initialize(address gatekeeperAddr) initializer public {
         __ERC1155_init("");
         __Ownable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
-    }
 
-    modifier onlyRole(bytes32 role) {
-        require(gk.hasRole(role, _msgSender()), 'You shall not pass!');
-        _;
+        // Init Gatekeeper
+        _setGatekeeper(gatekeeperAddr);
     }
 
     function addGateway(string memory _uri) public virtual onlyRole(ADMIN) {
@@ -66,11 +62,6 @@ contract PunchOut is Initializable, ERC1155Upgradeable, OwnableUpgradeable, Paus
 
     function setGatekeeper(address addr) external virtual onlyRole(ADMIN) {
         _setGatekeeper(addr);
-    }
-
-    function _setGatekeeper(address addr) internal virtual {
-        require(addr != address(0), 'OOPS: Address cannot be empty');
-        gk = IGatekeeper(addr);
     }
 
 
