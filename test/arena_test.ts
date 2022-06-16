@@ -20,7 +20,7 @@ import {
     INVALID_LENGTH,
     WINDOW_CLOSED,
     INACTIVE_HOLDER,
-    INVALID_ARRAY_LENGTHS
+    INVALID_ARRAY_LENGTHS, DECREASING_LIMIT, DECREASING_MAX, LARGE_LIMIT
 } from "./error_messages";          // eslint-disable-line
 // import {Gatekeeper, UtilsUint} from "../typechain";          // eslint-disable-line
 import {FactoryOptions} from "@nomiclabs/hardhat-ethers/types";
@@ -139,13 +139,7 @@ describe('SportyArenaV1', () => {
         // expect(await contract.connect(foouser).balanceOf(MARKET_ACCOUNT, 3)).equals(0)
     })
     
-    it('REQUIRE', async () => {
-    //     // // OWNER
-    //     // expect(await contract.connect(owneruser).access_owner()).equals(42)
-    //     // for(let account of [adminuser, upgraderuser, foouser, baruser]) {
-    //     //     await expect(contract.connect(account).access_owner()).is.revertedWith(NO_ACCESS)
-    //     // }
-    //
+    it('REVERT', async () => {
         // ADMIN
         await contract.connect(owneruser).setGatekeeper(gate.address)
         await contract.connect(adminuser).setGatekeeper(gate.address)
@@ -153,54 +147,27 @@ describe('SportyArenaV1', () => {
         await contract.connect(adminuser).addGateway("aaa")
         await contract.connect(owneruser).tokenMapper(9, parseEther('1'), 12, 100, 0)
         await contract.connect(adminuser).tokenMapper(10, parseEther('1'), 12, 100, 0)
-    //     // expect(await contract.connect(adminuser).addGateway("bbb")).contains.keys(...TXKEYS)
-    //     // expect(await contract.connect(owneruser).setURI(1, 1)).contains.keys(...TXKEYS)
-    //     // expect(await contract.connect(adminuser).setURI(2, 2)).contains.keys(...TXKEYS)
-    //     // expect(await contract.connect(owneruser).setURIBatch([1, 2], 1)).contains.keys(...TXKEYS)
-    //     // expect(await contract.connect(adminuser).setURIBatch([2, 1], 2)).contains.keys(...TXKEYS)
-    //     // expect(await contract.connect(owneruser).mint(foouser.address, 101, 99, 0, 50, [])).contains.keys(...TXKEYS)
-    //     //     .to.emit(contract, 'TransferSingle').withArgs(owneruser, NULL_ADDRESS, foouser.address, 99, [])
-    //     // expect(await contract.connect(foouser).mint(102, 99, 0, 50,
-    //     // [])).contains.keys(...TXKEYS)
-    //     //     .to.emit(contract, 'TransferSingle').withArgs(adminuser, NULL_ADDRESS, foouser.address, 99, [])
-    //     // expect(await contract.connect(owneruser).mintBatch(foouser.address, [103, 104], [99, 50], 0, 50, [])).contains.keys(...TXKEYS)
-    //     //     .to.emit(contract, 'TransferBatch').withArgs(owneruser, NULL_ADDRESS, foouser.address, [103, 104], [99, 50], [])
-    //     // expect(await contract.connect(foouser).mintBatch(foouser.address, [105, 106], [99, 50], 0,
-    //     // 50, [])).contains.keys(...TXKEYS)
-    //     //     .to.emit(contract, 'TransferBatch').withArgs(adminuser, NULL_ADDRESS, foouser.address, [105, 106], [99, 50], [])
-    //
-        for(let account of [foouser, baruser]) {
+        for(let account of [staffuser, foouser, baruser]) {
             await expect(contract.connect(account).setGatekeeper(gate.address)).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
             await expect(contract.connect(account).tokenMapper(9, parseEther('1'), 12, 100, 0)).is.revertedWith(NO_ACCESS)
-            // await expect(contract.connect(account).setURI(1, 0)).is.revertedWith(NO_ACCESS)
-            // await expect(contract.connect(account).setURIBatch([2, 3], 1)).is.revertedWith(NO_ACCESS)
-            // await expect(contract.connect(account).mint(foouser.address, 110, 99, 0, 50, [])).is.revertedWith(NO_ACCESS)
-            // await expect(contract.connect(account).mintBatch(foouser.address, [111, 112], [99, 50], 0, 50, [])).is.revertedWith(NO_ACCESS)
         }
-    //
-    //     // // UPGRADER
-    //     // expect(await contract.connect(owneruser).access_upgrader()).equals(42)
-    //     // expect(await contract.connect(upgraderuser).access_upgrader()).equals(42)
-    //     // for(let account of [adminuser, foouser, baruser]) {
-    //     //     await expect(contract.connect(account).access_upgrader()).is.revertedWith(NO_ACCESS)
-    //     // }
-    // })
-    //
-    // it('Gateway', async () => {
-    //     // Require
-    //     await expect(contract.connect(adminuser).addGateway('')).is.revertedWith(INVALID_GATEWAY)
-    //
-    //     expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
-    //
-    //     expect(!!(await contract.connect(foouser).gateways(1))).is.false
-    //     await contract.connect(adminuser).addGateway('abc')
-    //     expect(await contract.connect(foouser).gateways(1)).equals('abc')
-    //
-    //     expect(!!(await contract.connect(foouser).gateways(2))).is.false
-    //     await contract.connect(adminuser).addGateway('def')
-    //     expect(await contract.connect(foouser).gateways(2)).equals('def')
-    // })
+        
+        // STAFF
+        await contract.connect(owneruser).updateTokenMaps([1, 2], [16, 16], [46, 101])
+        await contract.connect(adminuser).updateTokenMaps([1, 2], [17, 17], [47, 102])
+        await contract.connect(staffuser).updateTokenMaps([1, 2], [18, 18], [48, 103])
+        await contract.connect(owneruser).updateTokenGateway(1, 0)
+        await contract.connect(adminuser).updateTokenGateway(1, 0)
+        await contract.connect(staffuser).updateTokenGateway(1, 0)
+        await contract.connect(owneruser).updateTokenGatewayBatch([1, 2], 0)
+        await contract.connect(adminuser).updateTokenGatewayBatch([1, 2], 0)
+        await contract.connect(staffuser).updateTokenGatewayBatch([1, 2], 0)
+        for(let account of [foouser, baruser]) {
+            await expect(contract.connect(account).updateTokenMaps([1, 2], [19, 19], [49, 104])).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).updateTokenGateway(1, 0)).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).updateTokenGatewayBatch([1, 2], 0)).is.revertedWith(NO_ACCESS)
+        }
     //
     // it('Get token uri', async () => {
     //     await contract.connect(adminuser).addGateway("abc")
@@ -246,7 +213,7 @@ describe('SportyArenaV1', () => {
         expect(await contract.connect(foouser).gateways(2)).equals('def')
     })
     
-    it('Token mapping gateway', async () => {
+    it('Token gateway', async () => {
         let token: any
         await contract.connect(adminuser).addGateway('abc')
         await contract.connect(adminuser).addGateway('def')
@@ -262,6 +229,18 @@ describe('SportyArenaV1', () => {
         await contract.connect(staffuser).updateTokenGateway(1, 0)
         token = await contract.connect(foouser).tokenProps(1)
         expect(token.gatewayId).equals(0)
+    
+        await contract.connect(staffuser).updateTokenGatewayBatch([1, 2], 1)
+        token = await contract.connect(foouser).tokenProps(1)
+        expect(token.gatewayId).equals(1)
+        token = await contract.connect(foouser).tokenProps(2)
+        expect(token.gatewayId).equals(1)
+    
+        await contract.connect(staffuser).updateTokenGatewayBatch([1, 2], 2)
+        token = await contract.connect(foouser).tokenProps(1)
+        expect(token.gatewayId).equals(2)
+        token = await contract.connect(foouser).tokenProps(2)
+        expect(token.gatewayId).equals(2)
     })
     
     it('Get token uri', async () => {
@@ -466,5 +445,61 @@ describe('SportyArenaV1', () => {
         await time.increase(time.duration.days(1))
         expect(await contract.connect(foouser).window(adminuser.address)).equals(0)
         await contract.connect(foouser).withdrawPayments(adminuser.address)
+    })
+    
+    it('Token mapping', async () => {
+        let mapping: any
+        
+        // Revert
+        await expect(contract.connect(staffuser).updateTokenMaps([1, 2], [15, 14], [45, 100])).is.revertedWith(DECREASING_LIMIT)
+        await expect(contract.connect(staffuser).updateTokenMaps([1, 2], [15, 15], [45, 99])).is.revertedWith(DECREASING_MAX)
+        await expect(contract.connect(staffuser).updateTokenMaps([1, 2], [15, 100], [45, 100])).is.revertedWith(LARGE_LIMIT)
+        await expect(contract.connect(staffuser).updateTokenMaps([1, 2], [15, 101], [45, 100])).is.revertedWith(LARGE_LIMIT)
+    
+        mapping = await contract.connect(foouser).tokenProps(1)
+        expect(mapping.price).equals(parseEther('.1'))
+        expect(mapping.limit).equals(15)
+        expect(mapping.gatewayId).equals(0)
+        expect(mapping.circulation).equals(6)
+        expect(mapping.max).equals(45)
+    
+        mapping = await contract.connect(foouser).tokenProps(2)
+        expect(mapping.price).equals(parseEther('.15'))
+        expect(mapping.limit).equals(15)
+        expect(mapping.gatewayId).equals(0)
+        expect(mapping.circulation).equals(9)
+        expect(mapping.max).equals(100)
+        
+        // Increasing values are ok
+        await contract.connect(staffuser).updateTokenMaps([1, 2], [20, 30], [300, 400])
+        mapping = await contract.connect(foouser).tokenProps(1)
+        expect(mapping.price).equals(parseEther('.1'))
+        expect(mapping.limit).equals(20)
+        expect(mapping.gatewayId).equals(0)
+        expect(mapping.circulation).equals(6)
+        expect(mapping.max).equals(300)
+
+        mapping = await contract.connect(foouser).tokenProps(2)
+        expect(mapping.price).equals(parseEther('.15'))
+        expect(mapping.limit).equals(30)
+        expect(mapping.gatewayId).equals(0)
+        expect(mapping.circulation).equals(9)
+        expect(mapping.max).equals(400)
+    
+        // Decreasing limits are ok
+        
+        // mapping = await contract.connect(foouser).tokenProps(1)
+        // expect(mapping.price).equals(parseEther('.1'))
+        // expect(mapping.limit).equals(19)
+        // expect(mapping.gatewayId).equals(0)
+        // expect(mapping.circulation).equals(6)
+        // expect(mapping.max).equals(300)
+        //
+        // mapping = await contract.connect(foouser).tokenProps(2)
+        // expect(mapping.price).equals(parseEther('.15'))
+        // expect(mapping.limit).equals(29)
+        // expect(mapping.gatewayId).equals(0)
+        // expect(mapping.circulation).equals(9)
+        // expect(mapping.max).equals(400)
     })
 })

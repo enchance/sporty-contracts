@@ -19,6 +19,8 @@ contract Mapping is Errors {
 
     error RemappingToken();
     error LargeTokenLimit();
+    error DecreasingLimit();
+    error DecreasingMax();
 
     mapping(uint => TokenProps) public tokenProps;
 
@@ -52,6 +54,47 @@ contract Mapping is Errors {
             token.gatewayId = _gatewayId;
             token.max = maxs[i];
             tokenProps[tokenIds[i]] = token;
+        }
+    }
+
+    function _updateTokenMaps(uint[] memory tokenIds, uint[] memory limits, uint[] memory maxs) internal virtual {
+        uint tokenlen = tokenIds.length;
+        uint limitlen = limits.length;
+        uint maxlen = maxs.length;
+
+        if(tokenlen != limitlen || tokenlen != maxlen) revert InvalidArrayLengths();
+
+        for (uint i; i < tokenlen; i++) {
+            TokenProps memory token = tokenProps[tokenIds[i]];
+            uint tokenId = tokenIds[i];
+            uint limit = limits[i];
+            uint max = maxs[i];
+
+            if(limit < token.limit) revert DecreasingLimit();
+            if(max < token.max) revert DecreasingMax();
+            if(limit >= max) revert LargeTokenLimit();
+
+            token.limit = limit;
+            token.max = max;
+            tokenProps[tokenId] = token;
+        }
+    }
+
+    function _updateTokenGateway(uint tokenId, uint gatewayId) internal virtual {
+        uint[] memory tokenIds = tokenId.asSingleton();
+        _updateTokenGatewayBatch(tokenIds, gatewayId);
+    }
+
+    function _updateTokenGatewayBatch(uint[] memory tokenIds, uint gatewayId) internal virtual {
+        uint len = tokenIds.length;
+
+        for (uint i; i < len; i++) {
+            uint tokenId = tokenIds[i];
+            TokenProps memory token = tokenProps[tokenId];
+            if(gatewayId != token.gatewayId) {
+                token.gatewayId = gatewayId;
+                tokenProps[tokenId] = token;
+            }
         }
     }
 }

@@ -132,46 +132,23 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         _tokenMapper(tokenId, price, limit, max, gatewayId);
     }
 
-
-
     function tokenMapperBatch(uint[] memory tokenIds, uint[] memory prices, uint[] memory limits, uint[] memory maxs, uint _gatewayId)
         public virtual onlyRole(ADMIN) validGateway(_gatewayId)
     {
         _tokenMapperBatch(tokenIds, prices, limits, maxs, _gatewayId);
     }
 
-
-
-    // TEST: For testing
     function updateTokenMaps(uint[] calldata tokenIds, uint[] calldata limits, uint[] calldata maxs) external virtual onlyRole(STAFF) {
-        uint tokenlen = tokenIds.length;
-        uint limitlen = limits.length;
-        uint maxlen = maxs.length;
-
-        if(tokenlen != limitlen || tokenlen != maxlen) revert InvalidArrayLengths();
-
-        for (uint i; i < tokenlen; i++) {
-            TokenProps memory token = tokenProps[tokenIds[i]];
-            uint tokenId = tokenIds[i];
-            uint limit = limits[i] > token.limit ? limits[i] : token.limit;
-            uint max = maxs[i] > token.max ? maxs[i] : token.max;
-
-            if(limit >= max) revert LargeTokenLimit();
-
-            token.limit = limit;
-            token.max = max;
-            tokenProps[tokenId] = token;
-        }
+        _updateTokenMaps(tokenIds, limits, maxs);
     }
 
     function updateTokenGateway(uint tokenId, uint gatewayId) external onlyRole(STAFF) validGateway(gatewayId) {
-        TokenProps memory token = tokenProps[tokenId];
-        if(gatewayId != token.gatewayId) {
-            token.gatewayId = gatewayId;
-            tokenProps[tokenId] = token;
-        }
+        _updateTokenGateway(tokenId, gatewayId);
     }
 
+    function updateTokenGatewayBatch(uint[] calldata tokenIds, uint gatewayId) external onlyRole(STAFF) validGateway(gatewayId) {
+        _updateTokenGatewayBatch(tokenIds, gatewayId);
+    }
 
     /**
      Find out the remaining number of mints an addr can make for a specific token.
