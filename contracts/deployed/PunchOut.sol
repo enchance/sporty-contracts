@@ -78,14 +78,11 @@ contract PunchOutV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable, Pa
     //    function unpause() public onlyOwner {
     //        _unpause();
     //    }
-    //
-    //    function mint(address account, uint256 id, uint256 amount, bytes memory data)
-    //    public
-    //    onlyOwner
-    //    {
-    //        _mint(account, id, amount, data);
-    //    }
-    //
+
+        function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(ADMIN) {
+            _mint(account, id, amount, data);
+        }
+
     //    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
     //    public
     //    onlyOwner

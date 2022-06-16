@@ -40,14 +40,14 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
     bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
     bytes32 internal constant STAFF = keccak256("ARENA_STAFF");
-    bytes32 internal constant CONTRACT = keccak256("ARENA_CONTRACT");
+    bytes32 internal constant CONTRACT = keccak256("CONTRACT");
 
     mapping(uint => string) public gateways;
     mapping(uint => mapping(address => uint)) public tokensMinted;
     HolderProps[] internal holders;
 
     CountersUpgradeable.Counter internal gatewayCounter;
-    IPunchOut public punchout;
+    IPunchOut public po;
 
     error InactiveHolder();
     error WindowIsClosed();
