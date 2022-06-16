@@ -4,4 +4,5 @@ pragma solidity ^0.8.9;
 
 contract Errors {
     error InvalidArrayLengths();
+    error NullAddress();
 }

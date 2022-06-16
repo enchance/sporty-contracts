@@ -34,8 +34,8 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         bool active;
     }
 
-    string public constant name = 'Shifty';
-    string public constant symbol = 'SHY';
+    string public constant name = 'IndexSports Games';
+    string public constant symbol = 'ISG';
     address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
     bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
     bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
