@@ -34,6 +34,7 @@ let deployer: SignerWithAddress, owneruser: SignerWithAddress, adminuser: Signer
 let foouser: SignerWithAddress, baruser: SignerWithAddress
 let factory: ContractFactory, contract: any
 let Gate: ContractFactory, gate: any
+let utilsaddr: string, PROXY: string
 
 /*
 * NOTES:
@@ -48,6 +49,7 @@ const init_contract = async () => {
     const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
     const utils: any = await Utils.deploy()
     await utils.deployed()
+    utilsaddr = utils.address
     
     // Gatekeeper:
     Gate = await ethers.getContractFactory('Gatekeeper')
@@ -57,20 +59,33 @@ const init_contract = async () => {
     // V1
     const holders = [adminuser.address]
     factory = await ethers.getContractFactory('SportyArenaV1', {
-        libraries: {'UtilsUint': utils.address}
+        libraries: {'UtilsUint': utilsaddr}
     })
     const args = [INIT_GATEWAY, gate.address, holders, [3000]]
     contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
     await contract.deployed()
+    PROXY = contract.address
+}
+
+const upgrade_contract = async () => {
+    factory = await ethers.getContractFactory('SportyArenaV2', {
+        libraries: {'UtilsUint': utilsaddr}
+    })
+    contract = await upgrades.upgradeProxy(PROXY, factory)
 }
 
 describe('SportyArenaV1', () => {
     
     beforeEach(async () => {
         await init_contract()
+        await upgrade_contract()
     
         // Add staffer
         await gate.connect(adminuser).grantRole(STAFF_ROLE, staffuser.address);
+    })
+    
+    it('Upgrades', async () => {
+        expect(await contract.connect(foouser).foo()).equals(789)
     })
     
     it('Init', async () => {

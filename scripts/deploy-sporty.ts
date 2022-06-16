@@ -8,7 +8,6 @@ import {randomAddressString} from "hardhat/internal/hardhat-network/provider/for
 import {keccak256, toUtf8Bytes} from "ethers/lib/utils";
 
 
-
 export const CONTRACT_ACCOUNTS: any = {
     owner: '0xEC615ad1Be355D16163bc2dDCb359788Bc93ED44',        // indexOWNER
     admins: [
@@ -30,6 +29,7 @@ export const MARKET_ACCOUNT = CONTRACT_ACCOUNTS.market
 
 let factory: ContractFactory, contract: any
 let Gate: ContractFactory, gate: any
+let utilsaddr: string, PROXY: string
 export const STAFF_ROLE = keccak256(toUtf8Bytes('ARENA_STAFF'))
 
 async function main() {
@@ -37,6 +37,7 @@ async function main() {
     const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
     const utils: any = await Utils.deploy()
     await utils.deployed()
+    utilsaddr = utils.address
     console.log('Utils:', utils.address)
     
     Gate = await ethers.getContractFactory('Gatekeeper')
@@ -52,12 +53,19 @@ async function main() {
     const args = [INIT_GATEWAY, gate.address, CONTRACT_ACCOUNTS.holders, CONTRACT_ACCOUNTS.shares]
     contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
     await contract.deployed()
+    PROXY = contract.address
     console.log('PROXY:', contract.address)
     
     // // Add staffer
     // const adminuser = contract.provider.getSigner(CONTRACT_ACCOUNTS.admins[0])
     // const staffaddr = randomAddressString()
     // await gate.connect(adminuser).grantRole(STAFF_ROLE, staffaddr);
+    
+    // V2
+    factory = await ethers.getContractFactory('SportyArenaV2', {
+        libraries: {'UtilsUint': utilsaddr}
+    })
+    contract = await upgrades.upgradeProxy(PROXY, factory)
 }
 
 main().catch((error) => {

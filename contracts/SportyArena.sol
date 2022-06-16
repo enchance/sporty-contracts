@@ -398,4 +398,18 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
+
+    // TODO: DELETE this before deployment
+    // DELETE ME
+    function foo() public pure virtual returns (uint) {
+        return 123;
+    }
+}
+
+/// @custom:oz-upgrades-unsafe-allow external-library-linking
+contract SportyArenaV2 is SportyArenaV1 {
+    // DELETE ME
+    function foo() public pure virtual override returns (uint) {
+        return 789;
+    }
 }
