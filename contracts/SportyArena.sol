@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155Supp
 //import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import './lib/Utils.sol';
-import './lib/PullPaymentUpgradeableMOD.sol';
+import './modified/PullPaymentUpgradeableMOD.sol';
 
 
 interface IGatekeeper {
