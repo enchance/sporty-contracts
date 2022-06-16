@@ -142,15 +142,16 @@ describe('SportyArenaV1', () => {
     it('REVERT', async () => {
         // ADMIN
         await contract.connect(owneruser).setGatekeeper(gate.address)
-        await contract.connect(adminuser).setGatekeeper(gate.address)
         await contract.connect(owneruser).addGateway("aaa")
         await contract.connect(adminuser).addGateway("aaa")
         await contract.connect(owneruser).tokenMapper(9, parseEther('1'), 12, 100, 0)
         await contract.connect(adminuser).tokenMapper(10, parseEther('1'), 12, 100, 0)
-        for(let account of [staffuser, foouser, baruser]) {
+        for(let account of [adminuser, staffuser, foouser, baruser]) {
             await expect(contract.connect(account).setGatekeeper(gate.address)).is.revertedWith(NO_ACCESS)
-            await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
-            await expect(contract.connect(account).tokenMapper(9, parseEther('1'), 12, 100, 0)).is.revertedWith(NO_ACCESS)
+            if(account.address !== adminuser.address){
+                await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
+                await expect(contract.connect(account).tokenMapper(9, parseEther('1'), 12, 100, 0)).is.revertedWith(NO_ACCESS)
+            }
         }
         
         // STAFF
@@ -189,12 +190,12 @@ describe('SportyArenaV1', () => {
     
     it('Gatekeeeper', async () => {
         // Require
-        await expect(contract.connect(adminuser).setGatekeeper(NULL_ADDRESS)).is.revertedWith(EMPTY_ADDRESS)
+        await expect(contract.connect(owneruser).setGatekeeper(NULL_ADDRESS)).is.revertedWith(EMPTY_ADDRESS)
         
         expect(await contract.connect(foouser).gk()).equals(gate.address)
         
         let addr = randomAddressString()
-        await contract.connect(adminuser).setGatekeeper(addr)
+        await contract.connect(owneruser).setGatekeeper(addr)
         expect((await contract.connect(foouser).gk()).toLowerCase()).equals(addr)
     })
     

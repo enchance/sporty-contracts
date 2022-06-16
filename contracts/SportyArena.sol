@@ -152,7 +152,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
     /**
      Find out the remaining number of mints an addr can make for a specific token.
-     Marked as "internal" since this is checked off-chain for speed.
      @param addr:     Account address
      @param tokenId:  Token
      */
@@ -322,11 +321,13 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         return remaining;
     }
 
-    function setGatekeeper(address addr) external virtual onlyRole(ADMIN) {
+    function setGatekeeper(address addr) external virtual onlyRole(OWNER) {
         _setGatekeeper(addr);
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyRole(OWNER) override {}
+
+
 
     // The following functions are overrides required by Solidity.
 

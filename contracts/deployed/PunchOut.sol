@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import './lib/Utils.sol';
+import '../lib/Utils.sol';
 
 
 interface IGatekeeper {
@@ -27,9 +27,9 @@ contract PunchOut is Initializable, ERC1155Upgradeable, OwnableUpgradeable, Paus
 
     string public constant name = 'Punchout';
     string public constant symbol = 'PUNCH';
-    bytes32 internal constant OWNER = keccak256("PUNCHOUT_OWNER");
-    bytes32 internal constant ADMIN = keccak256("PUNCHOUT_ADMIN");
-    bytes32 internal constant STAFF = keccak256("PUNCHOUT_STAFF");
+    bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
+    bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
+    bytes32 internal constant STAFF = keccak256("ARENA_STAFF");
 
     mapping(uint => string) public gateways;
     CountersUpgradeable.Counter internal gatewayCounter;
