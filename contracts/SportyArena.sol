@@ -3,28 +3,28 @@ pragma solidity ^0.8.4;
 
 import 'hardhat/console.sol';
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+//import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-//import "@openzeppelin/contracts-upgradeable/security/PullPaymentUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
-//import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+//import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
+
 import './lib/Utils.sol';
 import './modified/PullPaymentUpgradeableMOD.sol';
+import './deployed/GatekeeperUpgInherit.sol';
 
 
-interface IGatekeeper {
-    function hasRole(bytes32 role, address account) external view returns (bool);
-}
 
 interface IPunchOut {}
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
-contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable {
-    using UtilsUint for uint;
+contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable,
+    GatekeeperUpgInherit
+{
     using CountersUpgradeable for CountersUpgradeable.Counter;
+    using UtilsUint for uint;
 
     struct TokenProps {
         uint price;
@@ -55,7 +55,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
     HolderProps[] internal holders;
 
     CountersUpgradeable.Counter internal gatewayCounter;
-    IGatekeeper public gk;
     IPunchOut public punchout;
 
     error InactiveHolder();
@@ -122,11 +121,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
 
     modifier validToken(uint tokenId) {
         require(exists(tokenId), 'TOKEN: Does not exist');
-        _;
-    }
-
-    modifier onlyRole(bytes32 role) {
-        require(gk.hasRole(role, _msgSender()), 'You shall not pass!');
         _;
     }
 
@@ -218,14 +212,6 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
         }
     }
 
-    function setGatekeeper(address addr) external virtual onlyRole(ADMIN) {
-        _setGatekeeper(addr);
-    }
-
-    function _setGatekeeper(address addr) internal virtual {
-        require(addr != address(0), 'OOPS: Address cannot be empty');
-        gk = IGatekeeper(addr);
-    }
 
     /**
      Find out the remaining number of mints an addr can make for a specific token.
@@ -397,6 +383,10 @@ contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgrad
             }
         }
         return remaining;
+    }
+
+    function setGatekeeper(address addr) external virtual onlyRole(ADMIN) {
+        _setGatekeeper(addr);
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyRole(OWNER) override {}
