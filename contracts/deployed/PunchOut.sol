@@ -21,9 +21,18 @@ contract PunchOutV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable, Pa
 //    using UtilsUint for uint;
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    //    struct Match {}
+        struct MatchProps {
+            uint leagueId;
+            uint matchId;
+            uint status;        // Ongoing, Finished, Cancelled
+            uint winnerId;      // Solo, Group, or Institution will have its own CODE value
+            string uri;         // Betting uri
+            uint gatewayId;
+        }
 
-    //    struct Bet {}
+        struct Bet {
+            uint matchId;
+        }
 
     string public constant name = 'IndexSports Punchout';
     string public constant symbol = 'PUNCH';
