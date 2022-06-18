@@ -20,6 +20,7 @@ contract Gatekeeper is AccessControl {
         gkroles['ARENA_OWNER'] = keccak256("ARENA_OWNER");
         gkroles['ARENA_ADMIN'] = keccak256("ARENA_ADMIN");
         gkroles['ARENA_STAFF'] = keccak256("ARENA_STAFF");
+        gkroles['ARENA_SERVER'] = keccak256("ARENA_SERVER");
 
         // OWNER only has access to create itself and ARENA_OWNER
         _grantRole(OWNER, msg.sender);
@@ -30,6 +31,7 @@ contract Gatekeeper is AccessControl {
         _grantRole(gkroles['ARENA_OWNER'], arena_owner);
         _grantRole(gkroles['ARENA_ADMIN'], arena_owner);
         _grantRole(gkroles['ARENA_STAFF'], arena_owner);
+        _grantRole(gkroles['ARENA_SERVER'], arena_owner);
 //        _grantRole(gkroles['CONTRACT'], arena_owner);
 
         // Role admins

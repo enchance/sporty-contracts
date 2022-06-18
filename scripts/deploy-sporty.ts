@@ -8,8 +8,14 @@ import {randomAddressString} from "hardhat/internal/hardhat-network/provider/for
 import {keccak256, toUtf8Bytes} from "ethers/lib/utils";
 
 
+/*
+* 2 funded accounts:
+* indexDEPLOYER:    Deploys all contracts
+* arenaSERVER:      Creates the matches
+*  */
 export const CONTRACT_ACCOUNTS: any = {
-    owner: '0xEC615ad1Be355D16163bc2dDCb359788Bc93ED44',        // indexOWNER
+    owner: '0xEC615ad1Be355D16163bc2dDCb359788Bc93ED44',        // arenaOWNER
+    server: '0x9e0B1C81149F0Cb241a1e4aDA86B894960ECe577',       // arenaSERVER (FUNDED)
     admins: [
         '0xFF01E7B2329BBd74bb1d28B75164eB7DCAbDD8F3',           // JIM
         '0x1fd0515D45B2d1b8f12df35Eb3a16f3B95C1eCDf',           // PIERRE
