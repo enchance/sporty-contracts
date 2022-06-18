@@ -11,7 +11,7 @@ interface IGatekeeper {
     function hasRole(bytes32 role, address account) external view returns (bool);
 }
 
-contract GatekeeperUpgInherit is ContextUpgradeable {
+contract GatekeeperInherit is ContextUpgradeable {
     IGatekeeper public gk;
 
     modifier onlyRole(bytes32 role) {

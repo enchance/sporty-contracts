@@ -14,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import './lib/Utils.sol';
 import "./lib/Errors.sol";
 import './modified/PullPaymentUpgradeableMOD.sol';
-import './deployed/GatekeeperUpgInherit.sol';
+import './deployed/GatekeeperInherit.sol';
 import "./token/Mapping.sol";
 
 
@@ -22,7 +22,7 @@ interface IPunchOut {}
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract SportyArenaV1 is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PullPaymentUpgradeable, UUPSUpgradeable,
-    GatekeeperUpgInherit, Errors, Mapping
+GatekeeperInherit, Errors, Mapping
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using UtilsUint for uint;

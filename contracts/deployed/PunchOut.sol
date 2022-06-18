@@ -9,14 +9,14 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import './GatekeeperUpgInherit.sol';
+import './GatekeeperInherit.sol';
 import '../lib/Utils.sol';
 import "../lib/Errors.sol";
 
 
 /// @custom:oz-upgrades-unsafe-allow external-library-linking
 contract PunchOutV1 is Initializable, ERC1155Upgradeable, OwnableUpgradeable, PausableUpgradeable, UUPSUpgradeable,
-    GatekeeperUpgInherit, Errors
+GatekeeperInherit, Errors
 {
 //    using UtilsUint for uint;
     using CountersUpgradeable for CountersUpgradeable.Counter;
