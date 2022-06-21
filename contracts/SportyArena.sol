@@ -40,7 +40,8 @@ GatekeeperInherit, Errors, Mapping
     bytes32 internal constant OWNER = keccak256("ARENA_OWNER");
     bytes32 internal constant ADMIN = keccak256("ARENA_ADMIN");
     bytes32 internal constant STAFF = keccak256("ARENA_STAFF");
-    bytes32 internal constant CONTRACT = keccak256("CONTRACT");
+    bytes32 internal constant SERVER = keccak256("ARENA_SERVER");
+    bytes32 internal constant CONTRACT = keccak256("CONTRACT");                         // Unused
 
     mapping(uint => string) public gateways;
     mapping(uint => mapping(address => uint)) public tokensMinted;
@@ -73,10 +74,8 @@ GatekeeperInherit, Errors, Mapping
         // Init Gatekeeper
         _setGatekeeper(_gatekeeperAddr);
 
-        // Init counters (start at 1)
-        gatewayCounter.increment();
-
         // Init gateway
+        gatewayCounter.increment();
         _addGateway(_gateway);
 
         // Init tokens
