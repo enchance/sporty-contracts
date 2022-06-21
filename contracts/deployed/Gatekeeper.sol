@@ -62,7 +62,7 @@ contract Gatekeeper is AccessControl {
             kcrole == keccak256(abi.encodePacked('')) || kcrole == gkroles[role];
     }
 
-    function addRole(string memory _role, string memory _admin, address[] memory addrs) public onlyRole(OWNER) {
+    function addRole(string memory _role, string memory _admin, address[] memory addrs) external onlyRole(OWNER) {
         if(_exists(_role)) revert InvalidRole();
         if(!_exists(_admin)) revert InvalidAdmin();
 
