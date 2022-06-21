@@ -9,7 +9,7 @@ import {keccak256, toUtf8Bytes} from "ethers/lib/utils";            // eslint-di
 
 
 let gkuser: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress, owneruser: SignerWithAddress
-let foouser: SignerWithAddress, baruser: SignerWithAddress
+let foouser: SignerWithAddress, baruser: SignerWithAddress, serveruser: SignerWithAddress
 let Gate: ContractFactory, gate: any
 
 // keccack256 encoded from contract
@@ -20,13 +20,13 @@ const ADMIN = keccak256(toUtf8Bytes('ARENA_ADMIN'))
 const STAFF = keccak256(toUtf8Bytes('ARENA_STAFF'))
 
 const init_contract = async () => {
-    [owneruser, adminuser, staffuser, foouser, baruser, gkuser] = await ethers.getSigners()
+    [owneruser, adminuser, staffuser, foouser, baruser, gkuser, serveruser] = await ethers.getSigners()
     
     const admins = [adminuser.address]
     // const staffs = [staffuser.address]
     
     Gate = await ethers.getContractFactory('Gatekeeper', gkuser)
-    gate = await Gate.deploy(owneruser.address, admins)
+    gate = await Gate.deploy(owneruser.address, serveruser.address, admins)
     await gate.deployed()
 }
 

@@ -31,7 +31,7 @@ import {STAFF_ROLE} from "../scripts/deploy-sporty";                // eslint-di
 
 
 let deployer: SignerWithAddress, owneruser: SignerWithAddress, adminuser: SignerWithAddress, staffuser: SignerWithAddress
-let foouser: SignerWithAddress, baruser: SignerWithAddress
+let foouser: SignerWithAddress, baruser: SignerWithAddress, serveruser: SignerWithAddress
 let factory: ContractFactory, contract: any
 let Gate: ContractFactory, gate: any
 let utilsaddr: string, PROXY: string
@@ -43,7 +43,7 @@ let utilsaddr: string, PROXY: string
 *  */
 
 const init_contract = async () => {
-    [owneruser, adminuser, staffuser, foouser, baruser] = await ethers.getSigners()
+    [owneruser, adminuser, staffuser, foouser, baruser, serveruser] = await ethers.getSigners()
     
     // Utils
     const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
@@ -53,7 +53,7 @@ const init_contract = async () => {
     
     // Gatekeeper:
     Gate = await ethers.getContractFactory('Gatekeeper')
-    gate = await Gate.deploy(owneruser.address, [adminuser.address])
+    gate = await Gate.deploy(owneruser.address, serveruser.address, [adminuser.address])
     await gate.deployed()
 
     // V1

@@ -1,4 +1,4 @@
 import {CONTRACT_ACCOUNTS} from "./deploy-sporty";              // eslint-disable-line
 
 
-module.exports = [CONTRACT_ACCOUNTS.owner, CONTRACT_ACCOUNTS.admins]
+module.exports = [CONTRACT_ACCOUNTS.owner, CONTRACT_ACCOUNTS.server, CONTRACT_ACCOUNTS.admins]

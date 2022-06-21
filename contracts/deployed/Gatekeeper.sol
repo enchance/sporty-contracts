@@ -11,12 +11,9 @@ contract Gatekeeper is AccessControl {
 
     bytes32 internal constant OWNER = keccak256("OWNER");
     bytes32 internal constant CONTRACT = keccak256("CONTRACT");
-//    address internal immutable OWNERADDR;
     mapping(string => bytes32) public gkroles;
 
-    constructor(address arena_owner, address[] memory admins) {
-//        OWNERADDR = msg.sender;
-
+    constructor(address arena_owner, address arena_server, address[] memory admins) {
         gkroles['ARENA_OWNER'] = keccak256("ARENA_OWNER");
         gkroles['ARENA_ADMIN'] = keccak256("ARENA_ADMIN");
         gkroles['ARENA_STAFF'] = keccak256("ARENA_STAFF");
@@ -25,13 +22,14 @@ contract Gatekeeper is AccessControl {
         // OWNER only has access to create itself and ARENA_OWNER
         _grantRole(OWNER, msg.sender);
         _grantRole(CONTRACT, msg.sender);
-        _grantRole(gkroles['ARENA_OWNER'], msg.sender);     // For updating SportyArena
+        _grantRole(gkroles['ARENA_OWNER'], msg.sender);     // Req for updating SportyArena
 
         // ARENA_OWNER has all ARENA_* roles
         _grantRole(gkroles['ARENA_OWNER'], arena_owner);
         _grantRole(gkroles['ARENA_ADMIN'], arena_owner);
         _grantRole(gkroles['ARENA_STAFF'], arena_owner);
         _grantRole(gkroles['ARENA_SERVER'], arena_owner);
+        _grantRole(gkroles['ARENA_SERVER'], arena_server);
 //        _grantRole(gkroles['CONTRACT'], arena_owner);
 
         // Role admins
