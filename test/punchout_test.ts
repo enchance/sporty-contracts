@@ -92,7 +92,7 @@ describe('PunchOut', () => {
     //     expect(await contract.gk()).equals(gate.address)
     //
     //     // Gateway
-    //     expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
+    //     expect(await contract.connect(foouser).gateways(1)).equals(INIT_GATEWAY)
     //
     //     // Token mapping
     //     {   // eslint-disable-line
@@ -200,15 +200,15 @@ describe('PunchOut', () => {
     //     // Require
     //     await expect(contract.connect(adminuser).addGateway('')).is.revertedWith(INVALID_GATEWAY)
     //
-    //     expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
-    //
-    //     expect(!!(await contract.connect(foouser).gateways(1))).is.false
-    //     await contract.connect(adminuser).addGateway('abc')
-    //     expect(await contract.connect(foouser).gateways(1)).equals('abc')
+    //     expect(await contract.connect(foouser).gateways(1)).equals(INIT_GATEWAY)
     //
     //     expect(!!(await contract.connect(foouser).gateways(2))).is.false
+    //     await contract.connect(adminuser).addGateway('abc')
+    //     expect(await contract.connect(foouser).gateways(2)).equals('abc')
+    //
+    //     expect(!!(await contract.connect(foouser).gateways(3))).is.false
     //     await contract.connect(adminuser).addGateway('def')
-    //     expect(await contract.connect(foouser).gateways(2)).equals('def')
+    //     expect(await contract.connect(foouser).gateways(3)).equals('def')
     // })
     //
     // it('Token gateway', async () => {

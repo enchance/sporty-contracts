@@ -95,32 +95,32 @@ describe('SportyArena', () => {
         expect(await contract.gk()).equals(gate.address)
         
         // Gateway
-        expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
+        expect(await contract.connect(foouser).gateways(1)).equals(INIT_GATEWAY)
         
         // Token mapping
         {   // eslint-disable-line
             token = await contract.connect(foouser).tokenProps(1)
             expect(token.price).equals(parseEther('.1'))
             expect(token.limit).equals(15)
-            expect(token.gatewayId).equals(0)
+            expect(token.gatewayId).equals(1)
             expect(token.max).equals(45)
 
             token = await contract.connect(foouser).tokenProps(2)
             expect(token.price).equals(parseEther('.15'))
             expect(token.limit).equals(15)
-            expect(token.gatewayId).equals(0)
+            expect(token.gatewayId).equals(1)
             expect(token.max).equals(100)
 
             token = await contract.connect(foouser).tokenProps(3)
             expect(token.price).equals(parseEther('1'))
             expect(token.limit).equals(15)
-            expect(token.gatewayId).equals(0)
+            expect(token.gatewayId).equals(1)
             expect(token.max).equals(45)
 
             token = await contract.connect(foouser).tokenProps(4)
             expect(token.price).equals(parseEther('1.3'))
             expect(token.limit).equals(15)
-            expect(token.gatewayId).equals(0)
+            expect(token.gatewayId).equals(1)
             expect(token.max).equals(45)
 
             token = await contract.connect(foouser).tokenProps(5)
@@ -158,16 +158,16 @@ describe('SportyArena', () => {
         await contract.connect(owneruser).updateTokenMaps([1, 2], [16, 16], [46, 101])
         await contract.connect(adminuser).updateTokenMaps([1, 2], [17, 17], [47, 102])
         await contract.connect(staffuser).updateTokenMaps([1, 2], [18, 18], [48, 103])
-        await contract.connect(owneruser).updateTokenGateway(1, 0)
-        await contract.connect(adminuser).updateTokenGateway(1, 0)
-        await contract.connect(staffuser).updateTokenGateway(1, 0)
-        await contract.connect(owneruser).updateTokenGatewayBatch([1, 2], 0)
-        await contract.connect(adminuser).updateTokenGatewayBatch([1, 2], 0)
-        await contract.connect(staffuser).updateTokenGatewayBatch([1, 2], 0)
+        await contract.connect(owneruser).updateTokenGateway(1, 1)
+        await contract.connect(adminuser).updateTokenGateway(1, 1)
+        await contract.connect(staffuser).updateTokenGateway(1, 1)
+        await contract.connect(owneruser).updateTokenGatewayBatch([1, 2], 1)
+        await contract.connect(adminuser).updateTokenGatewayBatch([1, 2], 1)
+        await contract.connect(staffuser).updateTokenGatewayBatch([1, 2], 1)
         for(let account of [foouser, baruser]) {
             await expect(contract.connect(account).updateTokenMaps([1, 2], [19, 19], [49, 104])).is.revertedWith(NO_ACCESS)
-            await expect(contract.connect(account).updateTokenGateway(1, 0)).is.revertedWith(NO_ACCESS)
-            await expect(contract.connect(account).updateTokenGatewayBatch([1, 2], 0)).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).updateTokenGateway(1, 1)).is.revertedWith(NO_ACCESS)
+            await expect(contract.connect(account).updateTokenGatewayBatch([1, 2], 1)).is.revertedWith(NO_ACCESS)
         }
     //
     // it('Get token uri', async () => {
@@ -203,15 +203,15 @@ describe('SportyArena', () => {
         // Require
         await expect(contract.connect(adminuser).addGateway('')).is.revertedWith(INVALID_GATEWAY)
         
-        expect(await contract.connect(foouser).gateways(0)).equals(INIT_GATEWAY)
-        
-        expect(!!(await contract.connect(foouser).gateways(1))).is.false
-        await contract.connect(adminuser).addGateway('abc')
-        expect(await contract.connect(foouser).gateways(1)).equals('abc')
+        expect(await contract.connect(foouser).gateways(1)).equals(INIT_GATEWAY)
         
         expect(!!(await contract.connect(foouser).gateways(2))).is.false
+        await contract.connect(adminuser).addGateway('abc')
+        expect(await contract.connect(foouser).gateways(2)).equals('abc')
+        
+        expect(!!(await contract.connect(foouser).gateways(3))).is.false
         await contract.connect(adminuser).addGateway('def')
-        expect(await contract.connect(foouser).gateways(2)).equals('def')
+        expect(await contract.connect(foouser).gateways(3)).equals('def')
     })
     
     it('Token gateway', async () => {
@@ -219,22 +219,16 @@ describe('SportyArena', () => {
         await contract.connect(adminuser).addGateway('abc')
         await contract.connect(adminuser).addGateway('def')
     
-        await contract.connect(staffuser).updateTokenGateway(1, 1)
-        token = await contract.connect(foouser).tokenProps(1)
-        expect(token.gatewayId).equals(1)
-    
         await contract.connect(staffuser).updateTokenGateway(1, 2)
         token = await contract.connect(foouser).tokenProps(1)
         expect(token.gatewayId).equals(2)
     
-        await contract.connect(staffuser).updateTokenGateway(1, 0)
+        await contract.connect(staffuser).updateTokenGateway(1, 3)
         token = await contract.connect(foouser).tokenProps(1)
-        expect(token.gatewayId).equals(0)
+        expect(token.gatewayId).equals(3)
     
-        await contract.connect(staffuser).updateTokenGatewayBatch([1, 2], 1)
+        await contract.connect(staffuser).updateTokenGateway(1, 1)
         token = await contract.connect(foouser).tokenProps(1)
-        expect(token.gatewayId).equals(1)
-        token = await contract.connect(foouser).tokenProps(2)
         expect(token.gatewayId).equals(1)
     
         await contract.connect(staffuser).updateTokenGatewayBatch([1, 2], 2)
@@ -242,24 +236,25 @@ describe('SportyArena', () => {
         expect(token.gatewayId).equals(2)
         token = await contract.connect(foouser).tokenProps(2)
         expect(token.gatewayId).equals(2)
+    
+        await contract.connect(staffuser).updateTokenGatewayBatch([1, 2], 3)
+        token = await contract.connect(foouser).tokenProps(1)
+        expect(token.gatewayId).equals(3)
+        token = await contract.connect(foouser).tokenProps(2)
+        expect(token.gatewayId).equals(3)
     })
     
     it('Get token uri', async () => {
         await contract.connect(adminuser).addGateway("abc")
         await contract.connect(adminuser).addGateway("def")
-        
-        // // No access
-        // for(let account of [upgraderuser, foouser, baruser]) {
-        //     await expect(contract.connect(account).setURI(1, 2)).is.revertedWith(NO_ACCESS)
-        // }
-        
+
         expect(await contract.connect(foouser).uri(1)).equals(INIT_GATEWAY)
         expect(await contract.connect(foouser).uri(2)).equals(INIT_GATEWAY)
         
-        // await contract.connect(adminuser).setURI(1, 2)
-        // await contract.connect(adminuser).setURI(2, 1)
-        // expect(await contract.connect(foouser).uri(1)).equals('def')
-        // expect(await contract.connect(foouser).uri(2)).equals('abc')
+        await contract.connect(staffuser).updateTokenGateway(1, 3)
+        await contract.connect(staffuser).updateTokenGateway(2, 2)
+        expect(await contract.connect(foouser).uri(1)).equals('def')
+        expect(await contract.connect(foouser).uri(2)).equals('abc')
     })
     
     it('Mint single token', async () => {
@@ -460,14 +455,14 @@ describe('SportyArena', () => {
         mapping = await contract.connect(foouser).tokenProps(1)
         expect(mapping.price).equals(parseEther('.1'))
         expect(mapping.limit).equals(15)
-        expect(mapping.gatewayId).equals(0)
+        expect(mapping.gatewayId).equals(1)
         expect(mapping.circulation).equals(6)
         expect(mapping.max).equals(45)
     
         mapping = await contract.connect(foouser).tokenProps(2)
         expect(mapping.price).equals(parseEther('.15'))
         expect(mapping.limit).equals(15)
-        expect(mapping.gatewayId).equals(0)
+        expect(mapping.gatewayId).equals(1)
         expect(mapping.circulation).equals(9)
         expect(mapping.max).equals(100)
         
@@ -476,14 +471,14 @@ describe('SportyArena', () => {
         mapping = await contract.connect(foouser).tokenProps(1)
         expect(mapping.price).equals(parseEther('.1'))
         expect(mapping.limit).equals(20)
-        expect(mapping.gatewayId).equals(0)
+        expect(mapping.gatewayId).equals(1)
         expect(mapping.circulation).equals(6)
         expect(mapping.max).equals(300)
 
         mapping = await contract.connect(foouser).tokenProps(2)
         expect(mapping.price).equals(parseEther('.15'))
         expect(mapping.limit).equals(30)
-        expect(mapping.gatewayId).equals(0)
+        expect(mapping.gatewayId).equals(1)
         expect(mapping.circulation).equals(9)
         expect(mapping.max).equals(400)
     
@@ -492,14 +487,14 @@ describe('SportyArena', () => {
         // mapping = await contract.connect(foouser).tokenProps(1)
         // expect(mapping.price).equals(parseEther('.1'))
         // expect(mapping.limit).equals(19)
-        // expect(mapping.gatewayId).equals(0)
+        // expect(mapping.gatewayId).equals(1)
         // expect(mapping.circulation).equals(6)
         // expect(mapping.max).equals(300)
         //
         // mapping = await contract.connect(foouser).tokenProps(2)
         // expect(mapping.price).equals(parseEther('.15'))
         // expect(mapping.limit).equals(29)
-        // expect(mapping.gatewayId).equals(0)
+        // expect(mapping.gatewayId).equals(1)
         // expect(mapping.circulation).equals(9)
         // expect(mapping.max).equals(400)
     })

@@ -73,15 +73,18 @@ GatekeeperInherit, Errors, Mapping
         // Init Gatekeeper
         _setGatekeeper(_gatekeeperAddr);
 
+        // Init counters (start at 1)
+        gatewayCounter.increment();
+
         // Init gateway
         _addGateway(_gateway);
 
         // Init tokens
         {
-            _tokenMapper(1, .1 ether, 15, 45, 0);
-            _tokenMapper(2, .15 ether, 15, 100, 0);
-            _tokenMapper(3, 1 ether, 15, 45, 0);
-            _tokenMapper(4, 1.3 ether, 15, 45, 0);
+            _tokenMapper(1, .1 ether, 15, 45, 1);
+            _tokenMapper(2, .15 ether, 15, 100, 1);
+            _tokenMapper(3, 1 ether, 15, 45, 1);
+            _tokenMapper(4, 1.3 ether, 15, 45, 1);
         }
 
         // Holders
