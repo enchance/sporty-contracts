@@ -18,6 +18,7 @@ const CONTRACT = keccak256(toUtf8Bytes('CONTRACT'))
 const OWNER = keccak256(toUtf8Bytes('ARENA_OWNER'))
 const ADMIN = keccak256(toUtf8Bytes('ARENA_ADMIN'))
 const STAFF = keccak256(toUtf8Bytes('ARENA_STAFF'))
+const SERVER = keccak256(toUtf8Bytes('ARENA_SERVER'))
 
 const init_contract = async () => {
     [owneruser, adminuser, staffuser, foouser, baruser, gkuser, serveruser] = await ethers.getSigners()
@@ -57,6 +58,7 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(GKOWNER, staffuser.address)).is.false
             expect(await gate.connect(foouser).hasRole(GKOWNER, foouser.address)).is.false
             expect(await gate.connect(foouser).hasRole(GKOWNER, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(GKOWNER, serveruser.address)).is.false
             
             expect(await gate.connect(foouser).hasRole(CONTRACT, gkuser.address)).is.true
             expect(await gate.connect(foouser).hasRole(CONTRACT, owneruser.address)).is.false
@@ -64,6 +66,7 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(CONTRACT, staffuser.address)).is.false
             expect(await gate.connect(foouser).hasRole(CONTRACT, foouser.address)).is.false
             expect(await gate.connect(foouser).hasRole(CONTRACT, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(CONTRACT, serveruser.address)).is.false
 
             expect(await gate.connect(foouser).hasRole(OWNER, gkuser.address)).is.true
             expect(await gate.connect(foouser).hasRole(OWNER, owneruser.address)).is.true
@@ -71,6 +74,7 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(OWNER, staffuser.address)).is.false
             expect(await gate.connect(foouser).hasRole(OWNER, foouser.address)).is.false
             expect(await gate.connect(foouser).hasRole(OWNER, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(OWNER, serveruser.address)).is.false
 
             expect(await gate.connect(foouser).hasRole(ADMIN, gkuser.address)).is.false
             expect(await gate.connect(foouser).hasRole(ADMIN, owneruser.address)).is.true
@@ -78,6 +82,7 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(ADMIN, staffuser.address)).is.false
             expect(await gate.connect(foouser).hasRole(ADMIN, foouser.address)).is.false
             expect(await gate.connect(foouser).hasRole(ADMIN, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(ADMIN, serveruser.address)).is.false
     
             expect(await gate.connect(foouser).hasRole(STAFF, gkuser.address)).is.false
             expect(await gate.connect(foouser).hasRole(STAFF, owneruser.address)).is.true
@@ -85,6 +90,15 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(STAFF, staffuser.address)).is.true
             expect(await gate.connect(foouser).hasRole(STAFF, foouser.address)).is.false
             expect(await gate.connect(foouser).hasRole(STAFF, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(STAFF, serveruser.address)).is.false
+    
+            expect(await gate.connect(foouser).hasRole(SERVER, gkuser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, owneruser.address)).is.true
+            expect(await gate.connect(foouser).hasRole(SERVER, adminuser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, staffuser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, foouser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, serveruser.address)).is.true
         }
     })
     
@@ -97,6 +111,7 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(OWNER, user.address)).is.false
             expect(await gate.connect(foouser).hasRole(ADMIN, user.address)).is.false
             expect(await gate.connect(foouser).hasRole(STAFF, user.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, user.address)).is.false
         }
 
         // Role admins
@@ -105,16 +120,22 @@ describe('Gatekeeper', () => {
         expect(await gate.getRoleAdmin(OWNER)).equals(GKOWNER)
         expect(await gate.getRoleAdmin(ADMIN)).equals(OWNER)
         expect(await gate.getRoleAdmin(STAFF)).equals(ADMIN)
+        expect(await gate.getRoleAdmin(SERVER)).equals(OWNER)
 
         // Granting roles
-        for(let account of [adminuser, staffuser, foouser, baruser]) {
+        for(let account of [adminuser, staffuser, foouser, baruser, serveruser]) {
             await expect(gate.connect(account).grantRole(GKOWNER, foouser.address)).is.revertedWith(NO_ACCESS)
             await expect(gate.connect(account).grantRole(CONTRACT, foouser.address)).is.revertedWith(NO_ACCESS)
             await expect(gate.connect(account).grantRole(OWNER, foouser.address)).is.revertedWith(NO_ACCESS)
             await expect(gate.connect(account).grantRole(ADMIN, foouser.address)).is.revertedWith(NO_ACCESS)
+            await expect(gate.connect(account).grantRole(SERVER, foouser.address)).is.revertedWith(NO_ACCESS)
             
             if(account.address !== adminuser.address) {
                 await expect(gate.connect(account).grantRole(STAFF, foouser.address)).is.revertedWith(NO_ACCESS)
+            }
+    
+            if(account.address !== serveruser.address || account.address !== owneruser.address) {
+                await expect(gate.connect(account).grantRole(SERVER, foouser.address)).is.revertedWith(NO_ACCESS)
             }
         }
         await expect(gate.connect(owneruser).grantRole(GKOWNER, foouser.address)).is.revertedWith(NO_ACCESS)
@@ -130,14 +151,16 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(OWNER, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(ADMIN, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(STAFF, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, baruser.address)).is.false
             await purge_roles(baruser, GKOWNER, gkuser)
-    
+
             await gate.connect(gkuser).grantRole(CONTRACT, baruser.address)
             expect(await gate.connect(foouser).hasRole(GKOWNER, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(CONTRACT, baruser.address)).is.true
             expect(await gate.connect(foouser).hasRole(OWNER, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(ADMIN, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(STAFF, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, baruser.address)).is.false
             await purge_roles(baruser, CONTRACT, gkuser)
 
             await gate.connect(gkuser).grantRole(OWNER, baruser.address)
@@ -146,6 +169,7 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(OWNER, baruser.address)).is.true
             expect(await gate.connect(foouser).hasRole(ADMIN, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(STAFF, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, baruser.address)).is.false
             await purge_roles(baruser, OWNER, gkuser)
 
             await gate.connect(owneruser).grantRole(ADMIN, baruser.address)
@@ -154,6 +178,7 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(OWNER, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(ADMIN, baruser.address)).is.true
             expect(await gate.connect(foouser).hasRole(STAFF, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, baruser.address)).is.false
             await purge_roles(baruser, ADMIN)
 
             await gate.connect(adminuser).grantRole(STAFF, baruser.address)
@@ -162,18 +187,30 @@ describe('Gatekeeper', () => {
             expect(await gate.connect(foouser).hasRole(OWNER, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(ADMIN, baruser.address)).is.false
             expect(await gate.connect(foouser).hasRole(STAFF, baruser.address)).is.true
+            expect(await gate.connect(foouser).hasRole(SERVER, baruser.address)).is.false
             await purge_roles(baruser, STAFF)
+    
+            await gate.connect(owneruser).grantRole(SERVER, baruser.address)
+            expect(await gate.connect(foouser).hasRole(GKOWNER, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(CONTRACT, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(OWNER, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(ADMIN, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(STAFF, baruser.address)).is.false
+            expect(await gate.connect(foouser).hasRole(SERVER, baruser.address)).is.true
+            await purge_roles(baruser, SERVER)
 
             await gate.connect(gkuser).grantRole(GKOWNER, baruser.address)
             await gate.connect(gkuser).grantRole(CONTRACT, baruser.address)
             await gate.connect(gkuser).grantRole(OWNER, baruser.address)
             await gate.connect(owneruser).grantRole(ADMIN, baruser.address)
             await gate.connect(adminuser).grantRole(STAFF, baruser.address)
+            await gate.connect(owneruser).grantRole(SERVER, baruser.address)
             expect(await gate.connect(foouser).hasRole(GKOWNER, baruser.address)).is.true
             expect(await gate.connect(foouser).hasRole(CONTRACT, baruser.address)).is.true
             expect(await gate.connect(foouser).hasRole(OWNER, baruser.address)).is.true
             expect(await gate.connect(foouser).hasRole(ADMIN, baruser.address)).is.true
             expect(await gate.connect(foouser).hasRole(STAFF, baruser.address)).is.true
+            expect(await gate.connect(foouser).hasRole(SERVER, baruser.address)).is.true
 
             // Manual revoking
             await gate.connect(gkuser).revokeRole(GKOWNER, baruser.address)
@@ -181,6 +218,7 @@ describe('Gatekeeper', () => {
             await gate.connect(gkuser).revokeRole(OWNER, baruser.address)
             await gate.connect(owneruser).revokeRole(ADMIN, baruser.address)
             await gate.connect(adminuser).revokeRole(STAFF, baruser.address)
+            await gate.connect(owneruser).revokeRole(SERVER, baruser.address)
             await purge_roles(baruser)
         }
     })
@@ -193,14 +231,11 @@ describe('Gatekeeper', () => {
         await expect(gate.connect(gkuser).addRole('ARENA_OWNER', 'ARENA_STAFF', [])).is.revertedWith(INVALID_ROLE)
         await expect(gate.connect(gkuser).addRole('ARENA_ADMIN', 'ARENA_STAFF', [])).is.revertedWith(INVALID_ROLE)
         await expect(gate.connect(gkuser).addRole('ARENA_STAFF', 'ARENA_STAFF', [])).is.revertedWith(INVALID_ROLE)
+        await expect(gate.connect(gkuser).addRole('ARENA_SERVER', 'ARENA_STAFF', [])).is.revertedWith(INVALID_ROLE)
 
         await expect(gate.connect(gkuser).addRole('AAA', 'XXX', [])).is.revertedWith(INVALID_ADMIN)
-        await expect(gate.connect(gkuser).addRole('AAA', 'XXX', [])).is.revertedWith(INVALID_ADMIN)
-        await expect(gate.connect(gkuser).addRole('AAA', 'XXX', [])).is.revertedWith(INVALID_ADMIN)
-        await expect(gate.connect(gkuser).addRole('AAA', 'XXX', [])).is.revertedWith(INVALID_ADMIN)
-        await expect(gate.connect(gkuser).addRole('AAA', 'XXX', [])).is.revertedWith(INVALID_ADMIN)
 
-        for(let account of [adminuser, staffuser, owneruser]) {
+        for(let account of [adminuser, staffuser, owneruser, serveruser]) {
             await expect(gate.connect(account).addRole('AAA', 'XXX', [])).is.revertedWith(NO_ACCESS)
         }
 
@@ -223,5 +258,6 @@ describe('Gatekeeper', () => {
         expect(await gate.connect(foouser).hasRole(FOO, staffuser.address)).is.false
         expect(await gate.connect(foouser).hasRole(FOO, foouser.address)).is.true
         expect(await gate.connect(foouser).hasRole(FOO, baruser.address)).is.false
+        expect(await gate.connect(foouser).hasRole(FOO, serveruser.address)).is.false
     })
 })

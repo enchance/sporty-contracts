@@ -29,8 +29,9 @@ contract Gatekeeper is AccessControl {
         _grantRole(gkroles['ARENA_ADMIN'], arena_owner);
         _grantRole(gkroles['ARENA_STAFF'], arena_owner);
         _grantRole(gkroles['ARENA_SERVER'], arena_owner);
+
+        // ARENA_SERVER
         _grantRole(gkroles['ARENA_SERVER'], arena_server);
-//        _grantRole(gkroles['CONTRACT'], arena_owner);
 
         // Role admins
         _setRoleAdmin(OWNER, OWNER);
@@ -38,6 +39,7 @@ contract Gatekeeper is AccessControl {
         _setRoleAdmin(gkroles['ARENA_OWNER'], OWNER);
         _setRoleAdmin(gkroles['ARENA_ADMIN'], gkroles['ARENA_OWNER']);
         _setRoleAdmin(gkroles['ARENA_STAFF'], gkroles['ARENA_ADMIN']);
+        _setRoleAdmin(gkroles['ARENA_SERVER'], gkroles['ARENA_OWNER']);
 //        _setRoleAdmin(gkroles['CONTRACT'], gkroles['ARENA_OWNER']);
 
         // All admins are staffs

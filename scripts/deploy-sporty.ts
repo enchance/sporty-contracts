@@ -40,28 +40,28 @@ let utilsaddr: string, PROXY: string
 export const STAFF_ROLE = keccak256(toUtf8Bytes('ARENA_STAFF'))
 
 async function main() {
-    // // Utils
-    // const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
-    // const utils: any = await Utils.deploy()
-    // await utils.deployed()
-    // utilsaddr = utils.address
-    // console.log('Utils:', utils.address)
-    //
-    // Gate = await ethers.getContractFactory('Gatekeeper')
-    // gate = await Gate.deploy(CONTRACT_ACCOUNTS.owner, CONTRACT_ACCOUNTS.server, CONTRACT_ACCOUNTS.admins)
-    // await gate.deployed()
-    // console.log('Gate:', gate.address)
-    //
-    // // V1
-    // factory = await ethers.getContractFactory('SportyArenaV1', {
-    //     libraries: {'UtilsUint': utils.address}
-    //     // libraries: {'UtilsUint': ''}   // Rinkeby
-    // })
-    // const args = [INIT_GATEWAY, gate.address, CONTRACT_ACCOUNTS.holders, CONTRACT_ACCOUNTS.shares]
-    // contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
-    // await contract.deployed()
-    // PROXY = contract.address
-    // console.log('PROXY:', contract.address)
+    // Utils
+    const Utils: ContractFactory = await ethers.getContractFactory('UtilsUint')
+    const utils: any = await Utils.deploy()
+    await utils.deployed()
+    utilsaddr = utils.address
+    console.log('Utils:', utils.address)
+
+    Gate = await ethers.getContractFactory('Gatekeeper')
+    gate = await Gate.deploy(CONTRACT_ACCOUNTS.owner, CONTRACT_ACCOUNTS.server, CONTRACT_ACCOUNTS.admins)
+    await gate.deployed()
+    console.log('Gate:', gate.address)
+
+    // V1
+    factory = await ethers.getContractFactory('SportyArenaV1', {
+        libraries: {'UtilsUint': utils.address}
+        // libraries: {'UtilsUint': ''}   // Rinkeby
+    })
+    const args = [INIT_GATEWAY, gate.address, CONTRACT_ACCOUNTS.holders, CONTRACT_ACCOUNTS.shares]
+    contract = await upgrades.deployProxy(factory, args, {kind: 'uups'})
+    await contract.deployed()
+    PROXY = contract.address
+    console.log('PROXY:', contract.address)
     
     
     // // Add staffer

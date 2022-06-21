@@ -146,7 +146,7 @@ describe('SportyArena', () => {
         await contract.connect(adminuser).addGateway("aaa")
         await contract.connect(owneruser).tokenMapper(9, parseEther('1'), 12, 100, 0)
         await contract.connect(adminuser).tokenMapper(10, parseEther('1'), 12, 100, 0)
-        for(let account of [adminuser, staffuser, foouser, baruser]) {
+        for(let account of [adminuser, staffuser, foouser, baruser, serveruser]) {
             await expect(contract.connect(account).setGatekeeper(gate.address)).is.revertedWith(NO_ACCESS)
             if(account.address !== adminuser.address){
                 await expect(contract.connect(account).addGateway("abc")).is.revertedWith(NO_ACCESS)
@@ -414,7 +414,7 @@ describe('SportyArena', () => {
         expect(await adminuser.getBalance()).equals(bal.add(parseEther('1.2')))
     })
     
-    it('Window', async () => {
+    it('Pull window', async () => {
         const {time} = testUtils
         
         expect(await contract.connect(foouser).window(adminuser.address)).equals(0)
@@ -466,7 +466,7 @@ describe('SportyArena', () => {
         expect(mapping.circulation).equals(9)
         expect(mapping.max).equals(100)
         
-        // Increasing values are ok
+        // Increasing values
         await contract.connect(staffuser).updateTokenMaps([1, 2], [20, 30], [300, 400])
         mapping = await contract.connect(foouser).tokenProps(1)
         expect(mapping.price).equals(parseEther('.1'))
@@ -481,21 +481,5 @@ describe('SportyArena', () => {
         expect(mapping.gatewayId).equals(1)
         expect(mapping.circulation).equals(9)
         expect(mapping.max).equals(400)
-    
-        // Decreasing limits are ok
-        
-        // mapping = await contract.connect(foouser).tokenProps(1)
-        // expect(mapping.price).equals(parseEther('.1'))
-        // expect(mapping.limit).equals(19)
-        // expect(mapping.gatewayId).equals(1)
-        // expect(mapping.circulation).equals(6)
-        // expect(mapping.max).equals(300)
-        //
-        // mapping = await contract.connect(foouser).tokenProps(2)
-        // expect(mapping.price).equals(parseEther('.15'))
-        // expect(mapping.limit).equals(29)
-        // expect(mapping.gatewayId).equals(1)
-        // expect(mapping.circulation).equals(9)
-        // expect(mapping.max).equals(400)
     })
 })
