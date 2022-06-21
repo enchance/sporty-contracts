@@ -22,7 +22,7 @@ contract PunchOutV1 is Initializable, ERC1155Upgradeable, UUPSUpgradeable, Gatek
         struct MatchProps {
             uint leagueId;
             uint matchId;
-            uint status;        // Ongoing, Finished, Cancelled
+//            uint status;        // Ongoing, Finished, Cancelled
             uint winnerId;      // Solo, Group, or Institution will have its own CODE value
             string uri;         // Betting uri
             uint gatewayId;
@@ -59,6 +59,16 @@ contract PunchOutV1 is Initializable, ERC1155Upgradeable, UUPSUpgradeable, Gatek
         _setGatekeeper(addr);
     }
 
+    // PLACEHOLDER: Replace this
+    /* Change the label of the match. Any player that sets this has to pay a fee that
+     * increases with every change.
+     */
+    function setLabel(uint matchId, string memory label) external onlyRole(SERVER) {}
+
+
+
+
+
     // TODO: Modify
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(SERVER) {
         _mint(account, id, amount, data);
@@ -68,6 +78,9 @@ contract PunchOutV1 is Initializable, ERC1155Upgradeable, UUPSUpgradeable, Gatek
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) public onlyRole(SERVER) {
         _mintBatch(to, ids, amounts, data);
     }
+
+
+
 
     function _beforeTokenTransfer(address operator, address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) internal override {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);

@@ -34,6 +34,13 @@ GatekeeperInherit, Errors, Mapping
         bool active;
     }
 
+    // TODO: Needs work
+    struct CardProps {
+        uint indexId;       // Unique for each card minted
+        bool inPlay;        // Cannot be sold if true
+        uint[] addons;      // Affects the metadata
+    }
+
     string public constant name = 'IndexSports Games';
     string public constant symbol = 'ISG';
     address internal constant MARKET_ACCOUNT = 0xD07A0C38C6c4485B97c53b883238ac05a14a85D6;
@@ -336,6 +343,9 @@ GatekeeperInherit, Errors, Mapping
     function _beforeTokenTransfer(address operator, address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
         internal override(ERC1155Upgradeable, ERC1155SupplyUpgradeable)
     {
+        // TODO: Check if card being transferred is not in play. If it is then stop the transfer.
+
+        // Continue with transfer
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
